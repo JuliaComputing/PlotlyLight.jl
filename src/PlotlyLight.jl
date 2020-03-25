@@ -109,7 +109,8 @@ end
 #-----------------------------------------------------------------------------# write_html
 function write_html(args...; dest=joinpath(tempdir(), "plot.html"), openhtml=true, kw...)
     touch(dest)
-    write(dest, html_string(div_string(args...; kw...)))
+    s = html_string(div_string(args...; kw...))
+    write(dest, s)
     if openhtml
         if Sys.iswindows()
             run(`start $dest`)
@@ -121,6 +122,7 @@ function write_html(args...; dest=joinpath(tempdir(), "plot.html"), openhtml=tru
             @warn("Couldn't open $dest on system: $(Sys.KERNEL)")
         end
     end
+    return s
 end
 
 end # module
