@@ -1,0 +1,13 @@
+name = "PlotlyLight"
+uuid = "ca7969ec-10b3-423e-8d99-40f33abb42bf"
+authors = ["joshday <emailjoshday@gmail.com>"]
+version = "0.1.0"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
