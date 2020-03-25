@@ -2,5 +2,5 @@ using PlotlyLight
 using Test
 
 @testset "PlotlyLight.jl" begin
-    # Write your own tests here.
+    plot(trace(x=1:10, y=randn(10)))
 end

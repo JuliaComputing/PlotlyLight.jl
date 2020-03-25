@@ -4,6 +4,8 @@ using Random
 using JSON3
 using OrderedCollections
 
+export plot, layout, trace, config
+
 const plotlyjspath = joinpath(@__DIR__(), "..", "deps", "plotly-latest.min.js")
 
 #-----------------------------------------------------------------------------# plot 
@@ -24,6 +26,10 @@ const dict = OrderedDict{Symbol, Any}
 #-----------------------------------------------------------------------------# trace
 """
     trace(; kw...)
+
+Create a trace dict.  List of options is available at:
+
+https://plotly.com/javascript/reference/
 """
 trace(; kw...) = filldict!(dict(:x => nothing, :y => nothing, :type => nothing), kw)
 
@@ -103,20 +109,20 @@ function html_string(divs::String...)
 end
 
 #-----------------------------------------------------------------------------# write_html
-function write_html(args...; dest=joinpath(tempdir(), "plot.html"), kw...)
+function write_html(args...; dest=joinpath(tempdir(), "plot.html"), openhtml=true, kw...)
     touch(dest)
     write(dest, html_string(div_string(args...; kw...)))
-    if Sys.iswindows()
-        run(`start $dest`)
-    elseif Sys.islinux()
-        run(`xdg-open $dest`)
-    elseif Sys.isapple()
-        Sys.run(`open $dest`)
-    else
-        @warn("Couldn't open $dest on system: $(Sys.KERNEL)")
+    if openhtml
+        if Sys.iswindows()
+            run(`start $dest`)
+        elseif Sys.islinux()
+            run(`xdg-open $dest`)
+        elseif Sys.isapple()
+            Sys.run(`open $dest`)
+        else
+            @warn("Couldn't open $dest on system: $(Sys.KERNEL)")
+        end
     end
 end
-
-
 
 end # module
