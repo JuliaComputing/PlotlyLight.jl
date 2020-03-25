@@ -1,12 +1,8 @@
 module PlotlyLight
 
-using Random
-using JSON3
-using OrderedCollections
+using Random, JSON3, OrderedCollections
 
 export plot, layout, trace, config
-
-const plotlyjspath = joinpath(@__DIR__(), "..", "deps", "plotly-latest.min.js")
 
 #-----------------------------------------------------------------------------# plot 
 function plot(data=[trace()], lay=layout(), conf=config(), dest=joinpath(tempdir(), "plotlylight.html"))
@@ -14,6 +10,8 @@ function plot(data=[trace()], lay=layout(), conf=config(), dest=joinpath(tempdir
 end
 
 #-----------------------------------------------------------------------------# utils
+const plotlyjspath = joinpath(@__DIR__(), "..", "deps", "plotly-latest.min.js")
+
 function filldict!(d, kw)
     for (k, v) in kw 
         d[k] = v
