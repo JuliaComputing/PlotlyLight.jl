@@ -1,8 +1,11 @@
-# PlotlyLight.jl
-
-```@index
+```@setup index
+using PlotlyLight
 ```
 
-```@autodocs
-Modules = [PlotlyLight]
+# PlotlyLight.jl
+
+## Test 
+
+```@example index
+PlotlyLight.div_string()
 ```

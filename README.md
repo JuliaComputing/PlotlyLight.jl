@@ -66,7 +66,7 @@ OrderedCollections.OrderedDict{Symbol,Any} with 4 entries:
 ```
 
 You then create plots via the `plot(data, layout, config)` function.  You'll need to rely on the 
-Plotly.js documentation to see what your options are
+Plotly.js documentation to see what your options are:
 
 - https://plotly.com/javascript/reference/
 - https://plotly.com/javascript/reference/#layout
