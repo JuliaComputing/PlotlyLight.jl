@@ -5,7 +5,7 @@ using Random, JSON3, OrderedCollections
 export plot, layout, trace, config
 
 #-----------------------------------------------------------------------------# plot 
-function plot(data=[trace()], lay=layout(), conf=config(), dest=joinpath(tempdir(), "plotlylight.html"))
+function plot(data=[trace()], lay=layout(), conf=config(); dest=joinpath(tempdir(), "plotlylight.html"))
     write_html(data, lay; conf=conf, dest=dest)
 end
 
@@ -21,54 +21,15 @@ end
 
 const dict = OrderedDict{Symbol, Any}
 
-#-----------------------------------------------------------------------------# trace
-"""
-    trace(; kw...)
-
-Create a trace dict.  List of options is available at:
-
-https://plotly.com/javascript/reference/
-"""
+#-----------------------------------------------------------------------------# main functions
 trace(; kw...) = filldict!(dict(:x => nothing, :y => nothing, :type => nothing), kw)
-
-#-----------------------------------------------------------------------------# layout
-"""
-    layout(; kw...)
-
-Create the layout dict.  List of options is available at:
-
-https://plotly.com/javascript/reference/#layout
-"""
 layout(; kw...) = filldict!(dict(:title => "PlotlyLight Plot"), kw)
-
-#-----------------------------------------------------------------------------# config
-"""
-    config(; kw...)
-
-Create the configuration dict.  List of options is available at:
-
-https://github.com/plotly/plotly.js/blob/master/src/plot_api/plot_config.js#L22-L86
-"""
 function config(; kw...)
-    d = OrderedDict{Symbol,Any}(
-        :staticPlot                 => false,
-        :editable                   => false,
-        :autosizable                => true,
-        :queueLength                => 0,
-        :fillFrame                  => false,
-        :frameMargins               => 0,
-        :scrollZoom                 => false,
-        :showTips                   => true,
-        :showAxisDragHandles        => true,
-        :showAxisRangeEntryBoxes    => true,
-        :showLink                   => false,
-        :sendData                   => true,
-        :linkText                   => "Edit chart",
-        :showSources                => false,
-        :displayModeBar             => true,
-        :displaylogo                => false,
-        :responsive                 => true
-    )
+    d = OrderedDict{Symbol,Any}(:staticPlot => false, :editable => false, :autosizable => true,
+        :queueLength => 0, :fillFrame => false, :frameMargins => 0, :scrollZoom => false,
+        :showTips  => true,:showAxisDragHandles => true, :showAxisRangeEntryBoxes => true,
+        :showLink  => false, :sendData  => true, :linkText  => "Edit chart", :showSources => false,
+        :displayModeBar => true, :displaylogo => false, :responsive => true)
     filldict!(d, kw)
 end
 
