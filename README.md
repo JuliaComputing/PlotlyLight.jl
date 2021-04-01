@@ -40,7 +40,6 @@ p
 Plot
   Data
      trace 1: [:x, :y]
-     trace 2: [:x, :y]
   Layout
      title: Config(:text => "My Title")
   Config
