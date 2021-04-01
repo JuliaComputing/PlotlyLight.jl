@@ -31,20 +31,52 @@ p.layout.title.text = "My Title"
 p
 ```
 
-**This won't display the plot in the REPL**
+**This won't display the plot in the REPL**.  Instead you'll see:
+
+```julia
+Plot
+  Data
+     trace 1: [:x, :y]
+     trace 2: [:x, :y]
+  Layout
+     title: Config(:text => "My Title")
+  Config
+     displaylogo: false
+```
 
 - In environments like [Pluto.jl](https://github.com/fonsp/Pluto.jl), the plot **will** display.
 - Instead, you can create an HTML div string via `repr("text/html", p)`.
 - You can also create an HTML file string via `PlotlyLight.html(p)`.
 
-## Cool Things to Try
+## Custom Display Functions
 
+
+### [DefaultApplication](https://github.com/tpapp/DefaultApplication.jl) (HTML)
+
+```julia
+using PlotlyLight, DefaultApplication
+
+function f(p::Plot) 
+    filename = joinpath(tempdir(), "temp.html")
+    file = write(filename, PlotlyLight.html(p))
+    DefaultApplication.open(filename)
+end
+
+p = Plot(Config(x = 1:10, y = randn(10)))
+
+f(p)
 ```
+
+### [Blink.jl](https://github.com/JuliaGizmos/Blink.jl)
+
+```julia
 using Blink, PlotlyLight
 
 w = Window()
 
 load!(w, "https://cdn.plot.ly/plotly-latest.min.js")
 
-body!(w, Plot(Config(x=1:10,y=randn(10))))
+f(p) = body!(w, p)
+
+f(Plot(Config(x = 1:10, y = randn(10))))
 ```

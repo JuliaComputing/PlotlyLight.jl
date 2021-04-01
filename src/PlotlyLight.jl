@@ -22,7 +22,7 @@ struct Plot
     end
 end
 
-function Base.show(io::IO, o::Plot)
+function Base.show(io::IO, ::MIME"text/plain", o::Plot)
     println(io, "Plot")
     printstyled(io, "  Data\n", color=isempty(o.data) ? :light_black : :default)
     for (i,trace) in enumerate(o.data)
@@ -64,7 +64,7 @@ end
 function html(p::Plot, src = :cdn)
     src in [:cdn, :standalone, :local] || error("`src` must be :cdn, :standalone, or :local")
     io = IOBuffer()
-    write(io, "<!DOCTYPE html>\n<html>\n  <head>\n  <title>PlotlyLight Viz<title>\n")
+    write(io, "<!DOCTYPE html>\n<html>\n  <head>\n  <title>PlotlyLight Viz</title>\n")
     if src === :cdn 
         write(io, "  <script src=\"https://cdn.plot.ly/plotly-latest.min.js\"></script>")
     elseif src === :standalone 
@@ -76,8 +76,8 @@ function html(p::Plot, src = :cdn)
     else 
         write(io, "  <script src=\"$plotlyjs\"></script>")
     end
-    write(io,"  </head>\n  <body>")
-    print(io, MIME"text/html"(), p)
+    write(io,"\n  </head>\n  <body>\n")
+    show(io, MIME"text/html"(), p)
     write(io, "\n  </body>\n  </html>")
     String(take!(io))
 end
