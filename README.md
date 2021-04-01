@@ -9,7 +9,7 @@
 **PlotlyLight** is a low-level interface for working with [Plotly.js](https://plotly.com/javascript/),
 an open source (MIT-licensed) plotting library. 
 
-Everything is a pretty direct Julia-to-Javacript conversion.
+Everything is a pretty direct Julia-to-Javacript ([`EasyConfig.Config`](https://github.com/joshday/EasyConfig.jl) -> `JSON`) conversion.
  
 ## Quickstart
 
@@ -18,10 +18,13 @@ using PlotlyLight
 
 p = Plot()
 
-p.data[1].x = 1:10
-p.data[1].y = rand(10)
+trace1 = Config()
+trace1.x = 1:10
+trace1.y = randn(10)
 
-push!(p.data, Config(x=11:20, y=randn(10)))  # add a trace
+push!(p.data, trace1)
+
+push!(p.data, Config(x=11:20, y=randn(10))) 
 
 p.layout.title.text = "My Title"
 
