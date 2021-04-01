@@ -4,6 +4,8 @@ using Random
 using JSON3
 using EasyConfig
 
+export Plot, Config
+
 plotlyjs = joinpath(@__DIR__, "..", "deps", "plotly-latest.min.js")
 
 function __init__() 
