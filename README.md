@@ -49,7 +49,7 @@ Plot
 ## Custom Display Functions
 
 
-### [DefaultApplication](https://github.com/tpapp/DefaultApplication.jl) (HTML)
+### [DefaultApplication.jl](https://github.com/tpapp/DefaultApplication.jl) (HTML)
 
 ```julia
 using PlotlyLight, DefaultApplication
