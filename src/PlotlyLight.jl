@@ -1,89 +1,62 @@
 module PlotlyLight
 
-using Random, JSON3, OrderedCollections
+using Random
+using JSON3
+using EasyConfig
 
-export plot, layout, trace, config
+plotlyjs = joinpath(@__DIR__, "..", "deps", "plotly-latest.min.js")
 
-#-----------------------------------------------------------------------------# plot 
-function plot(data=[trace()], lay=layout(), conf=config(); dest=joinpath(tempdir(), "plotlylight.html"))
-    write_html(data, lay; conf=conf, dest=dest)
+function __init__() 
+    isfile(plotlyjs) || error("Missing dependency.  Try calling `Pkg.build(\"PlotlyLight\")`.")
 end
 
-#-----------------------------------------------------------------------------# utils
-const plotlyjspath = joinpath(@__DIR__(), "..", "deps", "plotly-latest.min.js")
-
-function filldict!(d, kw)
-    for (k, v) in kw 
-        d[k] = v
-    end
-    return d
+#-----------------------------------------------------------------------------# Plot 
+struct Plot 
+    data::Vector{Config}
+    layout::Config 
+    config::Config
+end
+function Plot(data::Config, layout::Config = Config(), conf::Config = Config(displaylogo=false)) 
+    Plot([data], layout, conf)
 end
 
-const dict = OrderedDict{Symbol, Any}
-
-#-----------------------------------------------------------------------------# main functions
-trace(; kw...) = filldict!(dict(:x => nothing, :y => nothing, :type => nothing), kw)
-layout(; kw...) = filldict!(dict(:title => "PlotlyLight Plot"), kw)
-function config(; kw...)
-    d = OrderedDict{Symbol,Any}(:staticPlot => false, :editable => false, :autosizable => true,
-        :queueLength => 0, :fillFrame => false, :frameMargins => 0, :scrollZoom => false,
-        :showTips  => true,:showAxisDragHandles => true, :showAxisRangeEntryBoxes => true,
-        :showLink  => false, :sendData  => true, :linkText  => "Edit chart", :showSources => false,
-        :displayModeBar => true, :displaylogo => false, :responsive => true)
-    filldict!(d, kw)
+#-----------------------------------------------------------------------------# Show text/html
+function Base.show(io::IO, ::MIME"text/html", o::Plot)
+    id = randstring(20)
+    print(io, """<div id="$id"></div>""")
+    print(io, "<script>var data=")
+    JSON3.write(io, o.data)
+    print(io, "\nvar layout = ")
+    JSON3.write(io, o.layout)
+    print(io, "\nvar config = ")
+    JSON3.write(io, o.config)
+    print(io, """\nPlotly.newPlot("$id", data, layout, {displaylogo:false})""")
+    print(io, "</script>\n")
 end
 
-#-----------------------------------------------------------------------------# html_string
-function div_string(data = [trace()], lay = layout(); id=randstring(10), conf=config(), kw...)
-    data2 = data isa AbstractVector ? data : [data]
-    """
-    <div id=$(JSON3.write(id)))>
-    <script>
-        var data = $(JSON3.write(data2))
-        var layout = $(JSON3.write(lay))
-        Plotly.newPlot($(JSON3.write(id)), data, layout, $(JSON3.write(conf)))
-    </script>
-    """
-end
+#-----------------------------------------------------------------------------# HTML
+function html(p::Plot, src=:cdn)
+    src in [:cdn, :standalone, :local] || error("`src` must be :cdn, :standalone, or :local")
+    io = IOBuffer()
+    write(io, "<!DOCTYPE html>\n<html>\n  <head>\n  <title>PlotlyLight Viz<title>\n")
 
-#-----------------------------------------------------------------------------# html_string
-function html_string(divs::String...)
-    s = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <title>PlotlyLight Visualization</title>
-    <script src = "$plotlyjspath"></script>
-    </head>
-    <body>
-    """
-    for div in divs 
-        s *= div 
-    end
-    s *= """
-    </body>
-    </html>
-    """ 
-    s
-end
-
-#-----------------------------------------------------------------------------# write_html
-function write_html(args...; dest=joinpath(tempdir(), "plot.html"), openhtml=true, kw...)
-    touch(dest)
-    s = html_string(div_string(args...; kw...))
-    write(dest, s)
-    if openhtml
-        if Sys.iswindows()
-            run(`start $dest`)
-        elseif Sys.islinux()
-            run(`xdg-open $dest`)
-        elseif Sys.isapple()
-            Sys.run(`open $dest`)
-        else
-            @warn("Couldn't open $dest on system: $(Sys.KERNEL)")
+    if src === :cdn 
+        write(io, "  <script src=\"https://cdn.plot.ly/plotly-latest.min.js\"></script>")
+    elseif src === :standalone 
+        write(io, "  <script>")
+        for line in readlines(plotlyjs)
+            write(io, line)
         end
+        write(io, "  </script>")
+    else 
+        write(io, "  <script src=\"$plotlyjs\"></script>")
     end
-    return s
+   
+    write(io,"  </head>\n  <body>")
+  
+    write(io, MIME"text/html"(), p)
+    write(io, "\n  </body>\n  </html>")
+    String(take!(io))
 end
 
 end # module

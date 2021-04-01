@@ -1,0 +1,1 @@
+download("https://cdn.plot.ly/plotly-latest.min.js", joinpath(@__DIR__, "plotly-latest.min.js"))
