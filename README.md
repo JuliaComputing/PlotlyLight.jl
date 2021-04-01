@@ -11,7 +11,7 @@ an open source (MIT-licensed) plotting library.
 
 Everything is a pretty direct Julia-to-Javacript ([`EasyConfig.Config`](https://github.com/joshday/EasyConfig.jl) -> `JSON`) conversion.
  
-## Quickstart
+## 🚀 Quickstart
 
 ```julia
 using PlotlyLight 
