@@ -4,25 +4,30 @@
 [![Codecov](https://codecov.io/gh/joshday/PlotlyLight.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/joshday/PlotlyLight.jl)
 
 
-**PlotlyLight** is a low-level interface for working with [Plotly.js](https://plotly.com/javascript/),
-an open source (MIT-licensed) plotting library. 
+**PlotlyLight** is a low-level, ultra-lightweight interface for working with [Plotly.js](https://plotly.com/javascript/). 
 
-Everything is a pretty direct Julia-to-Javacript ([`EasyConfig.Config`](https://github.com/joshday/EasyConfig.jl) -> `JSON`) conversion.
+Everything is a pretty direct Julia-to-Javacript conversion.  You create [`EasyConfig.Config`s](https://github.com/joshday/EasyConfig.jl) that mirror the JSON spec of Plotly.  The only two exports are `Plot` and `Config`:
+
+- The `Plot` fields correspond with the three arguments that the Javascript function [`Plotly.newPlot`](https://plotly.com/javascript/plotlyjs-function-reference/#plotlynewplot) accepts.
+
+```julia
+Plot(data::Vector{Config}, layout::Config, config::Config)
+```
+
+- A `Config` is a JSON-like object that can create intermediate levels on the fly, e.g.
+
+```julia
+layout = Config()
+
+layout.xaxis.title = "My X Axis"
+```
  
 ## 🚀 Quickstart
 
 ```julia
 using PlotlyLight 
 
-p = Plot()
-
-trace1 = Config()
-trace1.x = 1:10
-trace1.y = randn(10)
-
-push!(p.data, trace1)
-
-push!(p.data, Config(x=11:20, y=randn(10))) 
+p = Plot(Config(x = 1:10, y = randn(10)))
 
 p.layout.title.text = "My Title"
 
