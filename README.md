@@ -7,7 +7,7 @@
 - Plotly's Javascript API requires three components: `data`, `layout`, and `config`.  
 - `PlotlyLight.Plot` simply does [`EasyConfig.Config`](https://github.com/joshday/EasyConfig.jl)-to-JSON conversion for each of the three components.
 
-```
+```julia
 using PlotlyLight
 
 data = Config(x = 1:10, y = randn(10))
