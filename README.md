@@ -1,5 +1,5 @@
 <p align="center">
-  <h1>PlotlyLight<h1>
+  <h1>PlotlyLight</h1>
 </p>
 
 **PlotlyLight** is an ultra-lightweight (<100 lines) interface for working with [Plotly.js](https://plotly.com/javascript/). 
