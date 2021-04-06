@@ -1,54 +1,31 @@
-# PlotlyLight
+<p align="center">
+  <h1>PlotlyLight<h1>
+</p>
 
+**PlotlyLight** is an ultra-lightweight (<100 lines) interface for working with [Plotly.js](https://plotly.com/javascript/). 
 
-**PlotlyLight** is a low-level, ultra-lightweight interface for working with [Plotly.js](https://plotly.com/javascript/). 
+---
 
-Everything is a pretty direct Julia-to-Javacript conversion.  You create [`EasyConfig.Config`s](https://github.com/joshday/EasyConfig.jl) that mirror the JSON spec of Plotly.  The only two exports are `Plot` and `Config`:
+- Plotly's Javascript API requires three components: `data`, `layout`, and `config`.  
+- `PlotlyLight.Plot` simply does [`EasyConfig.Config`](https://github.com/joshday/EasyConfig.jl)-to-JSON conversion for each of the three components.
 
-- The `Plot` fields correspond with the three arguments that the Javascript function [`Plotly.newPlot`](https://plotly.com/javascript/plotlyjs-function-reference/#plotlynewplot) accepts.
-
-```julia
-Plot(data::Vector{Config}, layout::Config, config::Config)
 ```
+using PlotlyLight
 
-- A `Config` is a JSON-like object that can create intermediate levels on the fly, e.g.
+data = Config(x = 1:10, y = randn(10))
 
-```julia
 layout = Config()
+layout.title.text = "My Title!"
 
-layout.xaxis.title = "My X Axis"
-```
- 
-## 🚀 Quickstart
-
-```julia
-using PlotlyLight 
-
-p = Plot(Config(x = 1:10, y = randn(10)))
-
-p.layout.title.text = "My Title"
-
-p
+Plot(data, layout)
 ```
 
-**This won't display the plot in the REPL**.  Instead you'll see:
+## Display
 
-```julia
-Plot
-  Data
-     trace 1: [:x, :y]
-  Layout
-     title: Config(:text => "My Title")
-  Config
-     displaylogo: false
-```
+To display a `PlotlyLight.Plot`, you must be in an environment that can utilize `text/html` mimetypes (like
+[Pluto.jl](https://github.com/fonsp/Pluto.jl).
 
-- In environments like [Pluto.jl](https://github.com/fonsp/Pluto.jl), the plot **will** display.
-- Instead, you can create an HTML div string via `repr("text/html", p)`.
-- You can also create an HTML file string via `PlotlyLight.html(p)`.
-
-## Custom Display Functions
-
+Alternatively, it's straightforward to implement your own display method:
 
 ### [DefaultApplication.jl](https://github.com/tpapp/DefaultApplication.jl) (HTML)
 

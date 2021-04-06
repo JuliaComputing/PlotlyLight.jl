@@ -6,19 +6,38 @@ using EasyConfig
 
 export Plot, Config
 
-plotlyjs = joinpath(@__DIR__, "..", "deps", "plotly-latest.min.js")
+const plotlyjs = joinpath(@__DIR__, "..", "deps", "plotly-latest.min.js")
 
 function __init__() 
-    isfile(plotlyjs) || error("Missing dependency.  Try calling `Pkg.build(\"PlotlyLight\")`.")
+    isfile(plotlyjs) || error("Can't find plotly.js.  Try building PlotlyLight again.")
 end
 
-#-----------------------------------------------------------------------------# Plot 
-struct Plot 
+#-----------------------------------------------------------------------------# Plot
+"""
+    Plot(data, layout, config; src = :cdn)
+
+A Plotly.js plot with components `data`, `layout`, and `config`.  Each of the three components are 
+directly converted to JSON.  See the Plotly Javascript docs here: https://plotly.com/javascript/.
+
+### Example 
+
+    Plot(Config(x=1:10, y=randn(10)))
+
+    data = [
+        Config(y = randn(10)),
+        Config(y = randn(10))
+    ]
+    layout = Config()
+    layout.title.text = "My Title!"
+    Plot(data, layout)
+"""
+struct Plot
     data::Vector{Config}
     layout::Config 
     config::Config
-    function Plot(data = Config[], layout=Config(), config=Config(displaylogo=false))
-        new(data isa Vector ? data : [data], layout, config)
+    src::Symbol
+    function Plot(data = Config[], layout=Config(), config=Config(displaylogo=false); src = :cdn)
+        new(data isa Vector ? data : [data], layout, config, src)
     end
 end
 
@@ -47,9 +66,22 @@ end
 
 #-----------------------------------------------------------------------------# Show text/html
 function Base.show(io::IO, ::MIME"text/html", o::Plot)
+    o.src in [:cdn, :standalone, :local] || error("`src` must be :cdn, :standalone, or :local")
     id = randstring(20)
     print(io, """<div id="$id"></div>\n""")
-    print(io, "<script src=\"https://cdn.plot.ly/plotly-latest.min.js\"></script>\n")
+
+    if o.src === :cdn 
+        write(io, "  <script src=\"https://cdn.plot.ly/plotly-latest.min.js\"></script>")
+    elseif o.src === :standalone 
+        write(io, "  <script>")
+        for line in readlines(plotlyjs)
+            write(io, line)
+        end
+        write(io, "  </script>")
+    else # :local
+        write(io, "  <script src=\"$plotlyjs\"></script>")
+    end
+
     print(io, "<script>\n  var data=")
     JSON3.write(io, o.data)
     print(io, "\n  var layout = ")
@@ -61,21 +93,9 @@ function Base.show(io::IO, ::MIME"text/html", o::Plot)
 end
 
 #-----------------------------------------------------------------------------# HTML
-function html(p::Plot, src = :cdn)
-    src in [:cdn, :standalone, :local] || error("`src` must be :cdn, :standalone, or :local")
+function html(p::Plot)
     io = IOBuffer()
     write(io, "<!DOCTYPE html>\n<html>\n  <head>\n  <title>PlotlyLight Viz</title>\n")
-    if src === :cdn 
-        write(io, "  <script src=\"https://cdn.plot.ly/plotly-latest.min.js\"></script>")
-    elseif src === :standalone 
-        write(io, "  <script>")
-        for line in readlines(plotlyjs)
-            write(io, line)
-        end
-        write(io, "  </script>")
-    else 
-        write(io, "  <script src=\"$plotlyjs\"></script>")
-    end
     write(io,"\n  </head>\n  <body>\n")
     show(io, MIME"text/html"(), p)
     write(io, "\n  </body>\n  </html>")
