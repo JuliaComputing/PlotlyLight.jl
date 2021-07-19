@@ -1,7 +1,7 @@
 name = "PlotlyLight"
 uuid = "ca7969ec-10b3-423e-8d99-40f33abb42bf"
 authors = ["joshday <emailjoshday@gmail.com>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 EasyConfig = "acab07b0-f158-46d4-8913-50acef6d41fe"
