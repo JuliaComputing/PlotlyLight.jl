@@ -14,7 +14,7 @@ end
 
 #-----------------------------------------------------------------------------# Plot
 """
-    Plot(data, layout, config; src = :cdn)
+    Plot(data, layout, config; src = :cdn, class="")
 
 A Plotly.js plot with components `data`, `layout`, and `config`.  Each of the three components are 
 directly converted to JSON.  See the Plotly Javascript docs here: https://plotly.com/javascript/.
@@ -36,7 +36,8 @@ struct Plot
     layout::Config 
     config::Config
     src::Symbol
-    function Plot(data = Config[], layout=Config(), config=Config(displaylogo=false); src = :cdn)
+    class::String
+    function Plot(data = Config[], layout=Config(), config=Config(displaylogo=false); src = :cdn, class="")
         new(data isa Vector ? data : [data], layout, config, src)
     end
 end
@@ -66,9 +67,9 @@ end
 
 #-----------------------------------------------------------------------------# Show text/html
 function Base.show(io::IO, ::MIME"text/html", o::Plot)
-    o.src in [:cdn, :standalone, :local] || error("`src` must be :cdn, :standalone, or :local")
+    o.src in [:cdn, :standalone, :local] || error("`src` must be :cdn, :standalone, :none, or :local")
     id = randstring(20)
-    print(io, """<div id="$id"></div>\n""")
+    print(io, """<div class="$(o.class)" id="$id"></div>\n""")
 
     if o.src === :cdn 
         write(io, "  <script src=\"https://cdn.plot.ly/plotly-latest.min.js\"></script>")
@@ -78,6 +79,8 @@ function Base.show(io::IO, ::MIME"text/html", o::Plot)
             write(io, line)
         end
         write(io, "  </script>")
+    elseif o.src === :none 
+        # No script added
     else # :local
         write(io, "  <script src=\"$plotlyjs\"></script>")
     end
