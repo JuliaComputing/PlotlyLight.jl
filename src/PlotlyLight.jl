@@ -38,7 +38,7 @@ struct Plot
     src::Symbol
     class::String
     function Plot(data = Config[], layout=Config(), config=Config(displaylogo=false); src = :cdn, class="")
-        new(data isa Vector ? data : [data], layout, config, src)
+        new(data isa Vector ? data : [data], layout, config, src, class)
     end
 end
 
