@@ -109,7 +109,7 @@ end
 
 function Base.show(io::IO, o::Plot)
     htmlfile = touch(joinpath(plotdir[], "current_plot.html"))
-    open(io -> show(io, MIME"text/html"(), o), htmlfile, "w")
+    open(io -> write_html(io, o), htmlfile, "w")
     DefaultApplication.open(htmlfile)
 end
 
@@ -145,13 +145,11 @@ function Base.show(io::IO, ::MIME"text/html", o::Plot)
 end
 
 #-----------------------------------------------------------------------------# HTML
-function html(p::Plot)
-    io = IOBuffer()
+function write_html(io::IO, p::Plot)
     write(io, "<!DOCTYPE html>\n<html>\n  <head>\n  <title>PlotlyLight Viz</title>\n")
     write(io,"\n  </head>\n  <body>\n")
     show(io, MIME"text/html"(), p)
     write(io, "\n  </body>\n  </html>")
-    String(take!(io))
 end
 
 end # module
