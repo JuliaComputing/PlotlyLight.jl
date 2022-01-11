@@ -1,11 +1,12 @@
 <h1 align="center">PlotlyLight</h1>
 
-**PlotlyLight** is an ultra-lightweight (<100 lines) interface for working with [Plotly.js](https://plotly.com/javascript/). 
+**PlotlyLight** is an ultra-lightweight interface for working with [Plotly.js](https://plotly.com/javascript/).
 
 ---
 
-- Plotly's Javascript API requires three components: `data`, `layout`, and `config`.  
+- Plotly's Javascript API requires three components: `data`, `layout`, and `config`.
 - `PlotlyLight.Plot` simply does [`EasyConfig.Config`](https://github.com/joshday/EasyConfig.jl)-to-JSON conversion for each of the three components.
+- `PlotlyLight` does very little handholding/checking that your `data`/`layout`/`config` are properly formatted.  You'll need to rely on the [Plotly.js](https://plotly.com/javascript/) docs.
 
 ```julia
 using PlotlyLight
@@ -18,39 +19,26 @@ layout.title.text = "My Title!"
 Plot(data, layout)
 ```
 
-## Display
+## Displaying `Plot`s
 
-To display a `PlotlyLight.Plot`, you must be in an environment that can utilize `text/html` mimetypes (like
-[Pluto.jl](https://github.com/fonsp/Pluto.jl).
+- A `Plot` will open up in your browser (using [DefaultApplication.jl](https://github.com/tpapp/DefaultApplication.jl))
+- `Plot`s display inline with `text/html` mimetypes (like [Pluto.jl](https://github.com/fonsp/Pluto.jl).
+    - Here's an example using [Blink.jl](https://github.com/JuliaGizmos/Blink.jl)
+    ```julia
+    using Blink, PlotlyLight
 
-Alternatively, it's straightforward to implement your own display method:
+    w = Window()
 
-### [DefaultApplication.jl](https://github.com/tpapp/DefaultApplication.jl) (HTML)
+    load!(w, "https://cdn.plot.ly/plotly-latest.min.js")
 
-```julia
-using PlotlyLight, DefaultApplication
+    f(p) = body!(w, p)
 
-function f(p::Plot) 
-    filename = joinpath(tempdir(), "temp.html")
-    file = write(filename, PlotlyLight.html(p))
-    DefaultApplication.open(filename)
-end
+    f(Plot(Config(x = 1:10, y = randn(10))))
+    ```
 
-p = Plot(Config(x = 1:10, y = randn(10)))
+## `Plot` History
 
-f(p)
-```
-
-### [Blink.jl](https://github.com/JuliaGizmos/Blink.jl)
-
-```julia
-using Blink, PlotlyLight
-
-w = Window()
-
-load!(w, "https://cdn.plot.ly/plotly-latest.min.js")
-
-f(p) = body!(w, p)
-
-f(Plot(Config(x = 1:10, y = randn(10))))
-```
+- `PlotlyLight` automatically saves up to `PlotlyLight.n_history[]` (default is 20) plots to be loaded in future Julia sessions.
+    - Change this with `PlotlyLight.set_history!(n)`
+- See `PlotlyLight.history()` to show the available files.
+- E.g. Load the most recent plot with `Plot(PlotlyLight.history(rev=true)[1])`.
