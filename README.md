@@ -40,7 +40,7 @@ Plot(data, layout)
 
 ## `Plot` History
 
-- `PlotlyLight` automatically saves up to `PlotlyLight.n_history[]` (default is 20) plots to be loaded in future Julia sessions.
-    - Change this with `PlotlyLight.set_history!(n)`
+- `PlotlyLight` automatically saves plot history (default 20) to be loaded in future Julia sessions.
+    - Change this with `PlotlyLight.set_history!(n)`.
 - See `PlotlyLight.history()` to show the available files.
 - E.g. Load the most recent plot with `Plot(PlotlyLight.history(rev=true)[1])`.
