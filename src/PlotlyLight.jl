@@ -36,8 +36,11 @@ set_history!(n::Int) = (n_history[] = n; clean_history!())
 function __init__()
     isfile(plotlyjs) || error("Can't find plotly.js.  Try building PlotlyLight again.")
     plotdir[] = @get_scratch!("PlotlyLightHistory")
-    latest_plot = replace(history()[end].file, r"(plot_)|(.jls)" => "")
-    plot_number[] = parse(Int, latest_plot)
+    h = history()
+    if !isempty(h)
+        latest_plot = replace(h[end].file, r"(plot_)|(.jls)" => "")
+        plot_number[] = parse(Int, latest_plot)
+    end
 end
 
 #-----------------------------------------------------------------------------# Plot
