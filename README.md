@@ -24,7 +24,7 @@ Plot(data, layout)
 ## Displaying `Plot`s
 
 - A `Plot` will open up in your browser (using [DefaultApplication.jl](https://github.com/tpapp/DefaultApplication.jl))
-- `Plot`s display inline with `text/html` mimetypes (like [Pluto.jl](https://github.com/fonsp/Pluto.jl).
+- `Plot`s display inline with `text/html` mimetypes (like [Pluto.jl](https://github.com/fonsp/Pluto.jl)).
     - Here's an example using [Blink.jl](https://github.com/JuliaGizmos/Blink.jl)
     ```julia
     using Blink, PlotlyLight
