@@ -2,7 +2,7 @@
 
 <h1 align="center">PlotlyLight</h1>
 
-**PlotlyLight** is an ultra-lightweight interface for working with [Plotly.js](https://plotly.com/javascript/).
+**PlotlyLight** is an ultra-lightweight (~150 lines) interface for working with [Plotly.js](https://plotly.com/javascript/).
 
 ---
 
