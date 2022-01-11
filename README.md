@@ -1,3 +1,5 @@
+[![Build status](https://github.com/joshday/PlotlyLight.jl/workflows/CI/badge.svg)](https://github.com/joshday/PlotlyLight.jl/actions?query=workflow%3ACI+branch%3Amaster)
+
 <h1 align="center">PlotlyLight</h1>
 
 **PlotlyLight** is an ultra-lightweight interface for working with [Plotly.js](https://plotly.com/javascript/).
