@@ -70,7 +70,7 @@ directly converted to JSON.  See the Plotly Javascript docs here: https://plotly
     layout.title.text = "My Title!"
     Plot(data, layout)
 """
-struct Plot
+mutable struct Plot
     data::Vector{Config}
     layout::Config
     config::Config
