@@ -78,22 +78,34 @@ mutable struct Plot
     class::Vector{String}
     style::String
     scratchfile::String
-    function Plot(data = Config[], layout=Config(), config=Config(displaylogo=false); src=:cdn, style="", class=String[])
+    pagetitle::String
+    pagecolor::String
+    function Plot(data = Config[], layout=Config(), config=Config(displaylogo=false); src=:cdn,
+            style="", class=String[], pagetitle="PlotlyLight Viz", pagecolor="#FFF")
         @assert src in [:cdn, :local, :standalone]
         n = @sprintf("%010d", plot_number[] += 1)  # keep files sorted alphabetically
         file = joinpath(plotdir[], "plot_$n.jls")
-        p = new(data isa Vector ? data : [data], layout, config, src, class, style, file)
-        _save_to_scratchspaces(p)
+        p = new(data isa Vector ? data : [data], layout, config, src, class, style, file, pagetitle, pagecolor)
+        serialize(touch(p.scratchfile), p)
+        clean_history!()
         return p
     end
 end
 
 Plot(sp::ScratchPlot) = deserialize(joinpath(plotdir[], sp.file))
 
+function Base.show(io::IO, o::Plot; open_after_writing=true, kw...)
+    page = WebPage(body=[o]; title=o.pagetitle, bgcolor=o.pagecolor, kw...)
+    htmlfile = touch(joinpath(plotdir[], "current.html"))
+    open(io -> show(io, MIME"text/html"(), page), htmlfile, "w")
+    open_after_writing && DefaultApplication.open(htmlfile)
+    nothing
+end
+
 """
     history(i)
 
-Return the `i`-th latest plot.  E.g. `1`
+Return the `i`-th most plot.  E.g. `1`
 """
 history(i::Integer) = Plot(history(rev=true)[i])
 
@@ -102,21 +114,11 @@ function delete_history!!()
     @info "Deleted PlotlyLight history of $n plots."
 end
 
-function _save_to_scratchspaces(o::Plot)
-    serialize(touch(o.scratchfile), o)
-    clean_history!()
-end
-
-function Base.show(io::IO, o::Plot)
-    htmlfile = touch(joinpath(plotdir[], "current_plot.html"))
-    open(io -> write_html(io, o), htmlfile, "w")
-    DefaultApplication.open(htmlfile)
-end
-
+#-----------------------------------------------------------------------------# save
 save(filename::String, p::Plot) = save(p, filename)
 
 function save(p::Plot, filename::String)
-    show(IOBuffer(), p)
+    show(IOBuffer(), p; open_after_writing = false)
     cp(joinpath(plotdir[], "current_plot.html"), filename; force=true)
     abspath(filename)
 end
@@ -124,7 +126,7 @@ end
 
 #-----------------------------------------------------------------------------# Show text/html
 function Base.show(io::IO, ::MIME"text/html", o::Plot)
-    o.src in [:cdn, :standalone, :local] || error("`src` must be :cdn, :standalone, :none, or :local")
+    o.src in [:cdn, :standalone, :none, :local] || error("`src` must be :cdn, :standalone, :none, or :local")
     id = randstring(20)
     print(io, """<div class="$(join(o.class, ' '))" style="$(o.style)" id="$id"></div>\n""")
 
@@ -152,12 +154,26 @@ function Base.show(io::IO, ::MIME"text/html", o::Plot)
     print(io, "</script>\n")
 end
 
-#-----------------------------------------------------------------------------# HTML
-function write_html(io::IO, p::Plot)
-    write(io, "<!DOCTYPE html>\n<html>\n  <head>\n  <title>PlotlyLight Viz</title>\n")
-    write(io,"\n  </head>\n  <body>\n")
-    show(io, MIME"text/html"(), p)
-    write(io, "\n  </body>\n  </html>")
+#-----------------------------------------------------------------------------# WebPage
+Base.@kwdef struct WebPage
+    title::String = ""
+    bgcolor::String = "#FFFFFF"
+    body::Vector
+end
+
+function Base.show(io::IO, ::MIME"text/html", page::WebPage)
+    println(io, "<!DOCTYPE html>")
+    println(io, "<html style='background-color=$(page.bgcolor)'>")
+    println(io, "<head>")
+    println(io, "  <title>$(page.title)</title>")
+    println(io, "</head>")
+    println(io, "<body>")
+    for content in page.body
+        show(io, MIME"text/html"(), content)
+        println(io)
+    end
+    println(io, "</body>")
+    println(io, "</html>")
 end
 
 end # module
