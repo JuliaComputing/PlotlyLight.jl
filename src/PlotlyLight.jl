@@ -32,19 +32,21 @@ A Plotly.js plot with components `data`, `layout`, and `config`.  Each of the th
 directly converted to JSON.  See the Plotly Javascript docs here: https://plotly.com/javascript/.
 
 ### Arguments
-- `data = Config()`: A `Config` or `Vector{Config}` of traces.
+- `data = Config()`: A `Config` (single trace) or `Vector{Config}` (multiple traces).
 - `layout = Config()`.
 - `config = Config()`.
 
 ### Keyword Arguments
 - `src = :cdn`: specify how to load Plotly's Javascript.  One of:
-    - `:cdn`→ load from `"https://cdn.plot.ly/plotly-latest.min.js"` (requires internet access).
+    - `:cdn` → load from `"https://cdn.plot.ly/plotly-latest.min.js"` (requires internet access).
     - `:local` → load from `"deps/plotly-latest.min.js"` (downloaded during `Pkg.build("PlotlyLight")`).
     - `:standalone` → Write the `:local` .js file directly into a script tag in the html output.
-    - `:none` → `write(io, "text/html"(), plot)` will not add the script tag.
+    - `:none` → `write(io, MIME"text/html"(), plot)` will not add the script tag.
 - `class = String[]`: Classes given to the HTML div that holds the plot.
 - `style = ""`: Styles given given to the HTML div that holds the plot.
-- `saveas = "plot_\$n"`: A name to save the plot as (Can be reloaded with `history(name)`).
+- `saveas = "plot_\$n"`: A name to save the plot as (Can be reloaded with `Plot(name)`).
+    - Plots are only saved within a session.  Multiple Julia sessions running `PlotlyLight` can
+      overwrite
 - `pagetitle`: The `<title>` tag of the HTML page (default=`"PlotlyLight Viz"`).
 - `pagecolor`: The `background-color` style of the HTML Page (default=`"#FFFFFF00"`).
 
@@ -147,6 +149,11 @@ function Base.show(io::IO, ::MIME"text/html", o::Plot)
 end
 
 #-----------------------------------------------------------------------------# WebPage
+"""
+    WebPage(; title, bgcolor, body::Vector)
+
+Simple struct that uses `show(::IO, ::MIME"text/html", ::WebPage)` to write HTML pages.
+"""
 Base.@kwdef struct WebPage
     title::String = ""
     bgcolor::String = "#FFFFFF"
@@ -154,8 +161,7 @@ Base.@kwdef struct WebPage
 end
 
 function Base.show(io::IO, ::MIME"text/html", page::WebPage)
-    println(io, "<!DOCTYPE html>")
-    println(io, "<html style='background-color=$(page.bgcolor)'>")
+    println(io, "<!DOCTYPE html style='background-color=$(page.bgcolor)'>")
     println(io, "<head>")
     println(io, "  <title>$(page.title)</title>")
     println(io, "</head>")
