@@ -15,48 +15,38 @@ const plotlyjs = joinpath(@__DIR__, "..", "deps", "plotly-latest.min.js")
 
 plotdir = Ref("")
 plot_number = Ref(0)
-n_history = Ref(20)  # number of plots to save as history
 
-struct ScratchPlot
-    file::String
-end
-
-history(; rev=false) = ScratchPlot.(filter!(endswith(".jls"), sort!(readdir(plotdir[]); rev)))
-
-function clean_history!()
-    h = history(rev=true)
-    n = n_history[]
-    if length(h) > n
-        rm.(joinpath.(plotdir[], map(x->x.file, h[n+1:end])))
-    end
-end
-set_history!(n::Int) = (n_history[] = n; clean_history!())
-
+saved() = readdir(plotdir[])
 
 function __init__()
-    isfile(plotlyjs) || error("Can't find plotly.js.  Try building PlotlyLight again.")
+    isfile(plotlyjs) || @warn("Can't find local plotly.js.  Try building PlotlyLight again.")
     plotdir[] = @get_scratch!("PlotlyLightHistory")
-    h = history()
-    if !isempty(h)
-        latest_plot = replace(h[end].file, r"(plot_)|(.jls)" => "")
-        plot_number[] = parse(Int, latest_plot)
-    end
+    foreach(rm, joinpath.(plotdir, saved()))
 end
 
 #-----------------------------------------------------------------------------# Plot
 """
-    Plot(data, layout, config; src=:cdn, class=String[], style="")
+    Plot(data, layout, config; kw...)
 
 A Plotly.js plot with components `data`, `layout`, and `config`.  Each of the three components are
 directly converted to JSON.  See the Plotly Javascript docs here: https://plotly.com/javascript/.
 
-- Specify how the Plotly's javascript is loaded via `src`:
-    - `:cdn` → load from `"https://cdn.plot.ly/plotly-latest.min.js"` (requires internet access).
+### Arguments
+- `data = Config()`: A `Config` or `Vector{Config}` of traces.
+- `layout = Config()`.
+- `config = Config()`.
+
+### Keyword Arguments
+- `src = :cdn`: specify how to load Plotly's Javascript.  One of:
+    - `:cdn`→ load from `"https://cdn.plot.ly/plotly-latest.min.js"` (requires internet access).
     - `:local` → load from `"deps/plotly-latest.min.js"` (downloaded during `Pkg.build("PlotlyLight")`).
     - `:standalone` → Write the `:local` .js file directly into a script tag in the html output.
     - `:none` → `write(io, "text/html"(), plot)` will not add the script tag.
-- Classes in `class` will be added to the `<div class="\$(join(class, ' '))">` tag that holds the plot.
-- Similar to `class`, `style` will be included via `<div style="\$style">`.
+- `class = String[]`: Classes given to the HTML div that holds the plot.
+- `style = ""`: Styles given given to the HTML div that holds the plot.
+- `saveas = "plot_\$n"`: A name to save the plot as (Can be reloaded with `history(name)`).
+- `pagetitle`: The `<title>` tag of the HTML page (default=`"PlotlyLight Viz"`).
+- `pagecolor`: The `background-color` style of the HTML Page (default=`"#FFFFFF00"`).
 
 ### Example
 
@@ -81,18 +71,28 @@ mutable struct Plot
     pagetitle::String
     pagecolor::String
     function Plot(data = Config[], layout=Config(), config=Config(displaylogo=false); src=:cdn,
-            style="", class=String[], pagetitle="PlotlyLight Viz", pagecolor="#FFF")
+            style="", class=String[], pagetitle="PlotlyLight Viz", pagecolor="#FFF", saveas=nothing)
         @assert src in [:cdn, :local, :standalone]
-        n = @sprintf("%010d", plot_number[] += 1)  # keep files sorted alphabetically
-        file = joinpath(plotdir[], "plot_$n.jls")
-        p = new(data isa Vector ? data : [data], layout, config, src, class, style, file, pagetitle, pagecolor)
+        n = plot_number[] += 1
+        jlsfile = isnothing(saveas) ? "plot_$n.jls" : "$saveas.jls"
+        scratchfile = joinpath(plotdir[], jlsfile)
+        p = new(data isa Vector ? data : [data], layout, config, src, class, style, scratchfile, pagetitle, pagecolor)
         serialize(touch(p.scratchfile), p)
-        clean_history!()
         return p
     end
 end
 
-Plot(sp::ScratchPlot) = deserialize(joinpath(plotdir[], sp.file))
+Plot(i::Integer) = Plot("plot_$i.jls")
+
+function Plot(name::String)
+    name = endswith(name, ".jls") ? name : name * ".jls"
+    path = joinpath(plotdir[], name)
+    if !isfile(path)
+        @warn "No saved plot `$name` was found.  Here is what is available:" saved()
+        error("Saved plot not found.")
+    end
+    deserialize(path)
+end
 
 function Base.show(io::IO, o::Plot; open_after_writing=true, kw...)
     page = WebPage(body=[o]; title=o.pagetitle, bgcolor=o.pagecolor, kw...)
@@ -102,24 +102,16 @@ function Base.show(io::IO, o::Plot; open_after_writing=true, kw...)
     nothing
 end
 
-"""
-    history(i)
-
-Return the `i`-th most plot.  E.g. `1`
-"""
-history(i::Integer) = Plot(history(rev=true)[i])
-
-function delete_history!!()
-    n = length(rm.(joinpath.(plotdir, map(x->x.file, history()))))
-    @info "Deleted PlotlyLight history of $n plots."
-end
-
 #-----------------------------------------------------------------------------# save
 save(filename::String, p::Plot) = save(p, filename)
 
 function save(p::Plot, filename::String)
-    show(IOBuffer(), p; open_after_writing = false)
-    cp(joinpath(plotdir[], "current_plot.html"), filename; force=true)
+    if endswith(filename, ".html")
+        show(IOBuffer(), p; open_after_writing = false)
+        cp(joinpath(plotdir[], "current_plot.html"), filename; force=true)
+    else
+        error("File extension on file `$filename` not recognized.")
+    end
     abspath(filename)
 end
 

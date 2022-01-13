@@ -4,6 +4,13 @@
 
 **PlotlyLight** is an ultra-lightweight (~150 lines) interface for working with [Plotly.js](https://plotly.com/javascript/).
 
+## Cool Features:
+
+- [`EasyConfig.Config](https://github.com/joshday/EasyConfig.jl)-to-JSON conversion.
+    - `Config` lets you set deeply-nested items without creating intermediate levels.
+    - e.g. `layout.xaxis.title.font.family = "Arial"`.
+- Your plots are automatically saved.  Re-open the `i`-th most recent plot with `PlotlyLight.history(i)`.
+- Displaying plots in the REPL will re-use the same browser window.
 ---
 
 - Plotly's Javascript API requires three JSON components: `data`, `layout`, and `config`.
