@@ -6,9 +6,14 @@
 
 ---
 
-- Plotly's Javascript API requires three components: `data`, `layout`, and `config`.
-- `PlotlyLight.Plot` simply does [`EasyConfig.Config`](https://github.com/joshday/EasyConfig.jl)-to-JSON conversion for each of the three components.
-- `PlotlyLight` does very little handholding/checking that your `data`/`layout`/`config` are properly formatted.  You'll need to rely on the [Plotly.js](https://plotly.com/javascript/) docs.
+- Plotly's Javascript API requires three JSON components: `data`, `layout`, and `config`.
+- You supply these three components as [`EasyConfig.Config`s](https://github.com/joshday/EasyConfig.jl).
+    - `Config` lets you set deeply-nested items without creating each level, e.g. `layout.xaxis.title.font.family = "Arial"`.
+- `PlotlyLight` does NOT check that your `data`/`layout`/`config` are properly formatted.  You'll need to rely on:
+    - [Plotly.js documentation](https://plotly.com/javascript/).
+    - Your browser console (to check for javascript errors).
+
+## Usage
 
 ```julia
 using PlotlyLight
@@ -19,6 +24,24 @@ layout = Config()
 layout.title.text = "My Title!"
 
 Plot(data, layout)
+```
+
+### Adding Traces
+
+Here's (a simplified view of) what a `Plot` is:
+
+```julia
+mutable struct Plot
+    data::Vector{Config}
+    layout::Config
+    config::Config
+end
+```
+
+Adding traces is as simple as `push!`-ing to the `data` field:
+
+```julia
+push!(my_awesome_plot.data, Config(x=1:10,y=randn(10)))
 ```
 
 ## Displaying `Plot`s
