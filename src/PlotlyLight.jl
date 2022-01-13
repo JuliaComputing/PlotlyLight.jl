@@ -5,7 +5,6 @@ using JSON3
 using EasyConfig
 using DefaultApplication
 using Scratch
-using Printf
 using Serialization
 
 export Plot, Config
@@ -112,6 +111,7 @@ function save(p::Plot, filename::String)
         show(IOBuffer(), p; open_after_writing = false)
         cp(joinpath(plotdir[], "current_plot.html"), filename; force=true)
     else
+        # TODO: .png, .svg, etc.
         error("File extension on file `$filename` not recognized.")
     end
     abspath(filename)
