@@ -113,6 +113,14 @@ function Base.show(io::IO, o::Plot)
     DefaultApplication.open(htmlfile)
 end
 
+save(filename::String, p::Plot) = save(p, filename)
+
+function save(p::Plot, filename::String)
+    show(IOBuffer(), p)
+    cp(joinpath(plotdir[], "current_plot.html"), filename; force=true)
+    abspath(filename)
+end
+
 
 #-----------------------------------------------------------------------------# Show text/html
 function Base.show(io::IO, ::MIME"text/html", o::Plot)
