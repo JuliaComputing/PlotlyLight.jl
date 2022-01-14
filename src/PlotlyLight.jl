@@ -163,6 +163,8 @@ end
 function Base.show(io::IO, ::MIME"text/html", page::WebPage)
     println(io, "<!DOCTYPE html style='background-color=$(page.bgcolor)'>")
     println(io, "<head>")
+    println(io, "  <meta charset=\"UTF-8\">")
+    println(io, "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">")
     println(io, "  <title>$(page.title)</title>")
     println(io, "</head>")
     println(io, "<body>")
