@@ -9,7 +9,7 @@
 - [`EasyConfig.Config`](https://github.com/joshday/EasyConfig.jl)-to-JSON conversion.
     - `Config` lets you set deeply-nested items without creating intermediate levels.
     - e.g. `layout.xaxis.title.font.family = "Arial"`.
-- Your plots are automatically saved.  Re-open the `i`-th most recent plot with `PlotlyLight.history(i)`.
+- Your plots are automatically saved.  Re-open the `i`-th most recent plot with `Plot(i)`.
 - Displaying plots in the REPL will re-use the same browser window.
 
 
