@@ -39,7 +39,7 @@ end
 
 ### Keyword Arguments
 
-- `id`, `class`, `style`, `parent_class`, `parent_style`, `pagetitle`, `pagecolor`
+- `id`, `class`, `style`, `parent_class`, `parent_style`, `pagetitle`, `pagecolor`, `js`
 - Defaults are chosen so that the plot will responsively fill the page.
 
 Keywords are best understood at looking at how the `Plot` will be `Base.display`-ed (`{{x}}` shows where the arguments go):
@@ -58,6 +58,7 @@ Keywords are best understood at looking at how the `Plot` will be `Base.display`
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <script>
             Plotly.newPlot({{id}}, {{data}}, {{layout}}, {{config}})
+            {{js}}
         </script>
     </body>
     </html>
