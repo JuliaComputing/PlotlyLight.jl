@@ -8,89 +8,75 @@
 
 ## Cool Features:
 
-- [`EasyConfig.Config`](https://github.com/joshday/EasyConfig.jl)-to-JSON conversion.
-    - `Config` lets you set deeply-nested items without creating intermediate levels.
-    - e.g. `layout.xaxis.title.font.family = "Arial"`.
-- Your plots are automatically saved.  Re-open the `i`-th most recent plot with `Plot(i)`.
-- Displaying plots in the REPL will re-use the same browser window.
+- Use the [Plotly.js Javascript documentation](https://plotly.com/javascript/) directly.
+    - No magic syntax here.  Just [`JSON3.write`](https://github.com/quinnj/JSON3.jl).
+- Set deeply-nested items easily (via [`EasyConfig.Config`](https://github.com/joshday/EasyConfig.jl)):
+    - `layout.xaxis.title.font.family = "Arial"`
+- `display`-ed plots will re-use the same browser window.
 
 
 ## Usage
+
+### Creating a Plot
 
 ```julia
 using PlotlyLight
 
 data = Config(x = 1:10, y = randn(10))
 
-layout = Config()
-layout.title.text = "My Title!"
-
 Plot(data, layout)
 ```
 
-## Main Docstring
+### Making Changes
+
+```julia
+# Change Layout
+p.layout.title.text = "My Title!"
+
+# Add Trace
+push!(p.data, Config(x=1:2:10, y=rand(5)))
+```
+
+## Docs for `Plot`
 
     Plot(data, layout, config; kw...)
 
-A Plotly.js plot with components `data`, `layout`, and `config`.  Each of the three components are
-directly converted to JSON.  See the Plotly Javascript docs here: https://plotly.com/javascript/.
+- A Plotly.js plot with components `data`, `layout`, and `config`.
+- Each of the three components are converted to JSON via `JSON3.write`.
+- See the Plotly Javascript docs here: https://plotly.com/javascript/.
 
 ### Arguments
 - `data = Config()`: A `Config` (single trace) or `Vector{Config}` (multiple traces).
 - `layout = Config()`.
-- `config = Config()`.
+- `config = Config(displaylogo=false, responsive=true)`.
 
 ### Keyword Arguments
-- `src = :cdn`: specify how to load Plotly's Javascript.  One of:
-    - `:cdn` → load from `"https://cdn.plot.ly/plotly-latest.min.js"` (requires internet access).
-    - `:local` → load from `"deps/plotly-latest.min.js"` (downloaded during `Pkg.build("PlotlyLight")`).
-    - `:standalone` → Write the `:local` .js file directly into a script tag in the html output.
-    - `:none` → `write(io, MIME"text/html"(), plot)` will not add the script tag.
-- `class = String[]`: Classes given to the HTML div that holds the plot.
-- `style = ""`: Styles given given to the HTML div that holds the plot.
-- `saveas = "plot_\$n"`: A name to save the plot as (Can be reloaded with `Plot(name)`).
-    - Plots are only saved within a session.  Multiple Julia sessions running `PlotlyLight` can
-      overwrite
-- `pagetitle`: The `<title>` tag of the HTML page (default=`"PlotlyLight Viz"`).
-- `pagecolor`: The `background-color` style of the HTML Page (default=`"#FFFFFF00"`).
 
-### Adding Traces
+- `id`, `class`, `style`, `parent_class`, `parent_style`, `pagetitle`, `pagecolor`
+- Defaults are chosen so that the plot will responsively fill the page.
 
-Here's (a simplified view of) what a `Plot` is:
+Keywords are best understood at looking at how the `Plot` will be `Base.display`-ed (`{{x}}` shows where the arguments go):
 
-```julia
-mutable struct Plot
-    data::Vector{Config}
-    layout::Config
-    config::Config
-end
-```
+    <!DOCTYPE html>
+    <html style="background-color: {{pagecolor}}">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{pagetitle}}</title>
+    </head>
+    <body>
+        <div class={{parent_class}} style={{parent_style}} id="parent-of-{{id}}">
+            <div class={{class}} style={{style}} id={{id}}></div>
+        </div>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script>
+            Plotly.newPlot({{id}}, {{data}}, {{layout}}, {{config}})
+        </script>
+    </body>
+    </html>
 
-Adding traces is as simple as `push!`-ing a `Config` to the `data` field:
+### Example
 
-```julia
-push!(my_awesome_plot.data, Config(x=1:10, y=randn(10)))
-```
-
-## Displaying `Plot`s
-
-- A `Plot` will open up in your browser (using [DefaultApplication.jl](https://github.com/tpapp/DefaultApplication.jl))
-- `Plot`s will display inline in environments with `text/html` mimetypes (like [Pluto.jl](https://github.com/fonsp/Pluto.jl)).
-    - Here's an example using [Blink.jl](https://github.com/JuliaGizmos/Blink.jl)
-    ```julia
-    using Blink, PlotlyLight
-
-    w = Window()
-
-    load!(w, "https://cdn.plot.ly/plotly-latest.min.js")
-
-    f(p) = body!(w, p)
-
-    f(Plot(Config(x = 1:10, y = randn(10))))
-    ```
-
-## `Plot`ting History
-
-- `PlotlyLight` automatically saves each plot from the current Julia session.
-- See `PlotlyLight.saved()` to show the available files.
-- E.g. Load the `i`-th most recent plot with `Plot(i)`.
+    p = Plot(Config(x=1:10, y=randn(10)))
+    p.layout.title.text = "My Title!"
+    p
