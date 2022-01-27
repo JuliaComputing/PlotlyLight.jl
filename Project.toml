@@ -1,7 +1,7 @@
 name = "PlotlyLight"
 uuid = "ca7969ec-10b3-423e-8d99-40f33abb42bf"
 authors = ["joshday <emailjoshday@gmail.com>"]
-version = "0.2.3"
+version = "0.3.0"
 
 [deps]
 DefaultApplication = "3f0dd361-4fe0-5fc6-8523-80b14ec94d85"
