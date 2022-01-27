@@ -9,7 +9,7 @@ using Scratch
 export Plot, Config
 
 #-----------------------------------------------------------------------------# init/utils
-const plotlyjs = joinpath(@__DIR__, "..", "deps", "plotly-latest.min.js")
+const plotlyjs = abspath(joinpath(@__DIR__, "..", "deps", "plotly-latest.min.js"))
 
 current = ""  # path to current.html
 
@@ -68,28 +68,22 @@ Keywords are best understood at looking at how the `Plot` will be `Base.display`
     p.layout.title.text = "My Title!"
     p
 """
-mutable struct Plot
-    data::Vector{Config}
-    layout::Config
-    config::Config
-    id::String              # id of plot div
-    class::String           # class of plot div
-    style::String           # style of plot div
-    parent_class::String    # class of plot div's parent div
-    parent_style::String    # style of plot div's parent div
-    pagetitle::String       # Used only in display(::Plot)
-    pagecolor::String       # Used only in display(::Plot)
-    function Plot(data=Config(), layout=Config(), config=Config(displaylogo=false, responsive=true);
-            id              = randstring(10),
-            class           = "",
-            style           = "height: 100%",
-            parent_class    = "",
-            parent_style    = "height: 100vh",
-            pagetitle       = "PlotlyLight.jl",
-            pagecolor       = "#FFFFFF00")
-        d = data isa Vector ? data : [data]
-        new(d, layout, config, id, class, style, parent_class, parent_style, pagetitle, pagecolor)
-    end
+Base.@kwdef mutable struct Plot
+    data::Vector{Config}    = Config[]
+    layout::Config          = Config()
+    config::Config          = Config(displaylogo=false, responsive=true)
+    id::String              = randstring(10)    # id of plot div
+    class::String           = ""                # class of plot div
+    style::String           = "height: 100%"    # style of plot div
+    parent_class::String    = ""                # class of plot div's parent div
+    parent_style::String    = "height: 100vh"   # style of plot div's parent div
+    pagetitle::String       = "PlotlyLight.jl"  # Used only in display(::Plot)
+    pagecolor::String       = "#FFFFFF00"       # Used only in display(::Plot)
+    js::String              = "console.log('Plot made!')" # Additional javascript to add (event handlers)
+end
+function Plot(traces, layout=Config(), config=Config(displaylogo=false, responsive=true); kw...)
+    data = traces isa Config ? [traces] : traces
+    Plot(; kw..., data, layout, config)
 end
 
 #-----------------------------------------------------------------------------# display
@@ -100,9 +94,9 @@ function write_current_html(o::Plot)
         println(io, "<!DOCTYPE html>")
         println(io, "<html style=\"background-color: $(o.pagecolor)\">")
         println(io, "<head>")
-        println(io, "  <meta charset=\"UTF-8\">")
-        println(io, "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">")
-        println(io, "  <title>$(o.pagetitle)</title>")
+        println(io, "    <meta charset=\"UTF-8\">")
+        println(io, "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">")
+        println(io, "    <title>$(o.pagetitle)</title>")
         println(io, "</head>")
         println(io, "<body>")
         show(io, MIME"text/html"(), o)
@@ -136,31 +130,32 @@ function Base.show(io::IO, ::MIME"text/html", o::Plot)
     src = plotlysrc[]
     src in [:cdn, :standalone, :none, :local] || error("`src` must be :cdn, :standalone, :none, or :local")
     println(io, "<div class=\"", o.parent_class, "\" style=\"", o.parent_style, "\" id=\"", "parent-of-", o.id, "\">")
-    println(io, "  <div class=\"", o.class, "\" style=\"", o.style, "\" id=\"", o.id, "\"></div>")
+    println(io, "    <div class=\"", o.class, "\" style=\"", o.style, "\" id=\"", o.id, "\"></div>")
     println(io, "</div>")
 
     if src === :cdn
-        println(io, "  <script src=\"https://cdn.plot.ly/plotly-latest.min.js\"></script>")
+        println(io, "<script src=\"https://cdn.plot.ly/plotly-latest.min.js\"></script>")
     elseif src === :standalone
-        println(io, "  <script>")
+        print(io, "<script>")
         for line in eachline(plotlyjs)
-            println(io, line)
+            print(io, line)
         end
-        println(io, "  </script>")
+        println(io, "</script>")
     elseif src === :local
-        println(io, "  <script src=\"", plotlyjs, "\"></script>")
+        println(io, "<script src=\"", plotlyjs, "\"></script>")
     else
         # :none
     end
 
     println(io, "<script>")
-    print(io, "  Plotly.newPlot(\"", o.id, "\", ")
+    print(io, "Plotly.newPlot(\"", o.id, "\", ")
     JSON3.write(io, o.data)
     print(io, ", ")
     JSON3.write(io, o.layout)
     print(io, ", ")
     JSON3.write(io, o.config)
-    println(io, ')')
+    println(io, ");")
+    println(io, o.js)
     print(io, "</script>\n")
 end
 
