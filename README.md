@@ -12,7 +12,9 @@
     - No magic syntax here.  Just [`JSON3.write`](https://github.com/quinnj/JSON3.jl).
 - Set deeply-nested items easily (via [`EasyConfig.Config`](https://github.com/joshday/EasyConfig.jl)):
     - `layout.xaxis.title.font.family = "Arial"`
-- `display`-ed plots will re-use the same browser tab.
+- Plots displayed in the REPL will re-use the same browser tab/window.
+- Plots displayed in `MIME"text/html"` environments (like Jupyter ([IJulia.jl](https://github.com/JuliaLang/IJulia.jl)) and [Pluto.jl](https://github.com/fonsp/Pluto.jl)) will appear inline.
+
 
 
 <h2 align="center">Usage</h2>
