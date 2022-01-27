@@ -12,22 +12,22 @@
     - No magic syntax here.  Just [`JSON3.write`](https://github.com/quinnj/JSON3.jl).
 - Set deeply-nested items easily (via [`EasyConfig.Config`](https://github.com/joshday/EasyConfig.jl)):
     - `layout.xaxis.title.font.family = "Arial"`
-- `display`-ed plots will re-use the same browser window.
+- `display`-ed plots will re-use the same browser tab.
 
 
 ## Usage
 
-### Creating a Plot
+##### Creating a Plot
 
 ```julia
 using PlotlyLight
 
 data = Config(x = 1:10, y = randn(10))
 
-Plot(data, layout)
+p = Plot(data)
 ```
 
-### Making Changes
+##### Making Changes
 
 ```julia
 # Change Layout
@@ -35,6 +35,9 @@ p.layout.title.text = "My Title!"
 
 # Add Trace
 push!(p.data, Config(x=1:2:10, y=rand(5)))
+
+# Display again (in same browser tab)
+p
 ```
 
 ## Docs for `Plot`
