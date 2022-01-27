@@ -16,6 +16,11 @@ current = ""  # path to current.html
 plotlysrc = Ref(:cdn)  # :cdn, :local, :standalone, :none
 src!(x::Symbol) = (plotlysrc[] = x)
 
+struct Javascript
+    x::String
+end
+Base.show(io::IO, ::MIME"text/javascript", j::Javascript) = print(io, j.x)
+
 struct PlotlyLightDisplay <: AbstractDisplay end
 
 function __init__()
@@ -39,29 +44,20 @@ end
 
 ### Keyword Arguments
 
-- `id`, `class`, `style`, `parent_class`, `parent_style`, `pagetitle`, `pagecolor`, `js`
 - Defaults are chosen so that the plot will responsively fill the page.
 
-Keywords are best understood at looking at how the `Plot` will be `Base.display`-ed (`{{x}}` shows where the arguments go):
+Keywords are best understood at looking at how the `Plot` gets written into HTML:
 
-    <!DOCTYPE html>
-    <html style="background-color: {{pagecolor}}">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{{pagetitle}}</title>
-    </head>
-    <body>
-        <div class={{parent_class}} style={{parent_style}} id="parent-of-{{id}}">
-            <div class={{class}} style={{style}} id={{id}}></div>
-        </div>
-        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-        <script>
-            Plotly.newPlot({{id}}, {{data}}, {{layout}}, {{config}})
-            {{js}}
-        </script>
-    </body>
-    </html>
+    {{before_plot (written with MIME"text/html")}}
+    <div class={{parent_class}} style={{parent_style}} id="parent-of-{{id}}">
+        <div class={{class}} style={{style}} id={{id}}></div>
+    </div>
+    {{after_plot (written with MIME"text/html")}}
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+        Plotly.newPlot({{id}}, {{data}}, {{layout}}, {{config}})
+        {{js (written with MIME"text/javascript; see PlotlyLight.Javascript)}}
+    </script>
 
 ### Example
 
@@ -73,14 +69,16 @@ Base.@kwdef mutable struct Plot
     data::Vector{Config}    = Config[]
     layout::Config          = Config()
     config::Config          = Config(displaylogo=false, responsive=true)
-    id::String              = randstring(10)    # id of plot div
-    class::String           = ""                # class of plot div
-    style::String           = "height: 100%"    # style of plot div
-    parent_class::String    = ""                # class of plot div's parent div
-    parent_style::String    = "height: 100vh"   # style of plot div's parent div
+    id::String              = randstring(10)    # id of graphDiv
+    class::String           = ""                # class of graphDiv
+    style::String           = "height: 100%"    # style of graphDiv
+    parent_class::String    = ""                # class of graphDiv's parent div
+    parent_style::String    = "height: 100vh"   # style of graphDiv's parent div
     pagetitle::String       = "PlotlyLight.jl"  # Used only in display(::Plot)
     pagecolor::String       = "#FFFFFF00"       # Used only in display(::Plot)
-    js::String              = "console.log('Plot made!')" # Additional javascript to add (event handlers)
+    before_plot             = HTML("")          # Added immediately before graphDiv (uses MIME"text/html")
+    after_plot              = HTML("")          # Added immediately after graphDiv (uses MIME"text/html")
+    js                      = Javascript("console.log('Plot made!')") # Additional javascript (uses MIME"text/javascript")
 end
 function Plot(traces, layout=Config(), config=Config(displaylogo=false, responsive=true); kw...)
     data = traces isa Config ? [traces] : traces
@@ -127,12 +125,14 @@ end
 
 
 #-----------------------------------------------------------------------------# Show text/html
-function Base.show(io::IO, ::MIME"text/html", o::Plot)
+function Base.show(io::IO, M::MIME"text/html", o::Plot)
     src = plotlysrc[]
     src in [:cdn, :standalone, :none, :local] || error("`src` must be :cdn, :standalone, :none, or :local")
+    show(io, M, o.before_plot)
     println(io, "<div class=\"", o.parent_class, "\" style=\"", o.parent_style, "\" id=\"", "parent-of-", o.id, "\">")
     println(io, "    <div class=\"", o.class, "\" style=\"", o.style, "\" id=\"", o.id, "\"></div>")
     println(io, "</div>")
+    show(io, M, o.after_plot)
 
     if src === :cdn
         println(io, "<script src=\"https://cdn.plot.ly/plotly-latest.min.js\"></script>")
@@ -156,7 +156,7 @@ function Base.show(io::IO, ::MIME"text/html", o::Plot)
     print(io, ", ")
     JSON3.write(io, o.config)
     println(io, ");")
-    println(io, o.js)
+    show(io, MIME"text/javascript"(), o.js)
     print(io, "</script>\n")
 end
 
