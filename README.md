@@ -15,7 +15,7 @@
 - `display`-ed plots will re-use the same browser tab.
 
 
-## Usage
+<h2 align="center">Usage</h2>
 
 ##### Creating a Plot
 
@@ -40,7 +40,7 @@ push!(p.data, Config(x=1:2:10, y=rand(5)))
 p
 ```
 
-## Docs for `Plot`
+<h2 align="center">Docs for <code>Plot</code></h2>
 
     Plot(data, layout, config; kw...)
 
