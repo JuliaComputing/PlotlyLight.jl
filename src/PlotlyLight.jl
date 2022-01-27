@@ -160,6 +160,13 @@ Base.@kwdef struct WebPage
     body::Vector
 end
 
+function Base.show(io::IO, page::WebPage; open_after_writing=true, kw...)
+    htmlfile = touch(joinpath(plotdir[], "current.html"))
+    open(io -> show(io, MIME"text/html"(), page), htmlfile, "w")
+    open_after_writing && DefaultApplication.open(htmlfile)
+    nothing
+end
+
 function Base.show(io::IO, ::MIME"text/html", page::WebPage)
     println(io, "<!DOCTYPE html style='background-color=$(page.bgcolor)'>")
     println(io, "<head>")
