@@ -17,7 +17,7 @@
 
 
 
-<h2 align="center">Usage</h2>
+## How to Use PlotlyLight.jl
 
 ##### Creating a Plot
 
@@ -42,7 +42,7 @@ push!(p.data, Config(x=1:2:10, y=rand(5)))
 p
 ```
 
-<h2 align="center">Docs for <code>Plot</code></h2>
+## Main Docstring (`?Plot`)
 
     Plot(data, layout, config; kw...)
 
