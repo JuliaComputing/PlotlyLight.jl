@@ -20,7 +20,7 @@ plotlyjs = let
         end
         bind_artifact!(artifacts_toml, "plotlylatest", plotlylatest_hash; force=true)
     end
-    joinpath(artifact_path(plotlylatest_hash), "plotlylatest")
+    joinpath(artifact_path(plotlylatest_hash), "plotly-latest.min.js")
 end
 
 
