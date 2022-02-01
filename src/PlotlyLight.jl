@@ -5,6 +5,7 @@ using JSON3
 using EasyConfig
 using Cobweb
 using Pkg.Artifacts
+using Downloads
 
 export Plot, Config
 
@@ -15,7 +16,7 @@ plotlyjs = let
 
     if isnothing(plotlylatest_hash) || !artifact_exists(plotlylatest_hash)
         plotlylatest_hash = create_artifact() do dir
-            download("https://cdn.plot.ly/plotly-latest.min.js", joinpath(dir, "tailwindcli"))
+            Downloads.download("https://cdn.plot.ly/plotly-latest.min.js", joinpath(dir, "tailwindcli"))
         end
         bind_artifact!(artifacts_toml, "plotlylatest", plotlylatest_hash)
     end
