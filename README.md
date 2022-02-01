@@ -41,6 +41,8 @@ push!(p.data, Config(x=1:2:10, y=rand(5)))  # Add Trace
 p  # Display again (in same browser tab)
 ```
 
+<img align=center src="https://user-images.githubusercontent.com/8075494/151987917-15a1c0fa-8f1f-483d-b662-cb8eaba5c7bf.png">
+
 <br><br>
 
 # 📄 Saving HTML files with [Cobweb.jl](https://github.com/joshday/Cobweb.jl)
