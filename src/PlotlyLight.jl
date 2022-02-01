@@ -3,31 +3,39 @@ module PlotlyLight
 using Random
 using JSON3
 using EasyConfig
-using DefaultApplication
-using Scratch
+using Cobweb
+using Pkg.Artifacts
 
 export Plot, Config
 
-#-----------------------------------------------------------------------------# init/utils
-const plotlyjs = abspath(joinpath(@__DIR__, "..", "deps", "plotly-latest.min.js"))
+#-----------------------------------------------------------------------------# plotly.js artifact
+plotlyjs = let
+    artifacts_toml = joinpath(@__DIR__, "..", "Artifacts.toml")
+    plotlylatest_hash = artifact_hash("plotlylatest", artifacts_toml)
 
-current = ""  # path to current.html
-
-plotlysrc = Ref(:cdn)  # :cdn, :local, :standalone, :none
-src!(x::Symbol) = (plotlysrc[] = x)
-
-struct Javascript
-    x::String
+    if isnothing(plotlylatest_hash) || !artifact_exists(plotlylatest_hash)
+        plotlylatest_hash = create_artifact() do dir
+            download("https://cdn.plot.ly/plotly-latest.min.js", joinpath(dir, "tailwindcli"))
+        end
+        bind_artifact!(artifacts_toml, "plotlylatest", plotlylatest_hash)
+    end
+    joinpath(artifact_path(plotlylatest_hash), "plotlylatest")
 end
-Base.show(io::IO, ::MIME"text/javascript", j::Javascript) = print(io, j.x)
 
-struct PlotlyLightDisplay <: AbstractDisplay end
+#-----------------------------------------------------------------------------# src
+src_opts = [:cdn, :local, :standalone, :none]
+plotlysrc = Ref(:cdn)
 
-function __init__()
-    isfile(plotlyjs) || @warn("Can't find local plotly.js.  Try building PlotlyLight again.")
-    global current = touch(joinpath(@get_scratch!("PlotlyLightHistory"), "current.html"))
-    pushdisplay(PlotlyLightDisplay())
-end
+"""
+    src!(x::Symbol) # `x` must be one of: $src_opts
+
+- `:cdn` → Use PlotlyJS CDN.
+- `:local` → Use local artifact.
+- `:standalone` → Write JS into the HTML file directly (can be shared and viewed offline).
+- `:none` → For when inserting into a page with Plotly.js already included.
+"""
+src!(x::Symbol) = (x in src_opts || error("src must be one of: $src_opts"); plotlysrc[] = x)
+
 
 #-----------------------------------------------------------------------------# Plot
 """
@@ -44,20 +52,23 @@ end
 
 ### Keyword Arguments
 
-- Defaults are chosen so that the plot will responsively fill the page.
+Defaults are chosen so that the plot will responsively fill the page.  Keywords are best understood at looking at how the `Plot` gets written into HTML.
 
-Keywords are best understood at looking at how the `Plot` gets written into HTML:
+```html
+<div class="\$parent_class" style="\$parent_style" id="parent-of-\$id">
+    <div class="\$class" style="\$style" id="\$id"></div>
+</div>
 
-    {{before_plot (written with MIME"text/html")}}
-    <div class={{parent_class}} style={{parent_style}} id="parent-of-{{id}}">
-        <div class={{class}} style={{style}} id={{id}}></div>
-    </div>
-    {{after_plot (written with MIME"text/html")}}
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script>
-        Plotly.newPlot({{id}}, {{data}}, {{layout}}, {{config}})
-        {{js (written with MIME"text/javascript; see PlotlyLight.Javascript)}}
-    </script>
+\$(see ?PlotlyLight.src! which shows how plotly.js script is inserted)
+
+<script>
+    data = \$(JSON3.write(data))
+    layout = \$(JSON3.write(layout))
+    config = \$(JSON3.write(config))
+    Plotly.newPlot("\$id", data, layout, config)
+    \$js
+</script>
+```
 
 ### Example
 
@@ -74,65 +85,22 @@ Base.@kwdef mutable struct Plot
     style::String           = "height: 100%"    # style of graphDiv
     parent_class::String    = ""                # class of graphDiv's parent div
     parent_style::String    = "height: 100vh"   # style of graphDiv's parent div
-    pagetitle::String       = "PlotlyLight.jl"  # Used only in display(::Plot)
-    pagecolor::String       = "#FFFFFF00"       # Used only in display(::Plot)
-    before_plot             = HTML("")          # Added immediately before graphDiv (uses MIME"text/html")
-    after_plot              = HTML("")          # Added immediately after graphDiv (uses MIME"text/html")
-    js                      = Javascript("console.log('Plot made!')") # Additional javascript (uses MIME"text/javascript")
+    js::Cobweb.Javascript   = Cobweb.Javascript("console.log('plot created!')")
 end
 function Plot(traces, layout=Config(), config=Config(displaylogo=false, responsive=true); kw...)
     data = traces isa Config ? [traces] : traces
     Plot(; kw..., data, layout, config)
 end
 
-#-----------------------------------------------------------------------------# display
-current_html() = touch(joinpath(plotdir[], "current.html"))
+#-----------------------------------------------------------------------------# Display
+Base.display(::Cobweb.CobwebDisplay, o::Plot) = display(Cobweb.CobwebDisplay(), Cobweb.Page(o))
 
-function write_current_html(o::Plot)
-    open(current, "w") do io
-        println(io, "<!DOCTYPE html>")
-        println(io, "<html style=\"background-color: $(o.pagecolor)\">")
-        println(io, "<head>")
-        println(io, "    <meta charset=\"UTF-8\">")
-        println(io, "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">")
-        println(io, "    <title>$(o.pagetitle)</title>")
-        println(io, "</head>")
-        println(io, "<body>")
-        show(io, MIME"text/html"(), o)
-        println(io, "</body>")
-        println(io, "</html>")
-    end
-end
-
-function Base.display(::PlotlyLightDisplay, o::Plot)
-    write_current_html(o)
-    DefaultApplication.open(current)
-end
-
-#-----------------------------------------------------------------------------# save
-save(filename::String, p::Plot) = save(p, filename)
-
-function save(p::Plot, filename::String)
-    if endswith(filename, ".html")
-        write_current_html(p)
-        cp(current, filename; force=true)
-    else
-        # TODO: .png, .svg, etc.
-        error("File extension on file `$filename` not recognized.")
-    end
-    abspath(filename)
-end
-
-
-#-----------------------------------------------------------------------------# Show text/html
 function Base.show(io::IO, M::MIME"text/html", o::Plot)
     src = plotlysrc[]
     src in [:cdn, :standalone, :none, :local] || error("`src` must be :cdn, :standalone, :none, or :local")
-    show(io, M, o.before_plot)
     println(io, "<div class=\"", o.parent_class, "\" style=\"", o.parent_style, "\" id=\"", "parent-of-", o.id, "\">")
     println(io, "    <div class=\"", o.class, "\" style=\"", o.style, "\" id=\"", o.id, "\"></div>")
     println(io, "</div>")
-    show(io, M, o.after_plot)
 
     if src === :cdn
         println(io, "<script src=\"https://cdn.plot.ly/plotly-latest.min.js\"></script>")

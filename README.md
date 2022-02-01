@@ -4,22 +4,23 @@
 
 <h1 align="center">PlotlyLight</h1>
 
-**PlotlyLight** is an ultra-lightweight (~150 lines) interface for working with [Plotly.js](https://plotly.com/javascript/).
+**PlotlyLight** is an ultra-lightweight (~100 lines) interface for working with [Plotly.js](https://plotly.com/javascript/).
 
-## Cool Features:
+# 🆒 Features
 
 - Use the [Plotly.js Javascript documentation](https://plotly.com/javascript/) directly.
     - No magic syntax here.  Just [`JSON3.write`](https://github.com/quinnj/JSON3.jl).
+- Plays nicely with [Cobweb.jl](https://github.com/joshday/Cobweb.jl)
 - Set deeply-nested items easily (via [`EasyConfig.Config`](https://github.com/joshday/EasyConfig.jl)):
     - `layout.xaxis.title.font.family = "Arial"`
-- Plots displayed in the REPL will re-use the same browser tab/window.
 - Plots displayed in `MIME"text/html"` environments (like Jupyter ([IJulia.jl](https://github.com/JuliaLang/IJulia.jl)) and [Pluto.jl](https://github.com/fonsp/Pluto.jl)) will appear inline.
 
+<br>
+<br>
 
+# 🏃 Quickstart
 
-## How to Use PlotlyLight.jl
-
-##### Creating a Plot
+## Create
 
 ```julia
 using PlotlyLight
@@ -29,59 +30,25 @@ data = Config(x = 1:10, y = randn(10))
 p = Plot(data)
 ```
 
-##### Making Changes
+## Mutate
 
 ```julia
-# Change Layout
-p.layout.title.text = "My Title!"
+p.layout.title.text = "My Title!"  # Change Layout
 
-# Add Trace
-push!(p.data, Config(x=1:2:10, y=rand(5)))
+push!(p.data, Config(x=1:2:10, y=rand(5)))  # Add Trace
 
-# Display again (in same browser tab)
-p
+p  # Display again (in same browser tab)
 ```
 
-## Main Docstring (`?Plot`)
+# Saving HTML files [Cobweb.jl](https://github.com/joshday/Cobweb.jl)
 
-    Plot(data, layout, config; kw...)
+```julia
+page = Page(p)
 
-- A Plotly.js plot with components `data`, `layout`, and `config`.
-- Each of the three components are converted to JSON via `JSON3.write`.
-- See the Plotly Javascript docs here: https://plotly.com/javascript/.
+save(page, "myplot.html")
+```
 
-### Arguments
-- `data = Config()`: A `Config` (single trace) or `Vector{Config}` (multiple traces).
-- `layout = Config()`.
-- `config = Config(displaylogo=false, responsive=true)`.
+# Docs
 
-### Keyword Arguments
-
-- `id`, `class`, `style`, `parent_class`, `parent_style`, `pagetitle`, `pagecolor`
-- Defaults are chosen so that the plot will responsively fill the page.
-
-Keywords are best understood at looking at how the `Plot` will be `Base.display`-ed (`{{x}}` shows where the arguments go):
-
-    <!DOCTYPE html>
-    <html style="background-color: {{pagecolor}}">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{{pagetitle}}</title>
-    </head>
-    <body>
-        <div class={{parent_class}} style={{parent_style}} id="parent-of-{{id}}">
-            <div class={{class}} style={{style}} id={{id}}></div>
-        </div>
-        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-        <script>
-            Plotly.newPlot({{id}}, {{data}}, {{layout}}, {{config}})
-        </script>
-    </body>
-    </html>
-
-### Example
-
-    p = Plot(Config(x=1:10, y=randn(10)))
-    p.layout.title.text = "My Title!"
-    p
+- See `?Plot` for details on the `Plot` object.
+- See `?PlotlyLight.src!` for details on how javascript gets loaded.
