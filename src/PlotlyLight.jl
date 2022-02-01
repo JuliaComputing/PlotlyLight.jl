@@ -16,9 +16,9 @@ plotlyjs = let
 
     if isnothing(plotlylatest_hash) || !artifact_exists(plotlylatest_hash)
         plotlylatest_hash = create_artifact() do dir
-            Downloads.download("https://cdn.plot.ly/plotly-latest.min.js", joinpath(dir, "plotly-latest.min.js"))
+            Downloads.download("https://cdn.plot.ly/plotly-2.8.3.min.js", joinpath(dir, "plotly-latest.min.js"))
         end
-        bind_artifact!(artifacts_toml, "plotlylatest", plotlylatest_hash)
+        bind_artifact!(artifacts_toml, "plotlylatest", plotlylatest_hash; force=true)
     end
     joinpath(artifact_path(plotlylatest_hash), "plotlylatest")
 end
