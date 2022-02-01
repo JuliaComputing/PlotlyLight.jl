@@ -15,12 +15,11 @@
     - `layout.xaxis.title.font.family = "Arial"`
 - Plots displayed in `MIME"text/html"` environments (like Jupyter ([IJulia.jl](https://github.com/JuliaLang/IJulia.jl)) and [Pluto.jl](https://github.com/fonsp/Pluto.jl)) will appear inline.
 
-<br>
-<br>
+<br><br>
 
 # 🏃 Quickstart
 
-## Create
+### Create
 
 ```julia
 using PlotlyLight
@@ -30,7 +29,7 @@ data = Config(x = 1:10, y = randn(10))
 p = Plot(data)
 ```
 
-## Mutate
+### Mutate
 
 ```julia
 p.layout.title.text = "My Title!"  # Change Layout
@@ -40,6 +39,8 @@ push!(p.data, Config(x=1:2:10, y=rand(5)))  # Add Trace
 p  # Display again (in same browser tab)
 ```
 
+<br><br>
+
 # 📄 Saving HTML files with [Cobweb.jl](https://github.com/joshday/Cobweb.jl)
 
 ```julia
@@ -47,6 +48,8 @@ page = Page(p)
 
 save(page, "myplot.html")
 ```
+
+<br><br>
 
 # 📖 Docs
 
