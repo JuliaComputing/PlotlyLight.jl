@@ -40,7 +40,7 @@ push!(p.data, Config(x=1:2:10, y=rand(5)))  # Add Trace
 p  # Display again (in same browser tab)
 ```
 
-# Saving HTML files [Cobweb.jl](https://github.com/joshday/Cobweb.jl)
+# 📄 Saving HTML files with [Cobweb.jl](https://github.com/joshday/Cobweb.jl)
 
 ```julia
 page = Page(p)
@@ -48,7 +48,7 @@ page = Page(p)
 save(page, "myplot.html")
 ```
 
-# Docs
+# 📖 Docs
 
 - See `?Plot` for details on the `Plot` object.
 - See `?PlotlyLight.src!` for details on how javascript gets loaded.
