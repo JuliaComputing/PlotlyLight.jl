@@ -6,6 +6,8 @@
 
 **PlotlyLight** is an ultra-lightweight (~100 lines) interface for working with [Plotly.js](https://plotly.com/javascript/).
 
+<br><br>
+
 # 🆒 Features
 
 - Use the [Plotly.js Javascript documentation](https://plotly.com/javascript/) directly.
