@@ -26,7 +26,7 @@
 ```julia
 using PlotlyLight
 
-data = Config(x = 1:10, y = randn(10), type="scatter", mode="markers")
+data = Config(x = 1:20, y = cumsum(randn(20)), type="scatter", mode="lines+markers")
 
 p = Plot(data)
 ```
