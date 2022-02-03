@@ -11,7 +11,7 @@ export Plot, Config
 
 #-----------------------------------------------------------------------------# plotly.js artifact
 plotlyjs = let
-    artifacts_toml = joinpath(@__DIR__, "..", "Artifacts.toml")
+    artifacts_toml = abspath(joinpath(@__DIR__, "..", "Artifacts.toml"))
     plotlylatest_hash = artifact_hash("plotlylatest", artifacts_toml)
 
     if isnothing(plotlylatest_hash) || !artifact_exists(plotlylatest_hash)
