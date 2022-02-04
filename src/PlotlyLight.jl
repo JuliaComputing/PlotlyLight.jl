@@ -9,21 +9,10 @@ using Downloads
 
 export Plot, Config
 
-#-----------------------------------------------------------------------------# plotly.js artifact
-plotlyjs = let
-    artifacts_toml = abspath(joinpath(@__DIR__, "..", "Artifacts.toml"))
-    plotlylatest_hash = artifact_hash("plotlylatest", artifacts_toml)
-
-    if isnothing(plotlylatest_hash) || !artifact_exists(plotlylatest_hash)
-        plotlylatest_hash = create_artifact() do dir
-            Downloads.download("https://cdn.plot.ly/plotly-2.8.3.min.js", joinpath(dir, "plotly-latest.min.js"))
-        end
-        bind_artifact!(artifacts_toml, "plotlylatest", plotlylatest_hash; force=true)
-    end
-    joinpath(artifact_path(plotlylatest_hash), "plotly-latest.min.js")
+function __init__()
+    global plotlyjs = joinpath(@__DIR__, "..", "deps", "plotly-2.8.3.min.js")
+    !(isfile(plotlyjs)) && @warn "Cannot find plotly.js. PlotlyLight should be built again."
 end
-
-
 
 #-----------------------------------------------------------------------------# src
 src_opts = [:cdn, :local, :standalone, :none]

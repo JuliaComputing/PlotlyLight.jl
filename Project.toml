@@ -9,7 +9,6 @@ DefaultApplication = "3f0dd361-4fe0-5fc6-8523-80b14ec94d85"
 Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 EasyConfig = "acab07b0-f158-46d4-8913-50acef6d41fe"
 JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
-Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [compat]
