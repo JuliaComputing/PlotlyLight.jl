@@ -4,7 +4,6 @@ using Random
 using JSON3
 using EasyConfig
 using Cobweb
-using Pkg.Artifacts
 using Downloads
 
 export Plot, Config

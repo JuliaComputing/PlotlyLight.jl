@@ -1,7 +1,7 @@
 name = "PlotlyLight"
 uuid = "ca7969ec-10b3-423e-8d99-40f33abb42bf"
 authors = ["joshday <emailjoshday@gmail.com>"]
-version = "0.4.0"
+version = "0.4.1"
 
 [deps]
 Cobweb = "ec354790-cf28-43e8-bb59-b484409b7bad"
