@@ -10,12 +10,13 @@
 
 # 🆒 Features
 
+- Fastest time-to-first-plot in Julia!
 - Use the [Plotly.js Javascript documentation](https://plotly.com/javascript/) directly.
     - No magic syntax here.  Just [`JSON3.write`](https://github.com/quinnj/JSON3.jl).
 - Plays nicely with [Cobweb.jl](https://github.com/joshday/Cobweb.jl).
-- Set deeply-nested items easily (via [`EasyConfig.Config`](https://github.com/joshday/EasyConfig.jl)):
+- Set deeply-nested items easily (via [`EasyConfig.jl`](https://github.com/joshday/EasyConfig.jl)):
     - `myplot.layout.xaxis.title.font.family = "Arial"`
-- Plots displayed in `MIME"text/html"` environments (like Jupyter/[IJulia.jl](https://github.com/JuliaLang/IJulia.jl) and [Pluto.jl](https://github.com/fonsp/Pluto.jl)) will appear inline.
+- Plots will appear in `MIME"text/html"` environments (like Jupyter/[IJulia.jl](https://github.com/JuliaLang/IJulia.jl) and [Pluto.jl](https://github.com/fonsp/Pluto.jl)).
 
 <br><br>
 
