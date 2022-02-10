@@ -11,7 +11,7 @@ using Pkg; Pkg.activate(".")
 using PlotlyLight
 
 # ╔═╡ e2dedee2-9702-11eb-1364-118bcaff2607
-Plot(Config(x=1:10,y=randn(10), type="bar"))
+Plot(Config(x=1:50,y=randn(50), type="bar"))
 
 # ╔═╡ Cell order:
 # ╠═14f719cd-ffdc-4d9b-83f4-efd7e7b54c82

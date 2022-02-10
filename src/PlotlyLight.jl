@@ -4,7 +4,6 @@ using Random
 using JSON3
 using EasyConfig
 using Cobweb
-using Downloads
 
 export Plot, Config
 
@@ -13,10 +12,31 @@ function __init__()
     !(isfile(plotlyjs)) && @warn "Cannot find plotly.js. PlotlyLight should be built again."
 end
 
+#-----------------------------------------------------------------------------# defaults
+module Defaults
+using EasyConfig: Config
+
+src             = Ref(:cdn)
+class           = Ref("")
+style           = Ref("height: 100%;")
+parent_class    = Ref("")
+parent_style    = Ref("height: 100vh;")
+config          = Ref(Config(displaylogo=false, responsive=true))
+layout          = Ref(Config())
+
+function reset!()
+    src[]           = :cdn
+    class[]         = ""
+    style[]         = "height: 100%;"
+    parent_class[]  = ""
+    parent_style[]  = "height: 100vh;"
+    config[]        = Config(displaylogo=false, responsive=true)
+    layout[]        = Config()
+end
+end
+
 #-----------------------------------------------------------------------------# src
 src_opts = [:cdn, :local, :standalone, :none]
-plotlysrc = Ref(:cdn)
-
 """
     src!(x::Symbol) # `x` must be one of: $src_opts
 
@@ -25,41 +45,18 @@ plotlysrc = Ref(:cdn)
 - `:standalone` → Write JS into the HTML file directly (can be shared and viewed offline).
 - `:none` → For when inserting into a page with Plotly.js already included.
 """
-src!(x::Symbol) = (x in src_opts || error("src must be one of: $src_opts"); plotlysrc[] = x)
-
+src!(x::Symbol) = (x in src_opts || error("src must be one of: $src_opts"); Defaults.src[] = x)
 
 #-----------------------------------------------------------------------------# Plot
 """
-    Plot(data, layout, config; kw...)
+    Plot(data, layout, config)
 
 - A Plotly.js plot with components `data`, `layout`, and `config`.
+    - `data = Config()`: A `Config` (single trace) or `Vector{Config}` (multiple traces).
+    - `layout = Config()`.
+    - `config = Config(displaylogo=false, responsive=true)`.
 - Each of the three components are converted to JSON via `JSON3.write`.
 - See the Plotly Javascript docs here: https://plotly.com/javascript/.
-
-### Arguments
-- `data = Config()`: A `Config` (single trace) or `Vector{Config}` (multiple traces).
-- `layout = Config()`.
-- `config = Config(displaylogo=false, responsive=true)`.
-
-### Keyword Arguments
-
-Defaults are chosen so that the plot will responsively fill the page.  Keywords are best understood at looking at how the `Plot` gets written into HTML.
-
-```html
-<div class="\$parent_class" style="\$parent_style" id="parent-of-\$id">
-    <div class="\$class" style="\$style" id="\$id"></div>
-</div>
-
-\$(see ?PlotlyLight.src! which shows how plotly.js script is inserted)
-
-<script>
-    data = \$(JSON3.write(data))
-    layout = \$(JSON3.write(layout))
-    config = \$(JSON3.write(config))
-    Plotly.newPlot("\$id", data, layout, config)
-    \$js
-</script>
-```
 
 ### Example
 
@@ -69,16 +66,12 @@ Defaults are chosen so that the plot will responsively fill the page.  Keywords 
 """
 Base.@kwdef mutable struct Plot
     data::Vector{Config}    = Config[]
-    layout::Config          = Config()
-    config::Config          = Config(displaylogo=false, responsive=true)
-    id::String              = randstring(10)    # id of graphDiv
-    class::String           = ""                # class of graphDiv
-    style::String           = "height: 100%"    # style of graphDiv
-    parent_class::String    = ""                # class of graphDiv's parent div
-    parent_style::String    = "height: 100vh"   # style of graphDiv's parent div
+    layout::Config          = Defaults.layout[]
+    config::Config          = Defaults.config[]
+    id::String              = randstring(10)            # id of graphDiv
     js::Cobweb.Javascript   = Cobweb.Javascript("console.log('plot created!')")
 end
-function Plot(traces, layout=Config(), config=Config(displaylogo=false, responsive=true); kw...)
+function Plot(traces, layout=Defaults.layout[], config=Defaults.config[]; kw...)
     data = traces isa Config ? [traces] : traces
     Plot(; kw..., data, layout, config)
 end
@@ -87,10 +80,17 @@ end
 Base.display(::Cobweb.CobwebDisplay, o::Plot) = display(Cobweb.CobwebDisplay(), Cobweb.Page(o))
 
 function Base.show(io::IO, M::MIME"text/html", o::Plot)
-    src = plotlysrc[]
+    (; class, style, parent_class, parent_style) = Defaults
+    parent_style = if get(io, :is_pluto, false)
+        s = replace(parent_style[], r"height.*;" => "")
+        "height: 400px;" * s
+    else
+        parent_style[]
+    end
+    src = Defaults.src[]
     src in [:cdn, :standalone, :none, :local] || error("`src` must be :cdn, :standalone, :none, or :local")
-    println(io, "<div class=\"", o.parent_class, "\" style=\"", o.parent_style, "\" id=\"", "parent-of-", o.id, "\">")
-    println(io, "    <div class=\"", o.class, "\" style=\"", o.style, "\" id=\"", o.id, "\"></div>")
+    println(io, "<div class=\"", parent_class[], "\" style=\"", parent_style, "\" id=\"", "parent-of-", o.id, "\">")
+    println(io, "    <div class=\"", class[], "\" style=\"", style[], "\" id=\"", o.id, "\"></div>")
     println(io, "</div>")
 
     if src === :cdn
