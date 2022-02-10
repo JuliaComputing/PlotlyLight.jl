@@ -80,7 +80,8 @@ end
 Base.display(::Cobweb.CobwebDisplay, o::Plot) = display(Cobweb.CobwebDisplay(), Cobweb.Page(o))
 
 function Base.show(io::IO, M::MIME"text/html", o::Plot)
-    (; class, style, parent_class, parent_style) = Defaults
+    class, style = Defaults.class, Defaults.style
+    parent_class, parent_style = Defaults.parent_class, Defaults.parent_style
     parent_style = if get(io, :is_pluto, false)
         s = replace(parent_style[], r"height.*;" => "")
         "height: 400px;" * s
