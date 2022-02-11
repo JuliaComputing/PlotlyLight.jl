@@ -49,7 +49,9 @@ p  # Display again (in same browser tab)
 # 📄 Saving HTML files with [Cobweb.jl](https://github.com/joshday/Cobweb.jl)
 
 ```julia
-page = Page(p)
+using Cobweb
+
+page = Cobweb.Page(p)
 
 save(page, "myplot.html")
 ```
