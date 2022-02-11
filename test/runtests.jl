@@ -20,5 +20,5 @@ end
     @test length(repr("text/html", p)) > 1000
 
     PlotlyLight.src!(:local)
-    @test occursin("deps", repr("text/html", p))
+    @test occursin("artifacts", repr("text/html", p))
 end
