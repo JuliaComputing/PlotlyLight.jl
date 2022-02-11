@@ -4,6 +4,7 @@ authors = ["joshday <emailjoshday@gmail.com>"]
 version = "0.4.1"
 
 [deps]
+Artifacts = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 Cobweb = "ec354790-cf28-43e8-bb59-b484409b7bad"
 DefaultApplication = "3f0dd361-4fe0-5fc6-8523-80b14ec94d85"
 Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"

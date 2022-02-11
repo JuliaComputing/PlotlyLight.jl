@@ -1,2 +1,6 @@
-[plotlylatest]
-git-tree-sha1 = "5821e9083cd6c4fa11bbf2f2433a411e17bffff7"
+[plotlyjs]
+git-tree-sha1 = "5067bdc8419e4cd1200c7112de5e894e4f806b58"
+
+    [[plotlyjs.download]]
+    sha256 = "93092503bb83dbde5a5484fc8aaf7c10dc68ae25e777c52010a0af07c487216d"
+    url = "https://github.com/joshday/PlotlyLight.jl/releases/download/artifacts_2022-02-11/PlotlyLightArtifacts.tar.gz"

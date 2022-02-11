@@ -4,17 +4,16 @@ using Random
 using JSON3
 using EasyConfig
 using Cobweb
+using Artifacts
 
 export Plot, Config
 
-function __init__()
-    global plotlyjs = joinpath(@__DIR__, "..", "deps", "plotly-2.8.3.min.js")
-    !(isfile(plotlyjs)) && @warn "Cannot find plotly.js. PlotlyLight should be built again."
-end
+plotlyjs = joinpath(artifact"plotlyjs", "plotly.min.js")
 
 #-----------------------------------------------------------------------------# defaults
 module Defaults
 using EasyConfig: Config
+export src, class, style, parent_class, parent_style, config, layout
 
 src             = Ref(:cdn)
 class           = Ref("")
