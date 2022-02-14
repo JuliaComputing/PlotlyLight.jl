@@ -48,14 +48,18 @@ src!(x::Symbol) = (x in src_opts || error("src must be one of: $src_opts"); Defa
 
 #-----------------------------------------------------------------------------# Plot
 """
-    Plot(data, layout, config)
+    Plot(data, layout, config; id, js)
 
 - A Plotly.js plot with components `data`, `layout`, and `config`.
-    - `data = Config()`: A `Config` (single trace) or `Vector{Config}` (multiple traces).
-    - `layout = Config()`.
-    - `config = Config(displaylogo=false, responsive=true)`.
+  - `data = Config()`: A `Config` (single trace) or `Vector{Config}` (multiple traces).
+  - `layout = Config()`.
+  - `config = Config(displaylogo=false, responsive=true)`.
 - Each of the three components are converted to JSON via `JSON3.write`.
 - See the Plotly Javascript docs here: https://plotly.com/javascript/.
+- Keyword Args:
+  - `id`: The `id` of the `<div>` the plot will be created in.  Default: `randstring(10)`.
+  - `js`:  `Cobweb.Javascript` to add after the creation of the plot.  Default:
+    - `Cobweb.Javascript("console.log('plot created!')")`
 
 ### Example
 
