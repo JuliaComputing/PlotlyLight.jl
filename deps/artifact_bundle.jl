@@ -32,7 +32,7 @@ sleep(10)
 
 add_artifact!(
     "Artifacts.toml",
-    "plotlyjs",
+    "plotly.min.js",
     "https://github.com/joshday/PlotlyLight.jl/releases/download/$artifacts_today/PlotlyLightArtifacts.tar.gz",
     force=true,
 )

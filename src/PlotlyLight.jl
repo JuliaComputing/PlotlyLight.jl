@@ -8,7 +8,7 @@ using Artifacts
 
 export Plot, Config
 
-plotlyjs = joinpath(artifact"plotlyjs", "plotly.min.js")
+plotlyjs = joinpath(artifact"plotly.min.js", "plotly.min.js")
 
 #-----------------------------------------------------------------------------# defaults
 module Defaults
