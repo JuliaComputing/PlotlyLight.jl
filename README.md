@@ -16,7 +16,7 @@
     - Set deeply-nested items easily with [`EasyConfig.jl`](https://github.com/joshday/EasyConfig.jl).
         - e.g. `myplot.layout.xaxis.title.font.family = "Arial"`
 - 🕸️ Plays nicely with [Cobweb.jl](https://github.com/joshday/Cobweb.jl).
-- 🪐 Plots will appear in `MIME"text/html"` environments (like Jupyter/[IJulia.jl](https://github.com/JuliaLang/IJulia.jl) and [Pluto.jl](https://github.com/fonsp/Pluto.jl)).
+- 🎈 Plots will appear in `MIME"text/html"` environments (like [Pluto.jl](https://github.com/fonsp/Pluto.jl)).
 
 <br><br>
 
