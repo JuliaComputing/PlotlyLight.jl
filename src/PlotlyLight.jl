@@ -8,11 +8,16 @@ using Artifacts
 
 export Plot, Config
 
-plotlyjs = joinpath(artifact"plotly.min.js", "plotly.min.js")
+const plotlyjs = joinpath(artifact"plotly.min.js", "plotly.min.js")
+const templates_dir = artifact"plotly_templates"
+const templates = map(x -> replace(x, ".json" => ""), readdir(templates_dir))
+
 
 #-----------------------------------------------------------------------------# defaults
 module Defaults
 using EasyConfig: Config
+using JSON3
+using ..PlotlyLight: templates_dir
 export src, class, style, parent_class, parent_style, config, layout
 
 src             = Ref(:cdn)
@@ -34,7 +39,7 @@ function reset!()
 end
 end
 
-#-----------------------------------------------------------------------------# src
+#-----------------------------------------------------------------------------# src!
 src_opts = [:cdn, :local, :standalone, :none]
 """
     src!(x::Symbol) # `x` must be one of: $src_opts
@@ -45,6 +50,13 @@ src_opts = [:cdn, :local, :standalone, :none]
 - `:none` → For when inserting into a page with Plotly.js already included.
 """
 src!(x::Symbol) = (x in src_opts || error("src must be one of: $src_opts"); Defaults.src[] = x)
+
+#-----------------------------------------------------------------------------# template!
+function template!(t = :plotly_white)
+    string(t) in templates || error("$t not found.  Options are one of: $(join(templates, ", ")).")
+    tmp = open(io -> JSON3.read(io, Config), joinpath(templates_dir, string(t) * ".json"))
+    Defaults.layout[].template = tmp
+end
 
 #-----------------------------------------------------------------------------# Plot
 """
