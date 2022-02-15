@@ -52,10 +52,27 @@ src_opts = [:cdn, :local, :standalone, :none]
 src!(x::Symbol) = (x in src_opts || error("src must be one of: $src_opts"); Defaults.src[] = x)
 
 #-----------------------------------------------------------------------------# template!
-function template!(t = :plotly_white)
+"""
+    template(t)
+
+Load the template `t`, which must be one of:
+
+```
+$(join(templates, "\n"))
+```
+"""
+function template(t)
     string(t) in templates || error("$t not found.  Options are one of: $(join(templates, ", ")).")
-    tmp = open(io -> JSON3.read(io, Config), joinpath(templates_dir, string(t) * ".json"))
-    Defaults.layout[].template = tmp
+    open(io -> JSON3.read(io, Config), joinpath(templates_dir, string(t) * ".json"))
+end
+
+"""
+    template!(t)
+
+Replace the `template` key of the default layout with `t`.  See also : `PlotlyLight.template`.
+"""
+function template!(t)
+    Defaults.layout[].template = template(t)
 end
 
 #-----------------------------------------------------------------------------# Plot
@@ -88,7 +105,10 @@ Base.@kwdef mutable struct Plot
 end
 function Plot(traces, layout=Defaults.layout[], config=Defaults.config[]; kw...)
     data = traces isa Config ? [traces] : traces
-    Plot(; kw..., data, layout, config)
+    Plot(; kw..., data,
+        layout = merge!(layout, Defaults.layout[]),
+        config = merge!(config, Defaults.config[])
+    )
 end
 
 #-----------------------------------------------------------------------------# Display

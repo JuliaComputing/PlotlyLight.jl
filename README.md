@@ -62,3 +62,38 @@ save(page, "myplot.html")
 
 - See `?Plot` for details on the `Plot` object.
 - See `?PlotlyLight.src!` for details on how javascript gets loaded.
+
+## Defaults
+
+A common workflow is to create multiple plots with a similar style.  Rather then setting nearly identical layouts for multiple plots, you can set default values for a variety of items.  HTML defaults (`class`/`style`/`parent_class`/`parent_style`) are chosen to make the plot reactive to the browser window size.
+
+```julia
+module Defaults
+src             = Ref(:cdn)  # How plotly gets loaded.  see ?PlotlyLight.src!
+class           = Ref("")  # class of the <div> the plot is inside of.
+style           = Ref("height: 100%;")  # style of the <div> the plot is inside of.
+parent_class    = Ref("")  # class of the plot's parent <div>.
+parent_style    = Ref("height: 100vh;")  # style of the plot's parent <div>.
+config          = Ref(Config(displaylogo=false, responsive=true))
+layout          = Ref(Config())
+end
+```
+
+Default values can be set e.g.
+
+```julia
+PlotlyLight.Defaults.layout[] = Config(title="Default Title")
+```
+
+## Themes/Templates
+
+The themes available in [Plotly's python package](https://plotly.com/python/templates/) are also made available in PlotlyLight.jl.  They can be set via:
+
+```julia
+layout = Config(template = PlotlyLight.template("plotly_dark"))
+
+# or clobber the default `layout.template`
+PlotlyLight.template!("plotly_dark)
+```
+
+See `PlotlyLight.templates` for a list of theme/template options.
