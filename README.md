@@ -63,6 +63,8 @@ save(page, "myplot.html")
 - See `?Plot` for details on the `Plot` object.
 - See `?PlotlyLight.src!` for details on how javascript gets loaded.
 
+<br>
+
 ## Defaults
 
 A common workflow is to create multiple plots with a similar style.  Rather then setting nearly identical layouts for multiple plots, you can set default values for a variety of items.  HTML defaults (`class`/`style`/`parent_class`/`parent_style`) are chosen to make the plot reactive to the browser window size.
@@ -84,6 +86,8 @@ Default values can be set e.g.
 ```julia
 PlotlyLight.Defaults.layout[] = Config(title="Default Title")
 ```
+
+<br>
 
 ## Themes/Templates
 
