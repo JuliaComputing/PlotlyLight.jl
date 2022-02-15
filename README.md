@@ -93,7 +93,7 @@ The themes available in [Plotly's python package](https://plotly.com/python/temp
 layout = Config(template = PlotlyLight.template("plotly_dark"))
 
 # or clobber the default `layout.template`
-PlotlyLight.template!("plotly_dark)
+PlotlyLight.template!("plotly_dark")
 ```
 
 See `PlotlyLight.templates` for a list of theme/template options.
