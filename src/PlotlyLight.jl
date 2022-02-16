@@ -106,8 +106,8 @@ end
 function Plot(traces, layout=Defaults.layout[], config=Defaults.config[]; kw...)
     data = traces isa Config ? [traces] : traces
     Plot(; kw..., data,
-        layout = merge!(layout, Defaults.layout[]),
-        config = merge!(config, Defaults.config[])
+        layout = merge(layout, Defaults.layout[]),
+        config = merge(config, Defaults.config[])
     )
 end
 
