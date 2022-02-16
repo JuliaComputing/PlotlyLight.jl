@@ -84,7 +84,7 @@ end
 Default values can be set e.g.
 
 ```julia
-PlotlyLight.Defaults.layout[] = Config(title="Default Title")
+PlotlyLight.Defaults.layout[].title="Default Title"
 ```
 
 <br>
