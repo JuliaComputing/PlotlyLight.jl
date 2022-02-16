@@ -29,8 +29,10 @@ end
     PlotlyLight.template!(:plotly_dark)
     p = Plot(Config(y=1:10))
     s = repr("text/html", p)
+
     PlotlyLight.template!(:plotly_white)
     p2 = Plot(Config(y=1:10))
-    s2 = repr("text/html", p)
+    s2 = repr("text/html", p2)
+
     @test s != s2
 end
