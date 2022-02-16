@@ -14,7 +14,7 @@
 - 🌐 Use the [Plotly.js Javascript documentation](https://plotly.com/javascript/) directly.  No magic syntax: Just [`JSON3.write`](https://github.com/quinnj/JSON3.jl).
     - Set deeply-nested keys easily with [`EasyConfig.jl`](https://github.com/joshday/EasyConfig.jl).
         - e.g. `myplot.layout.xaxis.title.font.family = "Arial"`
-- 🕸️ Plays nicely with [Cobweb.jl](https://github.com/joshday/Cobweb.jl).
+- 🕸️ Plays nicely with [Cobweb.jl](https://github.com/joshday/Cobweb.jl) to display/save plots.
 - 🎈 Plots will appear in `MIME"text/html"` environments (like [Pluto.jl](https://github.com/fonsp/Pluto.jl)).
 - 📊 The Same [built-in themes](https://plotly.com/python/templates/) as Plotly's python package.
 
