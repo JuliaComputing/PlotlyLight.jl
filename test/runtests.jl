@@ -13,10 +13,10 @@ end
     p = Plot(Config(y=1:10))
 
     PlotlyLight.src!(:cdn)
-    @test occursin("plotly-latest.min.js", repr("text/html", p))
+    @test occursin("cdn", repr("text/html", p))
 
     PlotlyLight.src!(:none)
-    @test !occursin("plotly-latest.min.js", repr("text/html", p))
+    @test !occursin("cdn", repr("text/html", p))
 
     PlotlyLight.src!(:standalone)
     @test length(repr("text/html", p)) > 1000
