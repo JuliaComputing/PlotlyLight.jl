@@ -8,7 +8,8 @@ using Artifacts
 
 export Plot, Config
 
-const plotlyjs = joinpath(artifact"plotly.min.js", "plotly.min.js")
+const cdn_url = "https://cdn.plot.ly/plotly-2.11.0.min.js"
+const plotlyjs = joinpath(artifact"plotly.min.js", basename(cdn_url))
 const templates_dir = artifact"plotly_templates"
 const templates = map(x -> replace(x, ".json" => ""), readdir(templates_dir))
 
@@ -130,7 +131,7 @@ function Base.show(io::IO, M::MIME"text/html", o::Plot)
     println(io, "</div>")
 
     if src === :cdn
-        println(io, "<script src=\"https://cdn.plot.ly/plotly-latest.min.js\"></script>")
+        println(io, "<script src=$(repr(cdn_url))></script>")
     elseif src === :standalone
         print(io, "<script>")
         for line in eachline(plotlyjs)

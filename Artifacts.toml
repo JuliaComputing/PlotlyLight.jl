@@ -1,13 +1,13 @@
 ["plotly.min.js"]
-git-tree-sha1 = "21a0e611f2cc26091222ee1056ba1f3ec8d4499e"
+git-tree-sha1 = "68520225d6daabbdcab4ca58a9709b244b1edaa5"
 
     [["plotly.min.js".download]]
-    sha256 = "28785dd92d8707fe29c06d4c59e563a0832445b3563d034e133926771e95d120"
-    url = "https://github.com/joshday/PlotlyLight.jl/releases/download/artifacts_2022-02-15/plotly.tar.gz"
+    sha256 = "3b04bd296ee123d06fbc501f68322a4694caaddec12e93e8f7b0b466636b1da7"
+    url = "https://github.com/joshday/PlotlyLight.jl/releases/download/artifacts_2022-03-14/plotly.tar.gz"
 
 [plotly_templates]
 git-tree-sha1 = "e88ffaa4a1b30cf2efa853b79b4d7bbb3f1beec7"
 
     [[plotly_templates.download]]
-    sha256 = "3d39fd24df0c9aa27b2bed0f8597fd9993860f9b23b95142f14e72c955587dab"
-    url = "https://github.com/joshday/PlotlyLight.jl/releases/download/artifacts_2022-02-15/templates.tar.gz"
+    sha256 = "0af862d32e98af6ed80dd12f5143dbad046f18d34ecda20ea601fcdb5df464c3"
+    url = "https://github.com/joshday/PlotlyLight.jl/releases/download/artifacts_2022-03-14/templates.tar.gz"

@@ -12,19 +12,24 @@ end
 
 #-----------------------------------------------------------------------------# Templates
 # Need to install plotly.py in order to get themes because they are generated in python
+# run(`conda create -n conda_jl python conda`)
 # ENV["CONDA_JL_HOME"] = "/opt/homebrew/Caskroom/miniconda/base/envs/conda_jl"
 # Pkg.build("Conda")
 # using Conda
 # Conda.add("plotly")
-templates = "/opt/homebrew/Caskroom/miniconda/base/envs/conda_jl/pkgs/plotly-5.1.0-pyhd3eb1b0_0/site-packages/plotly/package_data/templates"
+
+dir = "/opt/homebrew/Caskroom/miniconda/base/envs/conda_jl/pkgs"
+templates = joinpath(dir, filter(x -> startswith(x, "plotly"), readdir(dir))[1], "site-packages/plotly/package_data/templates")
+
 
 run(`gzip $(Tar.create(templates, joinpath(@__DIR__, "templates.tar")))`)
 
 
 #-----------------------------------------------------------------------------# Plotly.js
-url = "https://cdn.plot.ly/plotly-2.8.3.min.js"
+url = "https://cdn.plot.ly/plotly-2.11.0.min.js"
+file = basename(url)
 dir = mkpath(joinpath(@__DIR__, "plotlyjs"))
-Downloads.download(url, joinpath(dir, "plotly.min.js"))
+Downloads.download(url, joinpath(dir, file))
 
 run(`gzip $(Tar.create(dir, joinpath(@__DIR__, "plotly.tar")))`)
 
@@ -32,7 +37,7 @@ run(`gzip $(Tar.create(dir, joinpath(@__DIR__, "plotly.tar")))`)
 try
     artifacts_today = "artifacts_$(today())"
 
-    run(`gh release create $artifacts_today templates.tar.gz plotly.tar.gz --title $artifacts_today --notes ""`)
+    run(`gh release create $artifacts_today $(joinpath(@__DIR__, "templates.tar.gz")) $(joinpath(@__DIR__, "plotly.tar.gz")) --title $artifacts_today --notes ""`)
 
     @info "Sleeping so artifacts are ready on GitHub..."
     sleep(10)
