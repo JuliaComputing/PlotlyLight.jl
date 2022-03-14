@@ -101,3 +101,13 @@ PlotlyLight.template!("plotly_dark")
 ```
 
 See `PlotlyLight.templates` for a list of theme/template options.
+
+<br>
+
+## PlotlyLight in Pluto
+
+If you are plotting inside of [Pluto](https://github.com/fonsp/Pluto.jl), you'll probably want to change the default height of the plot's parent container:
+
+```julia
+PlotlyLight.Defaults.parent_style[] = "height: 400px;"
+```

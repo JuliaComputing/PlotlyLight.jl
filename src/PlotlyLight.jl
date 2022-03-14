@@ -18,7 +18,6 @@ const templates = map(x -> replace(x, ".json" => ""), readdir(templates_dir))
 module Defaults
 using EasyConfig: Config
 using JSON3
-using ..PlotlyLight: templates_dir
 export src, class, style, parent_class, parent_style, config, layout
 
 src             = Ref(:cdn)
