@@ -36,3 +36,11 @@ end
 
     @test s != s2
 end
+#-----------------------------------------------------------------------------# vecvec
+@testset "collectrows" begin
+    x = rand(3, 2)
+    v = collectrows(x)
+    @test v[1] == x[1, :]
+    @test v[2] == x[2, :]
+    @test v[3] == x[3, :]
+end

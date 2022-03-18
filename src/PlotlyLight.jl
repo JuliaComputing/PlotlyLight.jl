@@ -6,7 +6,7 @@ using EasyConfig
 using Cobweb
 using Artifacts
 
-export Plot, Config
+export Plot, Config, collectrows
 
 const cdn_url = "https://cdn.plot.ly/plotly-2.11.0.min.js"
 const plotlyjs = joinpath(artifact"plotly.min.js", basename(cdn_url))
@@ -154,5 +154,9 @@ function Base.show(io::IO, M::MIME"text/html", o::Plot)
     show(io, MIME"text/javascript"(), o.js)
     print(io, "</script>\n")
 end
+
+#-----------------------------------------------------------------------------# vecvec
+collectrows(x::AbstractMatrix) = [collect(row) for row in eachrow(x)]
+
 
 end # module
