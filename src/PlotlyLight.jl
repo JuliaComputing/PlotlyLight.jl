@@ -156,7 +156,7 @@ function Base.show(io::IO, M::MIME"text/html", o::Plot)
 end
 
 #-----------------------------------------------------------------------------# vecvec
-collectrows(x::AbstractMatrix) = [collect(row) for row in eachrow(x)]
+collectrows(x::AbstractMatrix) = collect.(eachrow(x))
 
 
 end # module
