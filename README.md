@@ -113,8 +113,8 @@ See `PlotlyLight.templates` for a list of theme/template options.
 
 ## PlotlyLight in Pluto
 
-If you are plotting inside of [Pluto](https://github.com/fonsp/Pluto.jl), you'll probably want to change the default height of the plot's parent container:
+If you are plotting inside of [Pluto](https://github.com/fonsp/Pluto.jl), the default height of the plot's parent container is changed to 400px.  You can change this e.g.
 
 ```julia
-PlotlyLight.Defaults.parent_style[] = "height: 400px;"
+PlotlyLight.Defaults.parent_style[] = "height: 450px;"
 ```
