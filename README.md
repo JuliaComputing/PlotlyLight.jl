@@ -41,8 +41,9 @@ push!(p.data, Config(x=1:2:10, y=rand(5)))  # Add Trace
 
 p  # Display again (in same browser tab)
 ```
-
-<img align="center" width=650 src="https://user-images.githubusercontent.com/8075494/151987917-15a1c0fa-8f1f-483d-b662-cb8eaba5c7bf.png">
+<p align="center">
+    <img width=650 src="https://user-images.githubusercontent.com/8075494/151987917-15a1c0fa-8f1f-483d-b662-cb8eaba5c7bf.png">
+</p>
 
 <br><br>
 
