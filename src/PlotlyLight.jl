@@ -114,6 +114,8 @@ end
 #-----------------------------------------------------------------------------# Display
 Base.display(::Cobweb.CobwebDisplay, o::Plot) = display(Cobweb.CobwebDisplay(), Cobweb.Page(o))
 
+Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME"text/html"(), o)
+
 function Base.show(io::IO, M::MIME"text/html", o::Plot)
     class, style = Defaults.class, Defaults.style
     parent_class, parent_style = Defaults.parent_class, Defaults.parent_style
