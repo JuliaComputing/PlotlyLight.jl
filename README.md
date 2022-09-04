@@ -122,13 +122,3 @@ See `PlotlyLight.templates` for a list of theme/template options.
 ## Gotchas
 
 - JSON does not have multidimensional arrays (https://www.w3schools.com/js/js_json_datatypes.asp).  Therefore, traces that require matrix inputs (such as heatmap) must use an array of arrays.  We have a small utility function for running this conversion: `PlotlyLight.collectrows(x)`.
-
-<br>
-
-## PlotlyLight in Pluto
-
-If you are plotting inside of [Pluto](https://github.com/fonsp/Pluto.jl), the default height of the plot's parent container is changed to 400px.  You can change this e.g.
-
-```julia
-PlotlyLight.Defaults.parent_style[] = "height: 450px;"
-```
