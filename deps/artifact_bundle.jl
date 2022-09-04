@@ -26,7 +26,7 @@ run(`gzip $(Tar.create(templates, joinpath(@__DIR__, "templates.tar")))`)
 
 
 #-----------------------------------------------------------------------------# Plotly.js
-url = "https://cdn.plot.ly/plotly-2.11.0.min.js"
+url = "https://cdn.plot.ly/plotly-2.14.0.min.js"
 file = basename(url)
 dir = mkpath(joinpath(@__DIR__, "plotlyjs"))
 Downloads.download(url, joinpath(dir, file))

@@ -4,17 +4,18 @@ using Random
 using JSON3
 using EasyConfig
 using Cobweb
+using StructTypes
 using Artifacts
 
 export Plot, Config, collectrows
 
-const cdn_url = "https://cdn.plot.ly/plotly-2.11.0.min.js"
+const cdn_url = "https://cdn.plot.ly/plotly-2.14.0.min.js"
 const plotlyjs = joinpath(artifact"plotly.min.js", basename(cdn_url))
 const templates_dir = artifact"plotly_templates"
 const templates = map(x -> replace(x, ".json" => ""), readdir(templates_dir))
 
 
-#-----------------------------------------------------------------------------# defaults
+#-----------------------------------------------------------------------------# Defaults
 module Defaults
 using EasyConfig: Config
 using JSON3
@@ -37,7 +38,7 @@ function reset!()
     config[]        = Config(displaylogo=false, responsive=true)
     layout[]        = Config()
 end
-end
+end # Defaults module
 
 #-----------------------------------------------------------------------------# src!
 src_opts = [:cdn, :local, :standalone, :none]
@@ -110,6 +111,8 @@ function Plot(traces, layout=Defaults.layout[], config=Defaults.config[]; kw...)
         config = merge(config, Defaults.config[])
     )
 end
+
+StructTypes.StructType(::Plot) = StructTypes.Struct()
 
 #-----------------------------------------------------------------------------# Display
 Base.display(::Cobweb.CobwebDisplay, o::Plot) = display(Cobweb.CobwebDisplay(), Cobweb.Page(o))
