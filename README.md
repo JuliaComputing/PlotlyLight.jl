@@ -4,7 +4,7 @@
 
 <h1 align="center">PlotlyLight</h1>
 
-**PlotlyLight** is an ultra-lightweight (~100 lines) interface for working with [Plotly.js](https://plotly.com/javascript/).
+**PlotlyLight** is an ultra-lightweight (~150 lines) interface for working with [Plotly.js](https://plotly.com/javascript/).
 
 <br><br>
 
@@ -44,6 +44,20 @@ p  # Display again (in same browser tab)
 <p align="center">
     <img width=650 src="https://user-images.githubusercontent.com/8075494/151987917-15a1c0fa-8f1f-483d-b662-cb8eaba5c7bf.png">
 </p>
+
+#### Simple Syntax for Adding Traces
+
+- You can add a trace by using a `Plot` object as a function:
+
+```julia
+plt = Plot()
+
+plt(
+    x = 1:10, y = randn(10), name = "trace 1"
+)(
+    x = 3:12, y = randn(10), name = "trace 2"
+)
+```
 
 <br><br>
 

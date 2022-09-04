@@ -111,6 +111,7 @@ function Plot(traces, layout=Defaults.layout[], config=Defaults.config[]; kw...)
         config = merge(config, Defaults.config[])
     )
 end
+(p::Plot)(; kw...) = (push!(p.data, Config(kw)); p)
 
 StructTypes.StructType(::Plot) = StructTypes.Struct()
 
