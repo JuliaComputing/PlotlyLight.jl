@@ -20,7 +20,7 @@
 
 <br><br>
 
-# 🏃 Quickstart
+# 🚀 Quickstart
 
 ### Create
 
@@ -80,7 +80,7 @@ save(page, "myplot.html")
 
 <br>
 
-## Defaults
+## ⚙️ Defaults
 
 A common workflow is to create multiple plots with a similar style.  Rather then setting nearly identical layouts for multiple plots, you can set default values for a variety of items.  HTML defaults (`class`/`style`/`parent_class`/`parent_style`) are chosen to make the plot reactive to the browser window size.
 
@@ -104,7 +104,7 @@ PlotlyLight.Defaults.layout[].title="Default Title"
 
 <br>
 
-## Themes/Templates
+## 📊 Themes/Templates
 
 The themes available in [Plotly's python package](https://plotly.com/python/templates/) are also made available in PlotlyLight.jl.  They can be set via:
 
@@ -119,6 +119,6 @@ See `PlotlyLight.templates` for a list of theme/template options.
 
 <br>
 
-## Gotchas
+## 😵‍💫 Gotchas
 
 - JSON does not have multidimensional arrays (https://www.w3schools.com/js/js_json_datatypes.asp).  Therefore, traces that require matrix inputs (such as heatmap) must use an array of arrays.  We have a small utility function for running this conversion: `PlotlyLight.collectrows(x)`.
