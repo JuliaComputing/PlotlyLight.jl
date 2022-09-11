@@ -88,7 +88,7 @@ save(page, "myplot.html")
     - `js`:  `Cobweb.Javascript` to add after the creation of the plot.  Default:
         - `Cobweb.Javascript("console.log('plot created!')")`
 
-## `PlotlyLight.src!`
+## `?PlotlyLight.src!`
 
     src!(x::Symbol) # `x` must be one of: [:cdn, :local, :standalone, :none]
 
@@ -142,11 +142,23 @@ The themes available in [Plotly's python package](https://plotly.com/python/temp
 ```julia
 layout = Config(template = PlotlyLight.template("plotly_dark"))
 
-# or clobber the default `layout.template`
-PlotlyLight.template!("plotly_dark")
+PlotlyLight.template!("plotly_dark")  # or replace the default `layout.template`
 ```
 
-See `PlotlyLight.templates` for a list of theme/template options.
+See `PlotlyLight.templates` for a list of theme/template options:
+
+```julia
+ "ggplot2"
+ "gridon"
+ "plotly"
+ "plotly_dark"
+ "plotly_white"
+ "presentation"
+ "seaborn"
+ "simple_white"
+ "xgridoff"
+ "ygridoff"
+```
 
 <br><br>
 
