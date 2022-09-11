@@ -37,8 +37,6 @@ p = Plot(data)
 ```julia
 p.layout.title.text = "My Title!"  # Change Layout
 
-push!(p.data, Config(x=1:2:10, y=rand(5)))  # Add Trace
-
 p  # Display again (in same browser tab)
 ```
 <p align="center">
@@ -75,8 +73,29 @@ save(page, "myplot.html")
 
 # 📖 Docs
 
-- See `?Plot` for details on the `Plot` object.
-- See `?PlotlyLight.src!` for details on how javascript gets loaded.
+## `?Plot`
+
+    Plot(data, layout, config; id, js)
+
+- A Plotly.js plot with components `data`, `layout`, and `config`.
+    - `data = Config()`: A `Config` (single trace) or `Vector{Config}` (multiple traces).
+    - `layout = Config()`.
+    - `config = Config(displaylogo=false, responsive=true)`.
+- Each of the three components are converted to JSON via `JSON3.write`.
+- See the Plotly Javascript docs here: https://plotly.com/javascript/.
+- Keyword Args:
+    - `id`: The `id` of the `<div>` the plot will be created in.  Default: `randstring(10)`.
+    - `js`:  `Cobweb.Javascript` to add after the creation of the plot.  Default:
+        - `Cobweb.Javascript("console.log('plot created!')")`
+
+## `PlotlyLight.src!`
+
+    src!(x::Symbol) # `x` must be one of: [:cdn, :local, :standalone, :none]
+
+- `:cdn` → Use PlotlyJS CDN.
+- `:local` → Use local artifact.
+- `:standalone` → Write JS into the HTML file directly (can be shared and viewed offline).
+- `:none` → For when inserting into a page with Plotly.js already included.
 
 <br><br>
 
@@ -86,21 +105,33 @@ A common workflow is to create multiple plots with a similar style.  Rather then
 
 ```julia
 module Defaults
+# Plot defaults
+config          = Ref(Config(displaylogo=false, responsive=true))
+layout          = Ref(Config())
+
+# HTML defaults
 src             = Ref(:cdn)  # How plotly gets loaded.  see ?PlotlyLight.src!
 class           = Ref("")  # class of the <div> the plot is inside of.
 style           = Ref("height: 100%;")  # style of the <div> the plot is inside of.
 parent_class    = Ref("")  # class of the plot's parent <div>.
 parent_style    = Ref("height: 100vh;")  # style of the plot's parent <div>.
-config          = Ref(Config(displaylogo=false, responsive=true))
-layout          = Ref(Config())
 end
 ```
 
-Default values can be set e.g.
+- As a reference, the underlying HTML of the plot looks like this:
+```html
+<div class="$parent_class" style="$parent_style">
+    <div class="$class" style="$style" id="plot_goes_here"></div>
+</div>
+```
+
+- Default values can be set e.g.
 
 ```julia
 PlotlyLight.Defaults.layout[].title="Default Title"
 ```
+
+- Revert back to the original defaults with `Defaults.reset!()`
 
 <br><br>
 
