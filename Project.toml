@@ -15,7 +15,7 @@ StructTypes = "856f2bd8-1eba-4b0a-8007-ebc267875bd4"
 
 [compat]
 Cobweb = "0.1, 0.2"
-StructTypes = "0.1"
+StructTypes = "1"
 DefaultApplication = "1"
 EasyConfig = "0.1.10"
 JSON3 = "1.8"
