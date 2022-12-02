@@ -9,8 +9,11 @@ using Artifacts
 
 export Plot, Config, collectrows
 
-const cdn_url = "https://cdn.plot.ly/plotly-2.16.1.min.js"
-const plotlyjs = joinpath(artifact"plotlylight", basename(cdn_url))
+const plotly = "plotly-2.16.1"
+
+const cdn_url = "https://cdn.plot.ly/$plotly.min.js"
+const plotlyjs = joinpath(@artifact_str(plotly), basename(cdn_url))
+
 const schema = open(io -> JSON3.read(io), joinpath(artifact"plotlylight", "schema.json"))
 const templates_dir = artifact"plotly_templates"
 const templates = map(x -> replace(x, ".json" => ""), readdir(templates_dir))

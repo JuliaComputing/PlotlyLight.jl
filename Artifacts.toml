@@ -1,13 +1,13 @@
-["plotly.min.js"]
-git-tree-sha1 = "81dcad274f5eb4a0f5c71c48db41c036645571c8"
+["plotly-2.16.1"]
+git-tree-sha1 = "bb8c00cdea68155d91264f586774d975135f9f8a"
 
-    [["plotly.min.js".download]]
-    sha256 = "51454c150e7bfc668267a84cca6ea861741f3da2da0a077d7fa978c598baf771"
-    url = "https://github.com/joshday/PlotlyLight.jl/releases/download/artifacts_2022-09-04/plotly.tar.gz"
+    [["plotly-2.16.1".download]]
+    sha256 = "888b9e94b660f8f3ac21bdfa8904fed8ed5955b6d95c95302e0a3637d62296fe"
+    url = "https://github.com/joshday/PlotlyLight.jl/releases/download/plotly-2.16.1/plotly-2.16.1.tar.gz"
 
-[plotly_templates]
-git-tree-sha1 = "e88ffaa4a1b30cf2efa853b79b4d7bbb3f1beec7"
+[schema-11b662302a42aa0698df091a9974ac8f6e1a2292]
+git-tree-sha1 = "7d5f447d5b4e4acc09a5043b092ce6878276f2c4"
 
-    [[plotly_templates.download]]
-    sha256 = "7f0038976a8808b2b3cac21021eb02df9e8eb936554ae33c4f3c4448af5b9e4f"
-    url = "https://github.com/joshday/PlotlyLight.jl/releases/download/artifacts_2022-09-04/templates.tar.gz"
+    [[schema-11b662302a42aa0698df091a9974ac8f6e1a2292.download]]
+    sha256 = "a5bceb495c27e803562d6a31042bfed3cbe1759d01571aa401bd1060e6178ba5"
+    url = "https://github.com/joshday/PlotlyLight.jl/releases/download/schema-11b662302a42aa0698df091a9974ac8f6e1a2292/schema-11b662302a42aa0698df091a9974ac8f6e1a2292.tar.gz"

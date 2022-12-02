@@ -4,7 +4,13 @@ Pkg.activate(@__DIR__)
 using Downloads, Tar, ArtifactUtils, Artifacts, Dates, JSON3
 
 #-----------------------------------------------------------------------------# Start from scratch
-rm("plotlylight_artifacts.tar.gz", force=true)
+function cleanup()
+    rm(joinpath(@__DIR__, "plotly_artifacts.tar.gz"), force=true)
+    rm(joinpath(@__DIR__, "plotly_artifacts"), force=true, recursive=true)
+end
+
+cleanup()
+
 dir = mkpath(joinpath(@__DIR__, "plotly_artifacts"))
 
 #-----------------------------------------------------------------------------# Templates
@@ -53,3 +59,6 @@ try
 catch ex
     @error "Error (probably the release already exists): $ex"
 end
+
+
+cleanup()
