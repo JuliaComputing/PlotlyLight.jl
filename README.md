@@ -55,7 +55,9 @@ Plot()(
 
 <br><br>
 
-# 📄 Saving HTML files with [Cobweb.jl](https://github.com/joshday/Cobweb.jl)
+# 📄 Saving Plots
+
+## Save HTML files with [Cobweb.jl](https://github.com/joshday/Cobweb.jl)
 
 ```julia
 using Cobweb: Page
@@ -63,6 +65,14 @@ using Cobweb: Page
 page = Page(p)
 
 save(page, "myplot.html")
+```
+
+## Save images with [PlotlyKaleido.jl](https://github.com/JuliaPlots/PlotlyKaleido.jl)
+
+```julia
+using PlotlyKaleido
+
+PlotlyKaleido.savefig(p, "myplot.png")
 ```
 
 <br><br>

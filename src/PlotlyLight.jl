@@ -104,20 +104,25 @@ end
     p.layout.title.text = "My Title!"
     p
 """
-Base.@kwdef mutable struct Plot
-    data::Vector{Config}    = Config[]
-    layout::Config          = Defaults.layout[]
-    config::Config          = Defaults.config[]
-    id::String              = randstring(10)            # id of graphDiv
-    js::Cobweb.Javascript   = Cobweb.Javascript("console.log('plot created!')")
+mutable struct Plot
+    data::Vector{Config}
+    layout::Config
+    config::Config
+    id::String  # id of graphDiv
+    js::Cobweb.Javascript
+
+    function Plot(
+            data::Union{Config, Vector{Config}},
+            layout::Config = Defaults.layout[],
+            config::Config = Defaults.config[];
+            # kw
+            id::AbstractString = randstring(10),
+            js::Cobweb.Javascript = Cobweb.Javascript("console.log('plot created!')")
+        )
+        new(data isa Config ? [data] : data, layout, config, string(id), js)
+    end
 end
-function Plot(traces, layout=Defaults.layout[], config=Defaults.config[]; kw...)
-    data = traces isa Config ? [traces] : traces
-    Plot(; kw..., data,
-        layout = merge(layout, Defaults.layout[]),
-        config = merge(config, Defaults.config[])
-    )
-end
+Plot(; kw...) = Plot(Config(kw))
 (p::Plot)(; kw...) = (push!(p.data, Config(kw)); p)
 
 StructTypes.StructType(::Plot) = StructTypes.Struct()
