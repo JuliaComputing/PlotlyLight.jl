@@ -137,7 +137,7 @@ function Base.show(io::IO, M::MIME"text/html", o::Plot)
     parent_class, parent_style = Defaults.parent_class, Defaults.parent_style
     parent_style = if get(io, :is_pluto, false)
         s = replace(parent_style[], r"height.*;" => "")
-        "height: 400px;" * s
+        "height: 400px;" * s 
     else
         parent_style[]
     end
