@@ -22,8 +22,6 @@
 
 # 🚀 Quickstart
 
-### Create
-
 ```julia
 using PlotlyLight
 
@@ -47,7 +45,7 @@ p
 
 #### Adding Traces
 
-- You can add a trace by calling a `PlotlyLight.Plot` object as a function:
+- `PlotlyLight.Plot` objects are callable.  Repeatedly make calls to add traces.
 
 ```julia
 Plot()(
