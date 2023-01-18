@@ -10,5 +10,5 @@ Manifest.toml
 *.log
 *.tar
 *.tar.gz
-deps/plotly_artifacts*
+deps/temp*
 notebooks/

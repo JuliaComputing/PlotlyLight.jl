@@ -27,18 +27,22 @@
 ```julia
 using PlotlyLight
 
+# Change template
+PlotlyLight.template!("plotly_dark")
+
+# Make plot
 p = Plot(x = 1:20, y = cumsum(randn(20)), type="scatter", mode="lines+markers")
+
+# Make changes
+p.layout.title.text = "My Title!"
+
+# `display(p)` to see the updated plot
+p
 ```
 
-### Mutate
 
-```julia
-p.layout.title.text = "My Title!"  # Change Layout
-
-p  # Display again (in same browser tab)
-```
 <p align="center">
-    <img width=650 src="https://user-images.githubusercontent.com/8075494/151987917-15a1c0fa-8f1f-483d-b662-cb8eaba5c7bf.png">
+    <img width=650 src="https://user-images.githubusercontent.com/8075494/213164013-3ba1a108-122a-4339-a0a2-fa2175fa06e3.png">
 </p>
 
 #### Adding Traces
