@@ -9,13 +9,12 @@ using Artifacts
 
 export Plot, Config, collectrows
 
-const plotly = "plotly-2.16.1"
+include("version.jl")
 
-const cdn_url = "https://cdn.plot.ly/$plotly.min.js"
-const plotlyjs = joinpath(@artifact_str(plotly), basename(cdn_url))
-
-const schema = joinpath(artifact"plotly-schema", "plotly-schema.json")
-const templates_dir = artifact"plotly-templates"
+const cdn_url = "https://cdn.plot.ly/$version.min.js"
+const plotlyjs = joinpath(artifact"PlotlyLight", basename(cdn_url))
+const schema = joinpath(artifact"PlotlyLight", "plotly-schema.json")
+const templates_dir = joinpath(artifact"PlotlyLight", "templates")
 const templates = map(x -> replace(x, ".json" => ""), readdir(templates_dir))
 
 load_schema() = open(io -> JSON3.read(io), schema).schema
@@ -48,6 +47,12 @@ end
 end # Defaults module
 
 #-----------------------------------------------------------------------------# src!
+struct CDN
+    url::String
+    CDN(url="https://cdn.plot.ly/$version.min.js") = new(url)
+end
+
+
 src_opts = [:cdn, :local, :standalone, :none]
 """
     src!(x::Symbol) # `x` must be one of: $src_opts
@@ -137,7 +142,7 @@ function Base.show(io::IO, M::MIME"text/html", o::Plot)
     parent_class, parent_style = Defaults.parent_class, Defaults.parent_style
     parent_style = if get(io, :is_pluto, false)
         s = replace(parent_style[], r"height.*;" => "")
-        "height: 400px;" * s 
+        "height: 400px;" * s
     else
         parent_style[]
     end
