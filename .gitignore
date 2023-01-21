@@ -14,4 +14,4 @@ deps/temp*
 notebooks/
 *.ipynb
 *.html
-docs/demo_files
+quarto/index_files/*
