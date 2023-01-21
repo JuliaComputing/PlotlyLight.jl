@@ -47,12 +47,6 @@ end
 end # Defaults module
 
 #-----------------------------------------------------------------------------# src!
-struct CDN
-    url::String
-    CDN(url="https://cdn.plot.ly/$version.min.js") = new(url)
-end
-
-
 src_opts = [:cdn, :local, :standalone, :none]
 """
     src!(x::Symbol) # `x` must be one of: $src_opts
@@ -137,23 +131,23 @@ Base.display(::Cobweb.CobwebDisplay, o::Plot) = display(Cobweb.CobwebDisplay(), 
 
 Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME"text/html"(), o)
 
-function Base.show(io::IO, M::MIME"text/html", o::Plot)
+function write_plot_div(io::IO, o::Plot)
     class, style = Defaults.class, Defaults.style
     parent_class, parent_style = Defaults.parent_class, Defaults.parent_style
-    parent_style = if get(io, :is_pluto, false)
-        s = replace(parent_style[], r"height.*;" => "")
-        "height: 400px;" * s
-    else
+    parent_style = get(io, :is_pluto, false) || get(io, :jupyter, false) ?
+        "height:400px;" * parent_style[] :
         parent_style[]
-    end
-    src = Defaults.src[]
-    src in [:cdn, :standalone, :none, :local] || error("`src` must be :cdn, :standalone, :none, or :local")
     println(io, "<div class=\"", parent_class[], "\" style=\"", parent_style, "\" id=\"", "parent-of-", o.id, "\">")
     println(io, "    <div class=\"", class[], "\" style=\"", style[], "\" id=\"", o.id, "\"></div>")
     println(io, "</div>")
+end
+
+function write_load_plotly(io)
+    src = Defaults.src[]
+    src in [:cdn, :standalone, :none, :local] || error("`src` must be :cdn, :standalone, :none, or :local")
 
     if src === :cdn
-        println(io, "<script src=$(repr(cdn_url))></script>")
+        println(io, "<script src=", repr(cdn_url), "></script>")
     elseif src === :standalone
         print(io, "<script>")
         for line in eachline(plotlyjs)
@@ -162,11 +156,10 @@ function Base.show(io::IO, M::MIME"text/html", o::Plot)
         println(io, "</script>")
     elseif src === :local
         println(io, "<script src=\"", plotlyjs, "\"></script>")
-    else
-        # :none
     end
+end
 
-    println(io, "<script>")
+function write_newplot(io::IO, o::Plot)
     print(io, "Plotly.newPlot(\"", o.id, "\", ")
     JSON3.write(io, o.data)
     print(io, ", ")
@@ -174,8 +167,45 @@ function Base.show(io::IO, M::MIME"text/html", o::Plot)
     print(io, ", ")
     JSON3.write(io, o.config)
     println(io, ");")
-    show(io, MIME"text/javascript"(), o.js)
-    print(io, "</script>\n")
+end
+
+function write_require_config(io)
+    write(io, """
+    <script type="text/javascript">
+        if (typeof require !== 'undefined') {
+            require.undef("plotly");
+            requirejs.config({
+                paths: {
+                    'plotly': '$(cdn_url[7:end-3])'
+                }
+            });
+            require(['plotly'], function(Plotly) {
+                window._Plotly = Plotly;
+            });
+        }
+    </script>
+    """)
+end
+
+function Base.show(io::IO, M::MIME"text/html", o::Plot)
+    write_plot_div(io, o)
+
+    if :jupyter in keys(io)
+        write_require_config(io)
+        println(io, "<script>")
+        write(io, "require([\"plotly\"], function(Plotly) {\n")
+        write_newplot(io, o)
+        show(io, MIME"text/javascript"(), o.js)
+        write(io, "});")
+        println(io, "</script>")
+    else
+        # write_plot_div(io, o)
+        write_load_plotly(io)
+        println(io, "<script>")
+        write_newplot(io, o)
+        show(io, MIME"text/javascript"(), o.js)
+        print(io, "</script>\n")
+    end
 end
 
 #-----------------------------------------------------------------------------# vecvec

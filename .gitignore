@@ -12,3 +12,6 @@ Manifest.toml
 *.tar.gz
 deps/temp*
 notebooks/
+*.ipynb
+*.html
+docs/demo_files

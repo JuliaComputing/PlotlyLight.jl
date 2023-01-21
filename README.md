@@ -109,7 +109,7 @@ PlotlyKaleido.savefig(p, "myplot.png")
 
 # ⚙️ Defaults
 
-A common workflow is to create multiple plots with a similar style.  Rather then setting nearly identical layouts for multiple plots, you can set default values for a variety of items.  HTML defaults (`class`/`style`/`parent_class`/`parent_style`) are chosen to make the plot reactive to the browser window size.
+You can set default values for the `layout`, `config`, and a number of other options that affect how the plot displays in your browser.  HTML defaults (`class`/`style`/`parent_class`/`parent_style`) are chosen to make the plot reactive to the browser window size.
 
 ```julia
 module Defaults
@@ -133,10 +133,10 @@ end
 </div>
 ```
 
-- Default values can be set e.g.
+- Default values are `Ref`s and can be changed e.g.
 
 ```julia
-PlotlyLight.Defaults.layout[].title="Default Title"
+PlotlyLight.Defaults.layout[].title.text = "Default Title"
 ```
 
 - Revert back to the original defaults with `Defaults.reset!()`
