@@ -122,7 +122,8 @@ mutable struct Plot
     end
 end
 Plot(; kw...) = Plot(Config(kw))
-(p::Plot)(; kw...) = (push!(p.data, Config(kw)); p)
+(p::Plot)(; kw...) = (push!(p.data, Config(kw)); return p)
+(p::Plot)(data::Config) = (push!(p.data, data); return p)
 
 StructTypes.StructType(::Plot) = StructTypes.Struct()
 
@@ -130,6 +131,10 @@ StructTypes.StructType(::Plot) = StructTypes.Struct()
 Base.display(::Cobweb.CobwebDisplay, o::Plot) = display(Cobweb.CobwebDisplay(), Cobweb.Page(o))
 
 Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME"text/html"(), o)
+
+function Base.show(io::IO, ::MIME"application/vnd.plotly.v1+json", p::Plot)
+    JSON3.write(io, Config(; data=p.data, layout=p.layout, config=p.config))
+end
 
 function write_plot_div(io::IO, o::Plot)
     class, style = Defaults.class, Defaults.style

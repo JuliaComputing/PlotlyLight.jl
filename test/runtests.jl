@@ -7,6 +7,10 @@ using Test
     @test Plot(Config(x = 1:10)) isa Plot
     @test Plot(Config(x = 1:10), Config(title="Title")) isa Plot
     @test Plot(Config(x = 1:10), Config(title="Title"), Config(displaylogo=true)) isa Plot
+    p = Plot()
+    @test isempty(only(p.data))
+    p(Config(x=1:10,y=rand(10)))
+    @test length(p.data) == 2
 end
 #-----------------------------------------------------------------------------# src
 @testset "src" begin
