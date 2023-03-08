@@ -1,8 +1,8 @@
 on:
   push:
-    branches: main
+    branches: master
 
-name: Render and Publish
+name: Quarto!
 
 jobs:
   build-deploy:
