@@ -20,6 +20,7 @@ jobs:
           # version: SPECIFIC-QUARTO-VERSION-HERE
 
       # add software dependencies here
+      - run: pip install jupyter
       - uses: julia-actions/setup-julia@v1
       - run: julia -e 'using Pkg; Pkg.add("IJulia");'
 
