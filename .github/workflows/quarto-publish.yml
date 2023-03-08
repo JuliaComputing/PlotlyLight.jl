@@ -21,6 +21,7 @@ jobs:
 
       # add software dependencies here
       - uses: julia-actions/setup-julia@v1
+      - run: julia -e 'using Pkg; Pkg.add("IJulia");'
 
       - name: Publish to GitHub Pages (and render)
         uses: quarto-dev/quarto-actions/publish@v2
