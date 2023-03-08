@@ -27,7 +27,7 @@ jobs:
 
       # Julia Kernel
       - uses: julia-actions/setup-julia@v1
-      - run: julia --project=@. -e 'using Pkg; Pkg.add("IJulia");'
+      - run: julia --project=@. -e 'using Pkg; Pkg.instantiate();'
 
       - name: Publish to GitHub Pages (and render)
         uses: quarto-dev/quarto-actions/publish@v2
