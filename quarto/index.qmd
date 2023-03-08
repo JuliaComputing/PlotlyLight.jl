@@ -19,6 +19,8 @@ jupyter: julia-1.8
 
 ```{julia}
 #| echo: false
+using Pkg
+Pkg.activate(joinpath(@__DIR__, ".."))
 using PlotlyLight
 PlotlyLight.src!(:none)
 cp(PlotlyLight.plotlyjs, joinpath(@__DIR__, "plotly.js"); force=true);

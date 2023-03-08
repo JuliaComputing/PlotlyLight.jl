@@ -132,9 +132,9 @@ Base.display(::Cobweb.CobwebDisplay, o::Plot) = display(Cobweb.CobwebDisplay(), 
 
 Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME"text/html"(), o)
 
-function Base.show(io::IO, ::MIME"application/vnd.plotly.v1+json", p::Plot)
-    JSON3.write(io, Config(; data=p.data, layout=p.layout, config=p.config))
-end
+# function Base.show(io::IO, ::MIME"application/vnd.plotly.v1+json", p::Plot)
+#     JSON3.write(io, Config(; data=p.data, layout=p.layout, config=p.config))
+# end
 
 function write_plot_div(io::IO, o::Plot)
     class, style = Defaults.class, Defaults.style
