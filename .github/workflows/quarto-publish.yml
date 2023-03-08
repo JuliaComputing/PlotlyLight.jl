@@ -19,10 +19,15 @@ jobs:
           # uncomment below and fill to pin a version
           # version: SPECIFIC-QUARTO-VERSION-HERE
 
-      # add software dependencies here
+      # Jupyter
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
       - run: pip install jupyter
+
+      # Julia Kernel
       - uses: julia-actions/setup-julia@v1
-      - run: julia -e 'using Pkg; Pkg.add("IJulia");'
+      - run: julia --project=@. -e 'using Pkg; Pkg.add("IJulia");'
 
       - name: Publish to GitHub Pages (and render)
         uses: quarto-dev/quarto-actions/publish@v2
