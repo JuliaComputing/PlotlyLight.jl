@@ -29,10 +29,6 @@ jobs:
       - uses: julia-actions/setup-julia@v1
       - run: julia --project=@. -e 'using Pkg; Pkg.instantiate();'
 
-      - uses: quarto-dev/quarto-actions/install-quarto@v2
-        with:
-          tinytex: true
-
       - run: quarto render
 
       - name: Push to GitHub Pages
