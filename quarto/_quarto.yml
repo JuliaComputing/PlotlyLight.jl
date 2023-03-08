@@ -6,9 +6,6 @@ book:
   author: "Josh Day"
   chapters:
     - index.qmd
-    # - intro.qmd
-    # - summary.qmd
-    # - references.qmd
 
 # bibliography: references.bib
 

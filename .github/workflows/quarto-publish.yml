@@ -29,10 +29,14 @@ jobs:
       - uses: julia-actions/setup-julia@v1
       - run: julia --project=@. -e 'using Pkg; Pkg.instantiate();'
 
-      - name: Publish to GitHub Pages (and render)
-        uses: quarto-dev/quarto-actions/publish@v2
+      - uses: quarto-dev/quarto-actions/install-quarto@v2
         with:
-          target: gh-pages
+          tinytex: true
+
+      - run: quarto render
+
+       - name: Push to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3.6.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: _book
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # this secret is always available for github actions
