@@ -1,0 +1,21 @@
+project:
+  type: book
+
+book:
+  title: "PlotlyLight.jl Docs"
+  author: "Josh Day"
+  chapters:
+    - index.qmd
+    # - intro.qmd
+    # - summary.qmd
+    # - references.qmd
+
+# bibliography: references.bib
+
+format:
+  html:
+    theme: cosmo
+  # pdf:
+  #   documentclass: scrreport
+  # epub:
+  #   cover-image: cover.png

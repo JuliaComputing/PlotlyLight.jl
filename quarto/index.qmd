@@ -1,18 +1,18 @@
 ---
 title: "PlotlyLight Demo"
-author: "Josh Day"
-date: "2023-01-18"
+author: "Dr. Josh Day"
+# date: "2023-01-18"
 lib-dir: "./"
 format:
   html:
     code-fold: true
-jupyter: julia-1.8
+# jupyter: julia-1.8
 ---
 
 
-[**PlotlyLight**](https://github.com/juliacomputing/PlotlyLight.jl) is a Julia package for writing [plotly.js](https://plotly.com/javascript/) plots.
+[**PlotlyLight**](https://github.com/juliacomputing/PlotlyLight.jl){target="_blank"} is a Julia package for writing [plotly.js](https://plotly.com/javascript/){target="_blank"} plots.
 
-**PlotlyLight** is different from other Plotly-based packages in that you are meant to directly use [Plotly's javascript docs](https://plotly.com/javascript/).
+**PlotlyLight** is different from other Plotly-based packages in that you are meant to directly use [Plotly's javascript docs](https://plotly.com/javascript/){target="_blank"}.
 
 
 # Quickstart
@@ -31,5 +31,5 @@ p = Plot(x = 1:20, y = cumsum(randn(20)), type="scatter", mode="lines+markers")
 p.layout.title.text = "My Title!"
 
 # `display(p)` to see the updated plot
-p
+repr("text/html", p)
 ```
