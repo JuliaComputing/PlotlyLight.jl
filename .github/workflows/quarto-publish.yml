@@ -29,7 +29,7 @@ jobs:
       - uses: julia-actions/setup-julia@v1
       - run: julia --project=@. -e 'using Pkg; Pkg.instantiate();'
 
-      - run: quarto render
+      - run: quarto render ./quarto/
 
       - name: Push to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3.6.1
