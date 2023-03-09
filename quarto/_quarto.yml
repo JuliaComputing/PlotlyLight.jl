@@ -4,14 +4,25 @@ project:
 book:
   title: "PlotlyLight.jl Docs"
   author: "Josh Day"
+  sharing: [twitter, linkedin]
+  repo-url: https://github.com/JuliaComputing/PlotlyLight.jl
+  repo-actions: [edit]
+  sidebar:
+    style: docked
+    background: light
   chapters:
     - index.qmd
+    - themes.qmd
 
 # bibliography: references.bib
 
 format:
   html:
     theme: cosmo
+    code-fold: true
+    code-summary: "Show Code"
+    code-overflow: wrap
+    code-copy: true
   # pdf:
   #   documentclass: scrreport
   # epub:

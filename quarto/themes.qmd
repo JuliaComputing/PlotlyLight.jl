@@ -1,0 +1,86 @@
+# Themes
+
+::: {.panel-tabset}
+
+```{julia}
+#| echo: false
+using PlotlyLight
+
+PlotlyLight.Defaults.parent_style[] = "height: 500px;"
+
+x = 0:100
+y = cumsum(randn(100))
+```
+
+## `ggplot2`
+
+```{julia}
+PlotlyLight.template!("ggplot2")
+Plot(; x, y)
+```
+
+## `gridon`
+
+```{julia}
+PlotlyLight.template!("gridon")
+Plot(; x, y)
+```
+
+
+## `plotly`
+
+```{julia}
+PlotlyLight.template!("plotly")
+Plot(; x, y)
+```
+
+## `plotly_dark`
+
+```{julia}
+PlotlyLight.template!("plotly_dark")
+Plot(; x, y)
+```
+
+## `plotly_white`
+
+```{julia}
+PlotlyLight.template!("plotly_white")
+Plot(; x, y)
+```
+
+## `presentation`
+
+```{julia}
+PlotlyLight.template!("presentation")
+Plot(; x, y)
+```
+
+## `seaborn`
+
+```{julia}
+PlotlyLight.template!("seaborn")
+Plot(; x, y)
+```
+
+## `simple_white`
+
+```{julia}
+PlotlyLight.template!("simple_white")
+Plot(; x, y)
+```
+
+## `xgridoff`
+
+```{julia}
+PlotlyLight.template!("xgridoff")
+Plot(; x, y)
+```
+
+## `ygridoff`
+
+```{julia}
+PlotlyLight.template!("ygridoff")
+Plot(; x, y)
+```
+
+:::
