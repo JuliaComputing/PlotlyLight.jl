@@ -27,6 +27,10 @@ end
 
     PlotlyLight.src!(:local)
     @test occursin("artifacts", repr("text/html", p))
+
+    PlotlyLight.src!(:custom)
+    PlotlyLight.custom_src!("T E S T")
+    @test occursin("T E S T", repr("text/html", p))
 end
 #-----------------------------------------------------------------------------# templates
 @testset "templates" begin

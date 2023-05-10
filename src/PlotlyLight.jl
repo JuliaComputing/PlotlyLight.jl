@@ -34,6 +34,7 @@ parent_class    = Ref("")
 parent_style    = Ref("height: 100vh;")
 config          = Ref(Config(displaylogo=false, responsive=true))
 layout          = Ref(Config())
+custom_src      = Ref("")
 
 function reset!()
     src[]           = :cdn
@@ -43,11 +44,12 @@ function reset!()
     parent_style[]  = "height: 100vh;"
     config[]        = Config(displaylogo=false, responsive=true)
     layout[]        = Config()
+    custom_src[]    = ""
 end
 end # Defaults module
 
 #-----------------------------------------------------------------------------# src!
-src_opts = [:cdn, :local, :standalone, :none]
+src_opts = [:cdn, :local, :standalone, :none, :custom]
 """
     src!(x::Symbol) # `x` must be one of: $src_opts
 
@@ -57,6 +59,8 @@ src_opts = [:cdn, :local, :standalone, :none]
 - `:none` → For when inserting into a page with Plotly.js already included.
 """
 src!(x::Symbol) = (x in src_opts || error("src must be one of: $src_opts"); Defaults.src[] = x)
+
+custom_src!(x::AbstractString) = (Defaults.custom_src[] = x)
 
 #-----------------------------------------------------------------------------# template!
 """
@@ -149,7 +153,7 @@ end
 
 function write_load_plotly(io)
     src = Defaults.src[]
-    src in [:cdn, :standalone, :none, :local] || error("`src` must be :cdn, :standalone, :none, or :local")
+    src in src_opts || error("`src` must be one of: $src_opts")
 
     if src === :cdn
         println(io, "<script src=", repr(cdn_url), "></script>")
@@ -161,6 +165,8 @@ function write_load_plotly(io)
         println(io, "</script>")
     elseif src === :local
         println(io, "<script src=\"", plotlyjs, "\"></script>")
+    elseif src === :custom
+        println(io, "<script src=\"", Defaults.custom_src[], "\"></script>")
     end
 end
 
@@ -213,7 +219,7 @@ function Base.show(io::IO, M::MIME"text/html", o::Plot)
     end
 end
 
-#-----------------------------------------------------------------------------# vecvec
+#-----------------------------------------------------------------------------# collectrows
 collectrows(x::AbstractMatrix) = collect.(eachrow(x))
 
 
