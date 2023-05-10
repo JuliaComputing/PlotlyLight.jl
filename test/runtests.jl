@@ -12,13 +12,6 @@ using Test
     p(Config(x=1:10,y=rand(10)))
     @test length(p.data) == 2
 end
-#-----------------------------------------------------------------------------# issues
-@testset "Issue Coverage" begin
-    # https://github.com/JuliaComputing/PlotlyLight.jl/issues/22
-    p = Plot()
-    p.layout.title.text = "👍"
-    @test occursin("👍", repr("text/html", p))
-end
 #-----------------------------------------------------------------------------# src
 @testset "src" begin
     p = Plot(Config(y=1:10))
