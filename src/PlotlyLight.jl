@@ -132,7 +132,19 @@ Plot(; kw...) = Plot(Config(kw))
 StructTypes.StructType(::Plot) = StructTypes.Struct()
 
 #-----------------------------------------------------------------------------# Display
-Base.display(::Cobweb.CobwebDisplay, o::Plot) = display(Cobweb.CobwebDisplay(), Cobweb.Page(o))
+function Base.display(::Cobweb.CobwebDisplay, o::Plot)
+    h = Cobweb.h
+    pg = Cobweb.Page(h.html(
+        h.head(
+            h.meta(charset="utf-8"),
+            h.meta(name="viewport", content="width=device-width, initial-scale=1"),
+            h.meta(name="description", content="PlotlyLight.jl with Plotly $version"),
+            h.title("PlotlyLight.jl with $version"),
+        ),
+        o
+    ))
+    display(Cobweb.CobwebDisplay(), pg)
+end
 
 Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME"text/html"(), o)
 
