@@ -172,4 +172,4 @@ See `PlotlyLight.templates` for a list of theme/template options:
 
 # 😵‍💫 Gotchas
 
-- JSON does not have multidimensional arrays (https://www.w3schools.com/js/js_json_datatypes.asp).  Therefore, traces that require matrix inputs (such as heatmap) must use an array of arrays.  We have a small utility function for running this conversion: `PlotlyLight.collectrows(x)`.
+- JSON does not have multidimensional arrays (https://www.w3schools.com/js/js_json_datatypes.asp).  Therefore, traces that require matrix inputs (such as heatmap) must use a Vector of Vectors.  We include a small utility function for running this conversion: `PlotlyLight.collectrows(x::Matrix)`.
