@@ -1,1 +1,1 @@
-const version = "plotly-2.16.1"
+const version = "plotly-2.22.0"

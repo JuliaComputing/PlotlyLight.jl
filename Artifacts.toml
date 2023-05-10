@@ -1,6 +1,6 @@
 [PlotlyLight]
-git-tree-sha1 = "ba5e11fa6555b46ecf919362fe577020aef9aeed"
+git-tree-sha1 = "454cd11f76e34fb3c8163fdef1e071633f1ece18"
 
     [[PlotlyLight.download]]
-    sha256 = "442a57f9e6491ab807044a1070ba1f2b113391f9b2d23145ca5694d376a3e9f7"
-    url = "https://gist.github.com/joshday/f217f745453bbdb75fba1e95e5edb8dc/raw/ba5e11fa6555b46ecf919362fe577020aef9aeed.tar.gz"
+    sha256 = "af56c1871c5ccdb6b51022b378b023dce3df56c18d6b2d21f78c25d1d0b9b486"
+    url = "https://gist.github.com/joshday/6454da06baf6d0ca532c08ba04b76855/raw/454cd11f76e34fb3c8163fdef1e071633f1ece18.tar.gz"
