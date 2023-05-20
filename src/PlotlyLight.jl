@@ -116,8 +116,8 @@ mutable struct Plot
 
     function Plot(
             data::Union{Config, Vector{Config}},
-            layout::Config = Defaults.layout[],
-            config::Config = Defaults.config[];
+            layout::Config = copy(Defaults.layout[]),
+            config::Config = copy(Defaults.config[]);
             # kw
             id::AbstractString = randstring(10),
             js::Cobweb.Javascript = Cobweb.Javascript("console.log('plot created!')")
