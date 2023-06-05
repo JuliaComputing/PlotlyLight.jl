@@ -208,7 +208,7 @@ function Base.show(io::IO, M::MIME"text/html", o::Plot)
                 (buf = IOBuffer(); write_load_plotly(buf); String(take!(buf)))
             ), h.body(o))
 
-        write(io, "<iframe loading='eager' style='border:none; position:relative; height:100%; width:100%; min-height: 400px;' name='PlotlyLight Plot' width=750 height=400 srcdoc='", repr("text/html", srcdoc), "' />")
+        write(io, "<iframe loading='eager' style='border:none; position:relative; resize: both; height:400px; width:100%;' name='PlotlyLight Plot' width=750 height=400 srcdoc='", repr("text/html", srcdoc), "' />")
     else
         write_plot_div(io, o)
         write_load_plotly(io)
