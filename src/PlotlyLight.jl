@@ -53,10 +53,13 @@ src_opts = [:cdn, :local, :standalone, :none, :custom]
 """
     src!(x::Symbol) # `x` must be one of: $src_opts
 
+Set the source of the Plotly.js library.  Options are:
+
 - `:cdn` → Use PlotlyJS CDN.
 - `:local` → Use local artifact.
 - `:standalone` → Write JS into the HTML file directly (can be shared and viewed offline).
 - `:none` → For when inserting into a page with Plotly.js already included.
+- `:custom` → Use `Defaults.custom_src[]` as the source.
 """
 src!(x::Symbol) = (x in src_opts || error("src must be one of: $src_opts"); Defaults.src[] = x)
 
@@ -120,7 +123,7 @@ mutable struct Plot
             config::Config = copy(Defaults.config[]);
             # kw
             id::AbstractString = randstring(10),
-            js::Cobweb.Javascript = Cobweb.Javascript("console.log('plot created!')")
+            js::Cobweb.Javascript = Cobweb.Javascript("console.log(\"plot created!\")")
         )
         new(data isa Config ? [data] : data, layout, config, string(id), js)
     end
@@ -193,37 +196,21 @@ function write_newplot(io::IO, o::Plot)
     println(io, ");")
 end
 
-function write_require_config(io)
-    write(io, """
-    <script type="text/javascript">
-        if (typeof require !== 'undefined') {
-            require.undef("plotly");
-            requirejs.config({
-                paths: {
-                    'plotly': '$(cdn_url[7:end-3])'
-                }
-            });
-            require(['plotly'], function(Plotly) {
-                window._Plotly = Plotly;
-            });
-        }
-    </script>
-    """)
-end
-
 function Base.show(io::IO, M::MIME"text/html", o::Plot)
-    write_plot_div(io, o)
-
     if :jupyter in keys(io)
-        write_require_config(io)
-        println(io, "<script>")
-        write(io, "require([\"plotly\"], function(Plotly) {\n")
-        write_newplot(io, o)
-        show(io, MIME"text/javascript"(), o.js)
-        write(io, "});")
-        println(io, "</script>")
+        h = Cobweb.h
+        srcdoc = h.html(
+            h.head(
+                h.meta(charset="utf-8"),
+                h.meta(name="viewport", content="width=device-width, initial-scale=1"),
+                h.meta(name="description", content="PlotlyLight.jl Plot with Plotly $version"),
+                h.title("PlotlyLight.jl Plot with $version"),
+                (buf = IOBuffer(); write_load_plotly(buf); String(take!(buf)))
+            ), h.body(o))
+
+        write(io, "<iframe loading='eager' style='border:none; position:relative; height:100%; width:100%; min-height: 400px;' name='PlotlyLight Plot' width=750 height=400 srcdoc='", repr("text/html", srcdoc), "' />")
     else
-        # write_plot_div(io, o)
+        write_plot_div(io, o)
         write_load_plotly(io)
         println(io, "<script>")
         write_newplot(io, o)
