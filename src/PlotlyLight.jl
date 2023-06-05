@@ -17,36 +17,37 @@ const schema = joinpath(artifact"PlotlyLight", "plotly-schema.json")
 const templates_dir = joinpath(artifact"PlotlyLight", "templates")
 const templates = map(x -> replace(x, ".json" => ""), readdir(templates_dir))
 
+# TODO: schema validation
 load_schema() = open(io -> JSON3.read(io), schema).schema
 
-
+__init__() = Defaults.reset!(; show=false)
 
 #-----------------------------------------------------------------------------# Defaults
 module Defaults
-using EasyConfig: Config
-using JSON3
-export src, class, style, parent_class, parent_style, config, layout
+    using EasyConfig: Config
+    using JSON3
+    export src, class, style, parent_class, parent_style, config, layout, custom_src
 
-src             = Ref(:cdn)
-class           = Ref("")
-style           = Ref("height: 100%;")
-parent_class    = Ref("")
-parent_style    = Ref("height: 100vh;")
-config          = Ref(Config(displaylogo=false, responsive=true))
-layout          = Ref(Config())
-custom_src      = Ref("")
+    src = Ref{Symbol}()
+    class, style, parent_class, parent_style, custom_src = ntuple(i -> Ref{String}(), 5)
+    config, layout = Ref{Config}(), Ref{Config}()
 
-function reset!()
-    src[]           = :cdn
-    class[]         = ""
-    style[]         = "height: 100%;"
-    parent_class[]  = ""
-    parent_style[]  = "height: 100vh;"
-    config[]        = Config(displaylogo=false, responsive=true)
-    layout[]        = Config()
-    custom_src[]    = ""
+    function reset!(; show=true)
+        src[]           = :cdn
+        class[]         = ""
+        style[]         = "height: 100%;"
+        parent_class[]  = ""
+        parent_style[]  = "height: 100vh;"
+        config[]        = Config(displaylogo=false, responsive=true)
+        layout[]        = Config()
+        custom_src[]    = ""
+        show && for name in setdiff(names(Defaults), [:Defaults])
+            sname = string(name)
+            printstyled(sname, ' ' ^ (12-length(sname)), " = ", color=:light_cyan)
+            printstyled(repr(getproperty(Defaults, name)[]), "\n", color=:light_green)
+        end
+    end
 end
-end # Defaults module
 
 #-----------------------------------------------------------------------------# src!
 src_opts = [:cdn, :local, :standalone, :none, :custom]
@@ -59,7 +60,7 @@ Set the source of the Plotly.js library.  Options are:
 - `:local` → Use local artifact.
 - `:standalone` → Write JS into the HTML file directly (can be shared and viewed offline).
 - `:none` → For when inserting into a page with Plotly.js already included.
-- `:custom` → Use `Defaults.custom_src[]` as the source.
+- `:custom` → Use `Defaults.custom_src[]` as the source, e.g.
 """
 src!(x::Symbol) = (x in src_opts || error("src must be one of: $src_opts"); Defaults.src[] = x)
 
@@ -135,7 +136,8 @@ Plot(; kw...) = Plot(Config(kw))
 StructTypes.StructType(::Plot) = StructTypes.Struct()
 
 #-----------------------------------------------------------------------------# Display
-function Cobweb.Page(o::Plot)
+# `remove_margins` helps to avoid a scrollbar when this is inside an iframe
+function Cobweb.Page(o::Plot; remove_margins=false)
     h = Cobweb.h
     return Cobweb.Page(h.html(
         h.head(
@@ -143,6 +145,7 @@ function Cobweb.Page(o::Plot)
             h.meta(name="viewport", content="width=device-width, initial-scale=1"),
             h.meta(name="description", content="PlotlyLight.jl with Plotly $version"),
             h.title("PlotlyLight.jl with $version"),
+            remove_margins ? h.style("body { margin: 0px; }") : ""
         ),
         o
     ))
@@ -152,9 +155,6 @@ Base.display(::Cobweb.CobwebDisplay, o::Plot) = display(Cobweb.CobwebDisplay(), 
 
 Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME"text/html"(), o)
 
-# function Base.show(io::IO, ::MIME"application/vnd.plotly.v1+json", p::Plot)
-#     JSON3.write(io, Config(; data=p.data, layout=p.layout, config=p.config))
-# end
 
 function write_plot_div(io::IO, o::Plot)
     class, style = Defaults.class, Defaults.style
@@ -198,17 +198,12 @@ end
 
 function Base.show(io::IO, M::MIME"text/html", o::Plot)
     if :jupyter in keys(io)
-        h = Cobweb.h
-        srcdoc = h.html(
-            h.head(
-                h.meta(charset="utf-8"),
-                h.meta(name="viewport", content="width=device-width, initial-scale=1"),
-                h.meta(name="description", content="PlotlyLight.jl Plot with Plotly $version"),
-                h.title("PlotlyLight.jl Plot with $version"),
-                (buf = IOBuffer(); write_load_plotly(buf); String(take!(buf)))
-            ), h.body(o))
-
-        write(io, "<iframe loading='eager' style='border:none; position:relative; resize: both; height:400px; width:100%;' name='PlotlyLight Plot' width=750 height=400 srcdoc='", repr("text/html", srcdoc), "' />")
+        # TODO: fix margins so that iframe doesn't have a scrollbar
+        write(io, "<iframe ")
+        write(io, "style='display:block; border:none; position:relative; resize:both; width:100%; height:400px;'")
+        write(io, "name='PlotlyLight Plot' ")
+        write(io, "srcdoc='", repr("text/html", Page(o; remove_margins=true)), "'")
+        write(io, " />")
     else
         write_plot_div(io, o)
         write_load_plotly(io)
