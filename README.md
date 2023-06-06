@@ -8,7 +8,7 @@
 
 <br><br>
 
-# 🆒 Features
+# Features
 
 - 🚀 Fastest time-to-first-plot in Julia!
 - 🌐 Use the [Plotly.js Javascript documentation](https://plotly.com/javascript/) directly.  No magic syntax: Just [`JSON3.write`](https://github.com/quinnj/JSON3.jl).
@@ -129,7 +129,7 @@ end
 - As a reference, the underlying HTML of the plot looks like this:
 ```html
 <div class="$parent_class" style="$parent_style">
-    <div class="$class" style="$style" id="plot_goes_here"></div>
+    <div class="$class" style="$style" id="plot_is_placed_here"></div>
 </div>
 ```
 
