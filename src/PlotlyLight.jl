@@ -20,6 +20,8 @@ const plotlyjs = Ref("")  # Local copy of Plotly.js
 const plotlys_dir = Ref("")  # Directory containing local copies of Plotly.js
 const templates_dir = Ref("")  # Directory containing local copies of templates
 const TEMPLATES = [:ggplot2, :gridon, :plotly, :plotly_dark, :plotly_white, :presentation, :seaborn, :simple_white, :xgridoff, :ygridoff]
+const SRCS = [:cdn, :local, :standalone, :custom, :none]
+
 
 function __init__()
     scratch_dir[] = get_scratch!("PlotlyLight")
@@ -140,12 +142,6 @@ function Base.show(io::IO, o::Defaults)
 end
 Base.copy(o::Defaults) = Defaults(; (name => getfield(o, name) for name in fieldnames(Defaults))...)
 
-function template(x::String)
-    return open(io -> JSON3.read(io, Config), joinpath(templates_dir[], string(x) * ".json"))
-end
-Base.getproperty(::typeof(template), x) = template(string(x))
-Base.propertynames(::typeof(template)) = TEMPLATES
-
 
 const DEFAULTS = Ref(Defaults())
 
@@ -200,7 +196,7 @@ Set the default template, one of:
 $(join(repr.(TEMPLATES), ", ")).
 ```
 """
-function template!(t)
+function template!(@nospecialize(t))
     t in TEMPLATES || throw(ArgumentError("template must be one of: $(join(TEMPLATES, ", "))."))
     file = joinpath(templates_dir[], string(t) * ".json")
     !isfile(file) && try
@@ -210,6 +206,16 @@ function template!(t)
     end
     DEFAULTS[].layout.template = open(io -> JSON3.read(io, Config), file)
 end
+
+Base.getproperty(::typeof(template!), x::Symbol) = template!(x)
+Base.propertynames(::typeof(template!)) = TEMPLATES
+
+function src!(@nospecialize(x))
+    x in SRCS || throw(ArgumentError("src must be one of: $(join(SRCS, ", "))."))
+    DEFAULTS[].src = x
+end
+Base.getproperty(::typeof(src!), x::Symbol) = src!(x)
+Base.propertynames(::typeof(src!)) = SRCS
 
 
 #-----------------------------------------------------------------------------# Plot
@@ -284,8 +290,6 @@ function write_plot_div(io::IO, o::Plot)
     println(io, "    <div class=\"", class, "\" style=\"", style, "\" id=\"", o.id, "\"></div>")
     println(io, "</div>")
 end
-
-src_opts = [:cdn, :local, :standalone, :custom, :none]
 
 function write_load_plotly(io)
     src = DEFAULTS[].src
