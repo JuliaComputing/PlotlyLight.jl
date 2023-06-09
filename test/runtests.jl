@@ -1,5 +1,5 @@
 using PlotlyLight
-using PlotlyLight: default_settings
+using PlotlyLight: DEFAULTS
 using JSON3
 using Test
 
@@ -15,33 +15,33 @@ using Test
 end
 #-----------------------------------------------------------------------------# defaults
 @testset "defaults" begin
-    old_layout_default = copy(default_settings[].layout)
-    old_config_default = copy(default_settings[].config)
+    old_layout_default = copy(DEFAULTS[].layout)
+    old_config_default = copy(DEFAULTS[].config)
     p = Plot()
     p.layout.xaxis.showgrid = false
     p.config.editable = true
     # make sure that mutation of layout and config of one plot has no effect on
     # global defaults
-    @test default_settings[].layout == old_layout_default
-    @test default_settings[].config == old_config_default
+    @test DEFAULTS[].layout == old_layout_default
+    @test DEFAULTS[].config == old_config_default
 end
 #-----------------------------------------------------------------------------# src
 @testset "src" begin
     p = Plot(Config(y=1:10))
 
-    settings!(src = :cdn)
+    defaults!(src = :cdn)
     @test occursin("cdn", repr("text/html", p))
 
-    settings!(src = :none)
+    defaults!(src = :none)
     @test !occursin("cdn", repr("text/html", p))
 
-    settings!(src = :standalone)
+    defaults!(src = :standalone)
     @test length(repr("text/html", p)) > 1000
 
-    settings!(src = :local)
+    defaults!(src = :local)
     @test occursin("scratchspaces", repr("text/html", p))
 
-    settings!(src = :custom, custom_src = "T E S T")
+    defaults!(src = :custom, custom_src = "T E S T")
     @test occursin("T E S T", repr("text/html", p))
 end
 #-----------------------------------------------------------------------------# templates
