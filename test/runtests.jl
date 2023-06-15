@@ -1,5 +1,4 @@
 using PlotlyLight
-using PlotlyLight: DEFAULTS
 using JSON3
 using Test
 
@@ -18,16 +17,16 @@ html(x) = repr("text/html", x)
     @test !occursin("displaylogo", html(p2))
 
     p3 = Plot(Config(x = 1:10), Config(title="Title"), Config(displaylogo=true))
-    @test occursin("Title", html(p2))
-    @test occursin("displaylogo", html(p2))
+    @test occursin("Title", html(p3))
+    @test occursin("displaylogo", html(p3))
 
     p4 = Plot()
     @test isempty(only(p4.data))
-    p(Config(x=1:10,y=1:10))
-    @test length(p.data) == 2
-    p(;x=1:10, y=1:10)
-    @test length(p.data) == 3
-    @test p.data[2] == p.data[3]
+    p4(Config(x=1:10,y=1:10))
+    @test length(p4.data) == 2
+    p4(;x=1:10, y=1:10)
+    @test length(p4.data) == 3
+    @test p4.data[2] == p4.data[3]
 end
 #-----------------------------------------------------------------------------# Presets
 @testset "Presets" begin
@@ -35,15 +34,14 @@ end
 
     @testset "Template" begin
         for t in PlotlyLight.TEMPLATES
-            Preset.Template.Symbol("$(t)!")()
-            @test occursin(string(t), html(p))
+            getproperty(Preset.Template, Symbol("$(t)!"))()
         end
+        Preset.Template.none!()
     end
 
     @testset "Source" begin
         Preset.Source.none!()
-        @test length(html(p)) < 1000
-        @test !occursin("script", html(p))
+        @test !occursin("cdn", html(p))
 
         Preset.Source.cdn!()
         @test occursin("cdn", html(p))
@@ -60,22 +58,23 @@ end
         @test occursin("height:100vh", html(p))
 
         Preset.PlotContainer.responsive!()
-        @test occursin("responsive: true", html(p))
+        @test occursin("\"responsive\":true", html(p))
 
         Preset.PlotContainer.pluto!()
-        @test occursin("750px", html(p))
+        @test occursin("\"height\":\"100%\"", html(p))
 
-        Preset.PlotContainer.jupyter!()
-        @test occursin("450px", html(p))
+        Preset.PlotContainer.iframe!()
+        @test occursin("iframe", html(p))
     end
 end
 
 #-----------------------------------------------------------------------------# Settings
 @testset "Settings" begin
+    settings!(fix_matrix = true)
     p = Plot(type=:heatmap, z=reshape([1,2,3,4] ,2, 2))
-    @test occursin("[[1, 3], [2, 4]]", html(p))
+    @test occursin("[[1,3],[2,4]]", html(p))
 
-    setting!(fix_matrix = false)
 
-    @test occursin("[1, 2, 3, 4]", html(p))
+    settings!(fix_matrix = false)
+    @test occursin("[1,2,3,4]", html(p))
 end

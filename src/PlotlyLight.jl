@@ -93,13 +93,15 @@ Base.@kwdef mutable struct Settings
     load_plotlyjs       = () -> Cobweb.h.script(src=cdn_url[], charset="utf-8")
     make_container      = (id) -> Cobweb.h.div(; id)
     layout::Config      = Config()
-    config::Config      = Config(displaylogo = false)
+    config::Config      = Config()
     iframe::Union{Nothing, Cobweb.IFrame} = nothing
 end
 function Base.show(io::IO, o::Settings)
     println(io, "PlotlyLight.Settings:")
     printstyled(io, "  • verbose:\n", color=:light_cyan);
     printstyled(io, "      ", o.verbose, '\n', color=:light_black)
+    printstyled(io, "  • fix_matrix:\n", color=:light_cyan);
+    printstyled(io, "      ", o.fix_matrix, '\n', color=:light_black)
     printstyled(io, "  • load_plotlyjs: function()::Cobweb.Node\n", color=:light_cyan)
     printstyled(io, Cobweb.pretty(o.load_plotlyjs(); depth=2), '\n', color=:light_black)
     printstyled(io, "  • make_container: function(id)::Cobweb.Node\n", color=:light_cyan)
@@ -136,6 +138,7 @@ module Preset
     module Template
         using JSON3, EasyConfig
         import ...settings, ...templates_dir, ...TEMPLATES
+        none!() = (delete!(settings().layout, :template); settings())
         for t in TEMPLATES
             f = Symbol("$(t)!")
             @eval begin
@@ -154,7 +157,7 @@ module Preset
         cdn!() = settings!(; load_plotlyjs = () -> h.script(src=cdn_url[], charset="utf-8"))
         local!() = settings!(; load_plotlyjs = () -> h.script(src=plotlyjs[], charset="utf-8"))
         standalone!() = settings!(; load_plotlyjs = () -> h.script(read(plotlyjs[], String), charset="utf-8"))
-        none!() = settings!(; load_plotlyjs = () -> "")
+        none!() = settings!(; load_plotlyjs = () -> HTML(""))
     end
 
     module PlotContainer
@@ -217,6 +220,8 @@ Plot(; layout=Config(), config=Config(), @nospecialize(kw...)) = Plot(Config(kw)
 
 StructTypes.StructType(::Plot) = StructTypes.Struct()
 
+Base.:(==)(a::Plot, b::Plot) = a.data == b.data && a.layout == b.layout && a.config == b.config
+
 #-----------------------------------------------------------------------------# Display
 function page(o::Plot; remove_margins=false)
     h = Cobweb.h
@@ -241,7 +246,7 @@ function Base.show(io::IO, M::MIME"text/html", o::Plot; setting::Settings = DEFA
         (; data, layout, config) = o
         layout = merge(setting.layout, layout)
         config = merge(setting.config, config)
-        setting.fix_matrix && fix_matrix!(data)
+        setting.fix_matrix && (data = fix_matrix.(data))
         show(io, M, setting.load_plotlyjs())
         show(io, M, setting.make_container(id))
         print(io, "<script>Plotly.newPlot(", repr(id), ", ")
@@ -260,9 +265,9 @@ end
 #-----------------------------------------------------------------------------# collectrows
 collectrows(x::AbstractMatrix) = collect.(eachrow(x))
 
-fix_matrix!(x::Config) = map(fix_matrix!, values(x))
-fix_matrix!(x) = x
-fix_matrix!(x::AbstractMatrix) = collect.(eachrow(x))
+fix_matrix(x::Config) = Config(k => fix_matrix(v) for (k,v) in pairs(x))
+fix_matrix(x) = x
+fix_matrix(x::AbstractMatrix) = collect.(eachrow(x))
 
 
 end # module
