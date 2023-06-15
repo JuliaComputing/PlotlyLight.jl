@@ -174,7 +174,7 @@ module Preset
                 config=Config(responsive=true)
             )
 
-        function iframe!(r = true; height="450px", width="750px", style="resize:both; display:block", kw...)
+        function iframe!(r = true; height="450px", width="700px", style="resize:both; display:block", kw...)
             fillwindow!(r)
             settings!(false; iframe=Cobweb.IFrame(html""; height, width, style, kw...))
         end
