@@ -75,7 +75,7 @@ end
 
 function download_templates!()
     for t in TEMPLATES
-        @info "PlotlyLight: Downloading template: $t"
+        @info "PlotlyLight: Downloading template - $t"
         url = "https://raw.githubusercontent.com/plotly/plotly.py/master/packages/python/plotly/plotly/package_data/templates/$t.json"
         download(url, joinpath(scratch_dir[], "templates", "$t.json"))
     end

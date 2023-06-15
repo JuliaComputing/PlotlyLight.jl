@@ -75,19 +75,7 @@ PlotlyKaleido.savefig(p, "myplot.png")
 
 <br><br>
 
-# ⚙️ Settings
-
-There are several settings that 
-
-## 🧰 Presets
-
-
-
-
-
-# 📖 Docs
-
-## `?Plot`
+# `?Plot`
 
 ```julia
 Plot(data, layout=Config(), config=Config())
@@ -107,80 +95,69 @@ p = Plot(Config(x=1:10, y=randn(10)))
 p = Plot(; x=1:10, y=randn(10))
 ```
 
-## `?PlotlyLight.src!`
-
-    src!(x::Symbol) # `x` must be one of: [:cdn, :local, :standalone, :none]
-
-- `:cdn` → Use PlotlyJS CDN.
-- `:local` → Use local artifact.
-- `:standalone` → Write JS into the HTML file directly (can be shared and viewed offline).
-- `:none` → For when inserting into a page with Plotly.js already included.
-
 <br><br>
 
-# ⚙️ Settings and Presets
+# ⚙️ Presets and Settings
 
-You can set default values for the `layout`, `config`, and a number of other options that affect how the plot displays in your browser.  HTML defaults (`class`/`style`/`parent_class`/`parent_style`) are chosen to make the plot reactive to the browser window size.
+- There are several presets that can make your life easier, located in the `Preset` module.
+- Each preset is a function that you set via `Preset.[Template|Source|PlotContainer].<preset!>`
 
-```julia
-module Defaults
-# Plot defaults
-config          = Ref(Config(displaylogo=false, responsive=true))
-layout          = Ref(Config())
 
-# HTML defaults
-src             = Ref(:cdn)  # How plotly gets loaded.  see ?PlotlyLight.src!
-class           = Ref("")  # class of the <div> the plot is inside of.
-style           = Ref("height: 100%;")  # style of the <div> the plot is inside of.
-parent_class    = Ref("")  # class of the plot's parent <div>.
-parent_style    = Ref("height: 100vh;")  # style of the plot's parent <div>.
-end
-```
-
-- As a reference, the underlying HTML of the plot looks like this:
-```html
-<div class="$parent_class" style="$parent_style">
-    <div class="$class" style="$style" id="plot_is_placed_here"></div>
-</div>
-```
-
-- Default values are `Ref`s and can be changed e.g.
+## `Preset.Template`
 
 ```julia
-PlotlyLight.Defaults.layout[].title.text = "Default Title"
+ggplot2!
+gridon!
+plotly!
+plotly_dark!
+plotly_white!
+presentation!
+seaborn!
+simple_white!
+xgridoff!
+ygridoff!
 ```
 
-- Revert back to the original defaults with `Defaults.reset!()`
 
-<br><br>
-
-# 📊 Themes/Templates
-
-The themes available in [Plotly's python package](https://plotly.com/python/templates/) are also made available in PlotlyLight.jl.  They can be set via:
+## `Preset.Source`
 
 ```julia
-layout = Config(template = PlotlyLight.template("plotly_dark"))
-
-PlotlyLight.template!("plotly_dark")  # or replace the default `layout.template`
+cdn!        # Use https://cdn.plot.ly/plotly-<version>.min.js to load Plotly.js.
+local!      # Use a local copy of Plotly.
+standalone! # Create a standalone html file that hard-codes Plotly.js into it.
+none!       # Do not load Plotly.js
 ```
 
-See `PlotlyLight.templates` for a list of theme/template options:
+## `Preset.PlotContainer`
 
 ```julia
- "ggplot2"
- "gridon"
- "plotly"
- "plotly_dark"
- "plotly_white"
- "presentation"
- "seaborn"
- "simple_white"
- "xgridoff"
- "ygridoff"
+fillwindow!     # Fill the height/width of the page (REPL default).
+responsive!     # Fill whatever container the plot lives in.
+iframe!         # Wrap the Plot inside an <iframe> (Jupyter[lab] default).
+pluto!          # Use the full width of a Pluto cell (Pluto default).
+auto!           # Automatically choose one of the above based on `stdout`.
 ```
 
-<br><br>
+## Manual Settings
 
-# 😵‍💫 Gotchas
+If the available `Preset`s aren't enough to satisfy your use case, you can override the settings to your own preferences via the `settings!(; kw...)` function.
 
-- JSON does not have multidimensional arrays (https://www.w3schools.com/js/js_json_datatypes.asp).  Therefore, traces that require matrix inputs (such as heatmap) must use a Vector of Vectors.  We include a small utility function for running this conversion: `PlotlyLight.collectrows(x::Matrix)`.
+- `fix_matrix::Bool = true`
+    - Automatically convert any `Matrix` in `data` into a `Vector` of `Vectors`.
+    - See [https://github.com/quinnj/JSON3.jl/issues/196](https://github.com/quinnj/JSON3.jl/issues/196) for why this may be necessary.
+- `load_plotlyjs = () -> Cobweb.h.script(src=cdn_url[], charset="utf-8")`
+    - A function that returns a `MIME("text/html")`-representable object that will load the Plotly.js library.
+- `make_container = (id::String) -> Cobweb.h.div(; id=id)
+    - A function of an identifier that returns a `MIME("text/html")`-representable object that will write the `<div>` to be populated with the plot.
+- `layout = Config()` and `config = Config()`
+    - The default `layout` and `config`.  The `Plot`'s `layout` and `config` will override existing values.
+- `iframe::Union{Nothing, Cobweb.IFrame} = nothing`
+    - A `Cobweb.IFrame` to use as a template to wrap the plot in, e.g. `Cobweb.IFrame(""; height="500px", width="600px")`.
+
+# Update/Change the Version of Plotly.js
+
+```julia
+PlotlyLight.update!() # update to latest released version
+
+PlotlyLight.update!(v"2.24.2")  # update to specific release.
+```

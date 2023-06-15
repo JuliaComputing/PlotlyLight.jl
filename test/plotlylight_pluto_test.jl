@@ -12,7 +12,7 @@ using Revise, PlotlyLight, Cobweb
 
 # ╔═╡ e2dedee2-9702-11eb-1364-118bcaff2607
 begin
-	Preset.PlotContainer.iframe!()
+	Preset.PlotContainer.pluto!()
 	Plot(Config(x=1:50,y=randn(50), type="bar"))
 end
 
