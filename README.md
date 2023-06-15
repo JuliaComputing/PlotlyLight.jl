@@ -25,17 +25,13 @@
 ```julia
 using PlotlyLight
 
-# Change template
-PlotlyLight.template!("plotly_dark")
+PlotlyLight.Preset.Template.plotly_dark!()  # Change template
 
-# Make plot
-p = Plot(x = 1:20, y = cumsum(randn(20)), type="scatter", mode="lines+markers")
+p = Plot(x = 1:20, y = cumsum(randn(20)), type="scatter", mode="lines+markers")  # Make plot
 
-# Make changes
-p.layout.title.text = "My Title!"
+p.layout.title.text = "My Title!"  # Make changes
 
-# `display(p)` to see the updated plot
-p
+p  # `display(p)` to see the updated plot
 ```
 
 
@@ -45,7 +41,7 @@ p
 
 #### Adding Traces
 
-- `PlotlyLight.Plot` objects are callable.  Repeatedly make calls to add traces.
+- Calling a `Plot` object will add a trace:
 
 ```julia
 Plot()(
@@ -62,11 +58,11 @@ Plot()(
 ## Save HTML files with [Cobweb.jl](https://github.com/joshday/Cobweb.jl)
 
 ```julia
-using Cobweb: Page
+using Cobweb
 
-page = Page(p)
+page = Cobweb.Page(p)
 
-save(page, "myplot.html")
+Cobweb.save(page, "myplot.html")
 ```
 
 ## Save images with [PlotlyKaleido.jl](https://github.com/JuliaPlots/PlotlyKaleido.jl)
@@ -79,22 +75,37 @@ PlotlyKaleido.savefig(p, "myplot.png")
 
 <br><br>
 
+# ⚙️ Settings
+
+There are several settings that 
+
+## 🧰 Presets
+
+
+
+
+
 # 📖 Docs
 
 ## `?Plot`
 
-    Plot(data, layout, config; id, js)
+```julia
+Plot(data, layout=Config(), config=Config())
+Plot(layout=Config(), config=Config(); kw...)
+```
 
-- A Plotly.js plot with components `data`, `layout`, and `config`.
-    - `data = Config()`: A `Config` (single trace) or `Vector{Config}` (multiple traces).
-    - `layout = Config()`.
-    - `config = Config(displaylogo=false, responsive=true)`.
-- Each of the three components are converted to JSON via `JSON3.write`.
-- See the Plotly Javascript docs here: https://plotly.com/javascript/.
-- Keyword Args:
-    - `id`: The `id` of the `<div>` the plot will be created in.  Default: `randstring(10)`.
-    - `js`:  `Cobweb.Javascript` to add after the creation of the plot.  Default:
-        - `Cobweb.Javascript("console.log('plot created!')")`
+Create a Plotly plot with the given `data` (`Config` or `Vector{Config}`), `layout`, and `config`.
+Alternatively, you can create a plot with a single trace by providing the `data` as keyword arguments.
+
+For more info, read the Plotly.js docs: [https://plotly.com/javascript/](https://plotly.com/javascript/).
+
+### Examples
+
+```julia
+p = Plot(Config(x=1:10, y=randn(10)))
+
+p = Plot(; x=1:10, y=randn(10))
+```
 
 ## `?PlotlyLight.src!`
 
@@ -107,7 +118,7 @@ PlotlyKaleido.savefig(p, "myplot.png")
 
 <br><br>
 
-# ⚙️ Defaults
+# ⚙️ Settings and Presets
 
 You can set default values for the `layout`, `config`, and a number of other options that affect how the plot displays in your browser.  HTML defaults (`class`/`style`/`parent_class`/`parent_style`) are chosen to make the plot reactive to the browser window size.
 

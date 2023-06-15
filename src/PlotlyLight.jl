@@ -100,7 +100,7 @@ end
 
 #-----------------------------------------------------------------------------# Settings
 Base.@kwdef mutable struct Settings
-    verbose::Bool       = false
+    verbose::Bool       = false  # currently unused
     fix_matrix::Bool    = true
     load_plotlyjs       = () -> Cobweb.h.script(src=cdn_url[], charset="utf-8")
     make_container      = (id) -> Cobweb.h.div(; id)
@@ -132,6 +132,16 @@ settings() = DEFAULT_SETTINGS
 
 settings!(s = settings(); kw...) = (foreach(kv -> setfield!(s, kv...), kw); s)
 settings!(r::Bool; kw...) = (r && reset!(); settings!(; kw...))
+
+function with_setting(f, setting=settings(); kw...)
+    old = deepcopy(setting)
+    try
+        settings!(; kw...)
+        f()
+    finally
+        foreach(x -> setfield!(setting, x, getfield(old, x)), fieldnames(Settings))
+    end
+end
 
 #-----------------------------------------------------------------------------# Presets
 module Preset
@@ -251,13 +261,10 @@ function Base.show(io::IO, M::MIME"text/html", o::Plot; setting::Settings = DEFA
         print(io, ")</script>")
     else
         iframe = setting.iframe
-        try
-            settings!(; iframe=nothing)
+        with_setting(setting; iframe=nothing) do
             buf = IOBuffer()
             show(buf, M, o; id)
             show(io, M, Cobweb.IFrame(HTML(String(take!(buf))); iframe.kw...))
-        finally
-            settings!(; iframe)
         end
     end
 end
