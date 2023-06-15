@@ -7,36 +7,41 @@ using Scratch: get_scratch!
 using JSON3
 using EasyConfig
 using Cobweb
+using Cobweb: h
 using StructTypes
 
 #-----------------------------------------------------------------------------# exports
-export Plot, Config, defaults!, collectrows
+export Plot, Config, Preset, settings!
 
 #-----------------------------------------------------------------------------# __init__()
-const version = Ref("")  # Version of Plotly.js currently in use by PlotlyLight
+const version = Ref(VersionNumber("0.0.0"))  # Version of Plotly.js currently in use by PlotlyLight
 const cdn_url = Ref("")  # URL of Plotly.js currently in use by PlotlyLight
 const scratch_dir = Ref("")  # PlotlyLight's scratchspace
 const plotlyjs = Ref("")  # Local copy of Plotly.js
 const plotlys_dir = Ref("")  # Directory containing local copies of Plotly.js
 const templates_dir = Ref("")  # Directory containing local copies of templates
 const TEMPLATES = [:ggplot2, :gridon, :plotly, :plotly_dark, :plotly_white, :presentation, :seaborn, :simple_white, :xgridoff, :ygridoff]
-const SRCS = [:cdn, :local, :standalone, :custom, :none]
 
 
 function __init__()
     scratch_dir[] = get_scratch!("PlotlyLight")
-    plotlyjs[] = joinpath(scratch_dir[], "plotlys", "plotly-latest.min.js")
+    plotlyjs[] = joinpath(scratch_dir[], "plotlys", "plotly.min.js")
     plotlys_dir[] = mkpath(joinpath(scratch_dir[], "plotlys"))
     templates_dir[] = mkpath(joinpath(scratch_dir[], "templates"))
-    DEFAULTS[] = Defaults()
 
-    isempty(readdir(plotlys_dir[])) || isempty(readdir(templates_dir[])) || isempty(readdir(scratch_dir[])) && update!()
+    (isempty(readdir(plotlys_dir[])) || isempty(readdir(templates_dir[])) || isempty(readdir(scratch_dir[])) || !isfile(plotlyjs[])) && update!()
 
     version[] = get_semver(readuntil(plotlyjs[], "*/"))
     cdn_url[] = "https://cdn.plot.ly/plotly-$(version[]).min.js"
 
+    Preset.PlotContainer.auto!()
+
     @info """
-    Attention: PlotlyLight 0.7 has breaking changes:
+
+
+    !!! Attention !!!
+
+    PlotlyLight 0.7 has breaking changes:
 
     1. No more artifacts.  PlotlyLight now downloads the latest version of Plotly.js and templates at your request.
       - Use `PlotlyLight.update!()` to update Plotly and the templates.
@@ -48,24 +53,29 @@ end
 
 
 #-----------------------------------------------------------------------------# "artifacts"
-get_semver(x) = match(r"v(\d+)\.(\d+)\.(\d+)", x).match[2:end]
+# PlotlyLight's scratchspace looks like:
+# - <UUID>/PlotlyLight/plotlys/plotly-*.*.*.min.js (as well as plotly.min.js)
+# - <UUID>/PlotlyLight/templates/*.json
+# - <UUID>/PlotlyLight/plotly-schema.json
+
+get_semver(x) = VersionNumber(match(r"v(\d+)\.(\d+)\.(\d+)", x).match[2:end])
 
 function latest_plotlyjs_version()
     content = read(download("https://github.com/plotly/plotly.js/tags"), String)
     return get_semver(content)
 end
 
-function download_plotly!(v::String = latest_plotlyjs_version())
-    @info "Downloading Plotly.js v$v"
+function download_plotly!(v::VersionNumber = latest_plotlyjs_version())
+    @info "PlotlyLight: Downloading Plotly.js v$v"
     file = joinpath(scratch_dir[], "plotlys", "plotly-$v.min.js")
     !isfile(file) && download("https://cdn.plot.ly/plotly-$v.min.js", file)
-    cp(file, joinpath(scratch_dir[], "plotlys", "plotly-latest.min.js"); force=true)
+    cp(file, joinpath(scratch_dir[], "plotlys", "plotly.min.js"); force=true)
     nothing
 end
 
 function download_templates!()
     for t in TEMPLATES
-        @info "Downloading template: $t"
+        @info "PlotlyLight: Downloading template: $t"
         url = "https://raw.githubusercontent.com/plotly/plotly.py/master/packages/python/plotly/plotly/package_data/templates/$t.json"
         download(url, joinpath(scratch_dir[], "templates", "$t.json"))
     end
@@ -73,13 +83,13 @@ function download_templates!()
 end
 
 function download_schema!()
-    @info "Downloading schema"
+    @info "PlotlyLight: Downloading schema"
     download("https://api.plot.ly/v2/plot-schema?format=json&sha1=%27%27", joinpath(scratch_dir[], "plotly-schema.json"))
     nothing
 end
 
-function update!()
-    download_plotly!()
+function update!(v::VersionNumber = latest_plotlyjs_version())
+    download_plotly!(v)
     download_templates!()
     download_schema!()
     version[] = get_semver(readuntil(plotlyjs[], "*/"))
@@ -87,180 +97,124 @@ function update!()
     nothing
 end
 
-# PlotlyLight's scratchspace looks like:
-# - PlotlyLight/plotlys/plotly-*.*.*.min.js (as well as plotly-latest.min.js)
-# - PlotlyLight/templates/*.json
-# - PlotlyLight/plotly-schema.json
 
-#-----------------------------------------------------------------------------# Defaults
-"""
-    Defaults(; kw...)
+#-----------------------------------------------------------------------------# Settings
+Base.@kwdef mutable struct Settings
+    verbose::Bool       = false
+    fix_matrix::Bool    = true
+    load_plotlyjs       = () -> Cobweb.h.script(src=cdn_url[], charset="utf-8")
+    make_container      = (id) -> Cobweb.h.div(; id)
+    layout::Config      = Config()
+    config::Config      = Config(displaylogo = false)
+    iframe::Union{Nothing, Cobweb.IFrame} = nothing
+end
+function Base.show(io::IO, o::Settings)
+    println(io, "PlotlyLight.Settings:")
+    printstyled(io, "  • verbose:\n", color=:light_cyan);
+    printstyled(io, "      ", o.verbose, '\n', color=:light_black)
+    printstyled(io, "  • load_plotlyjs: function()::Cobweb.Node\n", color=:light_cyan)
+    printstyled(io, Cobweb.pretty(o.load_plotlyjs(); depth=2), '\n', color=:light_black)
+    printstyled(io, "  • make_container: function(id)::Cobweb.Node\n", color=:light_cyan)
+    printstyled(io, Cobweb.pretty(o.make_container("[id]"); depth=2), '\n', color=:light_black)
+    printstyled(io, "  • layout: \n", color=:light_cyan)
+    printstyled(io, "      Config with keys: $(join(repr.(keys(o.layout)), ", "))", '\n', color=:light_black)
+    printstyled(io, "  • config: \n", color=:light_cyan)
+    printstyled(io, "      Config with keys: $(join(repr.(keys(o.config)), ", "))", '\n', color=:light_black)
+    printstyled(io, "  • iframe: \n", color=:light_cyan)
+    printstyled(io, "      ", repr(o.iframe), '\n', color=:light_black)
+end
 
-- `src`: one of `:cdn`, `:local`, `:standalone`, `:none`, `:custom`.
-- `class`, `style`, `parent_class`, `parent_style`: Classes and styles of HTML divs:
+DEFAULT_SETTINGS = Settings()
 
-```html
-<!-- HTML -->
-<div class="\$parent_class" style="\$parent_style">
-    <div class="\$class" style="\$style" id="plot_is_placed_here"></div>
-</div>
-```
+reset!(s::Settings = settings()) = foreach(x -> setfield!(s, x, getfield(Settings(), x)), fieldnames(Settings))
 
-- `config` and `layout`: `Config`s for the Plotly.js `config` and `layout` arguments.
+settings() = DEFAULT_SETTINGS
 
-- `custom_src`: Code injection to load the Plotly.js library.  Used if `src == :custom`.  E.g.
+settings!(s = settings(); kw...) = (foreach(kv -> setfield!(s, kv...), kw); s)
+settings!(r::Bool; kw...) = (r && reset!(); settings!(; kw...))
 
-```julia
-custom_src = "<script src='https://cdn.plot.ly/plotly-2.23.2.js' charset='utf-8'></script>"
-```
-"""
-mutable struct Defaults
-    src::Symbol
-    class::String
-    style::String
-    parent_class::String
-    parent_style::String
-    config::Config
-    layout::Config
-    custom_src::String
-
-    function Defaults(; src::Symbol = :cdn, class::String = "", style::String = "",
-            parent_class::String = "", parent_style::String = "",
-            config::Config = Config(), layout::Config = Config(),
-            custom_src::String = "")
-
-        src in [:cdn, :local, :standalone, :none, :custom] || throw(ArgumentError("src must be one of: :cdn, :local, :standalone, :none, :custom."))
-        new(src, class, style, parent_class, parent_style, config, layout, custom_src)
+#-----------------------------------------------------------------------------# Presets
+module Preset
+    module Template
+        using JSON3, EasyConfig
+        import ...settings, ...templates_dir, ...TEMPLATES
+        for t in TEMPLATES
+            f = Symbol("$(t)!")
+            @eval begin
+                export $f
+                function $f()
+                    file = joinpath(templates_dir[], $(string(t)) * ".json")
+                    settings().layout.template = open(io -> JSON3.read(io, Config), file)
+                end
+            end
+        end
     end
 
-end
-function Base.show(io::IO, o::Defaults)
-    println(io, "PlotlyLight.Defaults:")
-    for name in fieldnames(Defaults)
-        println(io, "  ", name, ' ' ^ (13 - length(string(name))), "= ", repr(getfield(o, name)))
+    module Source
+        using Cobweb: h
+        import ...settings!, ...cdn_url, ...plotlyjs
+        cdn!() = settings!(; load_plotlyjs = () -> h.script(src=cdn_url[], charset="utf-8"))
+        local!() = settings!(; load_plotlyjs = () -> h.script(src=plotlyjs[], charset="utf-8"))
+        standalone!() = settings!(; load_plotlyjs = () -> h.script(read(plotlyjs[], String), charset="utf-8"))
+        none!() = settings!(; load_plotlyjs = () -> "")
+    end
+
+    module PlotContainer
+        using EasyConfig
+        using Cobweb: Cobweb, h
+        import ...settings, ...settings!, ...reset!
+
+        fillwindow!(r = true) = settings!(r;
+                make_container = id -> h.div(style="height:100vh;width:100vw;", h.div(; id, style="height:100%;width:100%")),
+                config = Config(responsive=true)
+            )
+
+        responsive!(r = true) = settings!(r;
+                make_container = id -> h.div(style="height:100%;", h.div(; id, style="height:100%;")),
+                config=Config(responsive=true)
+            )
+
+        function iframe!(r = true; height="450px", width="750px", style="resize:both; display:block", kw...)
+            fillwindow!(r)
+            settings!(false; iframe=Cobweb.IFrame(html""; height, width, style, kw...))
+        end
+
+        pluto!(r = true) = settings!(r, config=Config(height="100%", width="100%"))
+
+        function auto!(r = true, io::IO = stdout)
+            :pluto in keys(io) ? pluto!(r) :
+            :jupyter in keys(io) ? iframe!(r) :
+            isinteractive() ? fillwindow!(r) :
+            nothing
+        end
     end
 end
-Base.copy(o::Defaults) = Defaults(; (name => getfield(o, name) for name in fieldnames(Defaults))...)
-
-
-const DEFAULTS = Ref(Defaults())
-
-function with_defaults(f; kw...)
-    old_defaults = copy(DEFAULTS[])
-    try
-        defaults!(; kw...)
-        return f()
-    finally
-        DEFAULTS[] = old_defaults
-    end
-end
-
-"""
-    defaults!(; kw...)
-    defaults!(reset::Bool; kw...)
-
-Update the default settings for PlotlyLight plots.  Optionally, you can `reset` the defaults to the original settings.
-
-`kw` options: `$(fieldnames(Defaults))`
-
-Some built-in defaults are also provided:
-
-- `fillwindow!()`: Plot will fill a browser window.  This is the initial setting.
-- `responsive!()`: Plot will fill its parent container.
-- `pluto!()`: Sensible defaults for Pluto.
-- `jupyter!()`: Sensible defaults for Jupyter.
-"""
-function defaults!(reset::Bool; kw...)
-    reset && (DEFAULTS[] = Defaults())
-    defaults!(; kw...)
-end
-defaults!(; kw...) = (foreach(x -> setfield!(DEFAULTS[], x...), kw); DEFAULTS[])
-
-function defaults(; kw...)
-    out = copy(DEFAULTS[])
-    foreach(x -> setfield!(out, x...), kw)
-    return out
-end
-
-fillwindow!(; kw...) = defaults!(true; parent_style = "height:100vh;", style="height:100%;", config=Config(responsive=true), kw...)
-responsive!(; kw...) = defaults!(true; config=Config(responsive=true), style="height:100%;", parent_style="height:100%;", kw...)
-pluto!(; kw...) = defaults!(true, config=Config(height="450px", width="750px"), parent_style="", kw...)
-jupyter!(; kw...) = defaults!(true, config=Config(height="450px", width="100%", responsive=true), kw...)
-
-
-"""
-    template!(::String)
-
-Set the default template, one of:
-```
-$(join(repr.(TEMPLATES), ", ")).
-```
-"""
-function template!(@nospecialize(t))
-    t in TEMPLATES || throw(ArgumentError("template must be one of: $(join(TEMPLATES, ", "))."))
-    file = joinpath(templates_dir[], string(t) * ".json")
-    !isfile(file) && try
-        download_templates!()
-    catch
-        error("Template $t was not locally available and could not be downloaded with `PlotlyLight.download_templates!()`.")
-    end
-    DEFAULTS[].layout.template = open(io -> JSON3.read(io, Config), file)
-end
-
-Base.getproperty(::typeof(template!), x::Symbol) = template!(x)
-Base.propertynames(::typeof(template!)) = TEMPLATES
-
-function src!(@nospecialize(x))
-    x in SRCS || throw(ArgumentError("src must be one of: $(join(SRCS, ", "))."))
-    DEFAULTS[].src = x
-end
-Base.getproperty(::typeof(src!), x::Symbol) = src!(x)
-Base.propertynames(::typeof(src!)) = SRCS
-
 
 #-----------------------------------------------------------------------------# Plot
 """
-    Plot(data, layout, config; id, js)
+    Plot(data, layout=Config(), config=Config())
+    Plot(layout=Config(), config=Config(); kw...)
 
-- A Plotly.js plot with components `data`, `layout`, and `config`.
-  - `data = Config()`: A `Config` (single trace) or `Vector{Config}` (multiple traces).
-  - `layout = Config()`.
-  - `config = Config(displaylogo=false, responsive=true)`.
-- Each of the three components are converted to JSON via `JSON3.write`.
-- See the Plotly Javascript docs here: https://plotly.com/javascript/.
-- Keyword Args:
-  - `id`: The `id` of the `<div>` the plot will be created in.  Default: `randstring(10)`.
-  - `js`:  `Cobweb.Javascript` to add after the creation of the plot.  Default:
-    - `Cobweb.Javascript("console.log('plot created!')")`
+Create a Plotly plot with the given `data` (`Config` or `Vector{Config}`), `layout`, and `config`.
+Alternatively, you can create a plot with a single trace by providing the `data` as keyword arguments.
 
-### Example
+For more info, read the Plotly.js docs: [https://plotly.com/javascript/](https://plotly.com/javascript/).
+
+### Examples
 
     p = Plot(Config(x=1:10, y=randn(10)))
-    p.layout.title.text = "My Title!"
-    p
+
+    p = Plot(; x=1:10, y=randn(10))
 """
 mutable struct Plot
     data::Vector{Config}
     layout::Config
     config::Config
-    id::String  # id of graphDiv
-    js::Cobweb.Javascript
-
-    function Plot(
-            data::Union{Config, Vector{Config}},
-            layout::Config = Config(),
-            config::Config = Config();
-            # kw
-            id::AbstractString = randstring(10),
-            js::Cobweb.Javascript = Cobweb.Javascript("console.log(\"plot created!\")")
-        )
-        layout = merge(DEFAULTS[].layout, layout)
-        config = merge(DEFAULTS[].config, config)
-        new(data isa Config ? [data] : data, layout, config, string(id), js)
-    end
+    Plot(data::Vector{Config}, layout::Config=Config(), config::Config=Config()) = new(data, layout, config)
 end
-Plot(; @nospecialize(kw...)) = Plot(Config(kw))
-(p::Plot)(; @nospecialize(kw...)) = (push!(p.data, Config(kw)); return p)
+Plot(data::Config, layout::Config = Config(), config::Config = Config()) = Plot([data], layout, config)
+Plot(; layout=Config(), config=Config(), @nospecialize(kw...)) = Plot(Config(kw), Config(layout), Config(config))
+(p::Plot)(; @nospecialize(kw...)) = p(Config(kw))
 (p::Plot)(data::Config) = (push!(p.data, data); return p)
 
 StructTypes.StructType(::Plot) = StructTypes.Struct()
@@ -284,53 +238,36 @@ Base.display(::Cobweb.CobwebDisplay, o::Plot) = display(Cobweb.CobwebDisplay(), 
 
 Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME"text/html"(), o)
 
-function write_plot_div(io::IO, o::Plot)
-    (;class, style, parent_class, parent_style) = DEFAULTS[]
-    println(io, "<div class=\"", parent_class, "\" style=\"", parent_style, "\" id=\"", "parent-of-", o.id, "\">")
-    println(io, "    <div class=\"", class, "\" style=\"", style, "\" id=\"", o.id, "\"></div>")
-    println(io, "</div>")
-end
-
-function write_load_plotly(io)
-    src = DEFAULTS[].src
-    src == :cdn ? println(io, "<script src=\"", cdn_url[], "\" charset=\"utf-8\" ></script>") :
-        src == :standalone ? write(io, "<script>", read(plotlyjs[]), "</script>\n") :
-        src == :local ? println(io, "<script src=\"", plotlyjs[], "\" charset=\"utf-8\"></script>") :
-        src == :custom ? println(io, DEFAULTS[].custom_src) :
-        nothing
-end
-
-function write_newplot(io::IO, o::Plot)
-    print(io, "Plotly.newPlot(\"", o.id, "\", ")
-    JSON3.write(io, o.data)
-    print(io, ", ")
-    JSON3.write(io, o.layout)
-    print(io, ", ")
-    JSON3.write(io, o.config)
-    println(io, ");")
-end
-
-function Base.show(io::IO, M::MIME"text/html", o::Plot)
-    if :jupyter in keys(io)
-        height = haskey(DEFAULTS[].config, :height) ? DEFAULTS[].config.height : "450px"
-        width = haskey(DEFAULTS[].config, :width) ? DEFAULTS[].config.width : "100%"
-        write(io, "<iframe")
-        write(io, " style='display:block; border:none; position:relative; resize:both; width:$width; height:$height;'")
-        write(io, " name='PlotlyLight Plot'")
-        write(io, " srcdoc='", repr("text/html", page(o)), "'")
-        write(io, " />")
+function Base.show(io::IO, M::MIME"text/html", o::Plot; setting::Settings = DEFAULT_SETTINGS, id=randstring(10))
+    if isnothing(setting.iframe)
+        (; data, layout, config) = o
+        layout = merge(setting.layout, layout)
+        config = merge(setting.config, config)
+        setting.fix_matrix && fix_matrix!(data)
+        show(io, M, setting.load_plotlyjs())
+        show(io, M, setting.make_container(id))
+        print(io, "<script>Plotly.newPlot(", repr(id), ", ")
+        foreach(x -> (JSON3.write(io, x); print(io, ", ")), (data, layout, config))
+        print(io, ")</script>")
     else
-        write_plot_div(io, o)
-        write_load_plotly(io)
-        println(io, "<script>")
-        write_newplot(io, o)
-        show(io, MIME"text/javascript"(), o.js)
-        print(io, "</script>\n")
+        iframe = setting.iframe
+        try
+            settings!(; iframe=nothing)
+            buf = IOBuffer()
+            show(buf, M, o; id)
+            show(io, M, Cobweb.IFrame(HTML(String(take!(buf))); iframe.kw...))
+        finally
+            settings!(; iframe)
+        end
     end
 end
 
 #-----------------------------------------------------------------------------# collectrows
 collectrows(x::AbstractMatrix) = collect.(eachrow(x))
+
+fix_matrix!(x::Config) = map(fix_matrix!, values(x))
+fix_matrix!(x) = x
+fix_matrix!(x::AbstractMatrix) = collect.(eachrow(x))
 
 
 end # module

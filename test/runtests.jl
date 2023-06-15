@@ -3,64 +3,79 @@ using PlotlyLight: DEFAULTS
 using JSON3
 using Test
 
-#-----------------------------------------------------------------------------# simple checks
-@testset "simple checks" begin
-    @test Plot(Config(x = 1:10)) isa Plot
-    @test Plot(Config(x = 1:10), Config(title="Title")) isa Plot
-    @test Plot(Config(x = 1:10), Config(title="Title"), Config(displaylogo=true)) isa Plot
-    p = Plot()
-    @test isempty(only(p.data))
-    p(Config(x=1:10,y=rand(10)))
+html(x) = repr("text/html", x)
+
+#-----------------------------------------------------------------------------# Plot methods
+@testset "Plot methods" begin
+    p = Plot(Config(x = 1:10))
+    @test p isa Plot
+    @test Plot(; x=1:10) == p
+    @test !occursin("Title", html(p))
+    @test !occursin("displaylogo", html(p))
+
+    p2 = Plot(Config(x = 1:10), Config(title="Title"))
+    @test occursin("Title", html(p2))
+    @test !occursin("displaylogo", html(p2))
+
+    p3 = Plot(Config(x = 1:10), Config(title="Title"), Config(displaylogo=true))
+    @test occursin("Title", html(p2))
+    @test occursin("displaylogo", html(p2))
+
+    p4 = Plot()
+    @test isempty(only(p4.data))
+    p(Config(x=1:10,y=1:10))
     @test length(p.data) == 2
+    p(;x=1:10, y=1:10)
+    @test length(p.data) == 3
+    @test p.data[2] == p.data[3]
 end
-#-----------------------------------------------------------------------------# defaults
-@testset "defaults" begin
-    old_layout_default = copy(DEFAULTS[].layout)
-    old_config_default = copy(DEFAULTS[].config)
-    p = Plot()
-    p.layout.xaxis.showgrid = false
-    p.config.editable = true
-    # make sure that mutation of layout and config of one plot has no effect on
-    # global defaults
-    @test DEFAULTS[].layout == old_layout_default
-    @test DEFAULTS[].config == old_config_default
+#-----------------------------------------------------------------------------# Presets
+@testset "Presets" begin
+    p = Plot(x=1:10)
+
+    @testset "Template" begin
+        for t in PlotlyLight.TEMPLATES
+            Preset.Template.Symbol("$(t)!")()
+            @test occursin(string(t), html(p))
+        end
+    end
+
+    @testset "Source" begin
+        Preset.Source.none!()
+        @test length(html(p)) < 1000
+        @test !occursin("script", html(p))
+
+        Preset.Source.cdn!()
+        @test occursin("cdn", html(p))
+
+        Preset.Source.local!()
+        @test occursin("scratchspaces", html(p))
+
+        Preset.Source.standalone!()
+        @test length(html(p)) > 1000
+    end
+
+    @testset "PlotContainer" begin
+        Preset.PlotContainer.fillwindow!()
+        @test occursin("height:100vh", html(p))
+
+        Preset.PlotContainer.responsive!()
+        @test occursin("responsive: true", html(p))
+
+        Preset.PlotContainer.pluto!()
+        @test occursin("750px", html(p))
+
+        Preset.PlotContainer.jupyter!()
+        @test occursin("450px", html(p))
+    end
 end
-#-----------------------------------------------------------------------------# src
-@testset "src" begin
-    p = Plot(Config(y=1:10))
 
-    defaults!(src = :cdn)
-    @test occursin("cdn", repr("text/html", p))
+#-----------------------------------------------------------------------------# Settings
+@testset "Settings" begin
+    p = Plot(type=:heatmap, z=reshape([1,2,3,4] ,2, 2))
+    @test occursin("[[1, 3], [2, 4]]", html(p))
 
-    defaults!(src = :none)
-    @test !occursin("cdn", repr("text/html", p))
+    setting!(fix_matrix = false)
 
-    defaults!(src = :standalone)
-    @test length(repr("text/html", p)) > 1000
-
-    defaults!(src = :local)
-    @test occursin("scratchspaces", repr("text/html", p))
-
-    defaults!(src = :custom, custom_src = "T E S T")
-    @test occursin("T E S T", repr("text/html", p))
-end
-#-----------------------------------------------------------------------------# templates
-@testset "templates" begin
-    PlotlyLight.template!(:plotly_dark)
-    p = Plot(Config(y=1:10))
-    s = repr("text/html", p)
-
-    PlotlyLight.template!(:plotly_white)
-    p2 = Plot(Config(y=1:10))
-    s2 = repr("text/html", p2)
-
-    @test s != s2
-end
-#-----------------------------------------------------------------------------# vecvec
-@testset "collectrows" begin
-    x = rand(3, 2)
-    v = collectrows(x)
-    @test v[1] == x[1, :]
-    @test v[2] == x[2, :]
-    @test v[3] == x[3, :]
+    @test occursin("[1, 2, 3, 4]", html(p))
 end
