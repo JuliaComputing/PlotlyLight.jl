@@ -36,19 +36,7 @@ function __init__()
 
     Preset.PlotContainer.auto!()
 
-    @info """
-
-
-    !!! Attention !!!
-
-    PlotlyLight 0.7 has breaking changes:
-
-    1. No more artifacts.  PlotlyLight now downloads the latest version of Plotly.js and templates at your request.
-      - Use `PlotlyLight.update!()` to update Plotly and the templates.
-
-    2. `Defaults` is now a struct rather than a module.  No more messing around with `Ref`s.  Change defaults with `defaults!(reset::Bool; kw...)`.
-        - See `?Defaults` and `?defaults!` for more info.
-    """
+    @info "Attention: PlotlyLight v0.7.0 has breaking changes.  See the README for details."
 end
 
 
