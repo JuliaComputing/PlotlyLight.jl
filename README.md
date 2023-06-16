@@ -105,6 +105,8 @@ p = Plot(; x=1:10, y=randn(10))
 
 ## `Preset.Template`
 
+- The template/theme of the plot.
+
 ```julia
 ggplot2!
 gridon!
@@ -121,6 +123,8 @@ ygridoff!
 
 ## `Preset.Source`
 
+- How the Plotly.js library gets loaded when the plot is displayed in a browser.
+
 ```julia
 cdn!        # Use https://cdn.plot.ly/plotly-<version>.min.js to load Plotly.js.
 local!      # Use a local copy of Plotly.
@@ -129,6 +133,8 @@ none!       # Do not load Plotly.js
 ```
 
 ## `Preset.PlotContainer`
+
+- The HTML `<div>` that the plot will be inserted into.
 
 ```julia
 fillwindow!     # Fill the height/width of the page (REPL default).
@@ -142,15 +148,12 @@ auto!           # Automatically choose one of the above based on `stdout`.
 
 If the available `Preset`s aren't enough to satisfy your use case, you can override the settings to your own preferences via the `settings!(; kw...)` function.
 
-- `fix_matrix::Bool = true`
-    - Automatically convert any `Matrix` in `data` into a `Vector` of `Vectors`.
-    - See [https://github.com/quinnj/JSON3.jl/issues/196](https://github.com/quinnj/JSON3.jl/issues/196) for why this may be necessary.
 - `load_plotlyjs = () -> Cobweb.h.script(src=cdn_url[], charset="utf-8")`
     - A function that returns a `MIME("text/html")`-representable object that will load the Plotly.js library.
 - `make_container = (id::String) -> Cobweb.h.div(; id=id)`
     - A function of an identifier that returns a `MIME("text/html")`-representable object that will write the `<div>` to be populated with the plot.
 - `layout = Config()` and `config = Config()`
-    - The default `layout` and `config`.  The `Plot`'s `layout` and `config` will override existing values.
+    - The default `layout` and `config`.  They will be merged with the `Plot`'s `layout`/`config` (conflicting values will taken from the `Plot`).
 - `iframe::Union{Nothing, Cobweb.IFrame} = nothing`
     - A `Cobweb.IFrame` to use as a template to wrap the plot in, e.g. `Cobweb.IFrame(""; height="500px", width="600px")`.
 
