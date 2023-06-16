@@ -263,7 +263,10 @@ function Base.show(io::IO, M::MIME"text/html", o::Plot; setting::Settings = DEFA
 end
 
 #-----------------------------------------------------------------------------# collectrows
-collectrows(x::AbstractMatrix) = collect.(eachrow(x))
+function collectrows(x::AbstractMatrix)
+    Base.depwarn("collectrows is deprecated.  PlotlyLight now automatically applies this to matrices", :collectrows; force=true)
+    collect.(eachrow(x))
+end
 
 fix_matrix(x::Config) = Config(k => fix_matrix(v) for (k,v) in pairs(x))
 fix_matrix(x) = x
