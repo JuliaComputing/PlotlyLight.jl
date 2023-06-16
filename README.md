@@ -147,7 +147,7 @@ If the available `Preset`s aren't enough to satisfy your use case, you can overr
     - See [https://github.com/quinnj/JSON3.jl/issues/196](https://github.com/quinnj/JSON3.jl/issues/196) for why this may be necessary.
 - `load_plotlyjs = () -> Cobweb.h.script(src=cdn_url[], charset="utf-8")`
     - A function that returns a `MIME("text/html")`-representable object that will load the Plotly.js library.
-- `make_container = (id::String) -> Cobweb.h.div(; id=id)
+- `make_container = (id::String) -> Cobweb.h.div(; id=id)`
     - A function of an identifier that returns a `MIME("text/html")`-representable object that will write the `<div>` to be populated with the plot.
 - `layout = Config()` and `config = Config()`
     - The default `layout` and `config`.  The `Plot`'s `layout` and `config` will override existing values.
