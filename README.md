@@ -79,7 +79,7 @@ PlotlyKaleido.savefig(p, "myplot.png")
 
 ```julia
 Plot(data, layout=Config(), config=Config())
-Plot(layout=Config(), config=Config(); kw...)
+Plot(;layout=Config(), config=Config(), kw...)
 ```
 
 Create a Plotly plot with the given `data` (`Config` or `Vector{Config}`), `layout`, and `config`.
