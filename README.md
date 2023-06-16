@@ -4,7 +4,7 @@
 
 <h1 align="center">PlotlyLight</h1>
 
-**PlotlyLight** is an ultra-lightweight interface for working with [Plotly.js](https://plotly.com/javascript/).
+<p align="center"><b>PlotlyLight</b> is an ultra-lightweight interface for working with <a href="https://plotly.com/javascript">Plotly.js</a>.</p>
 
 <br><br>
 
