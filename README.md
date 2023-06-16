@@ -148,8 +148,12 @@ auto!           # Automatically choose one of the above based on `stdout`.
 
 If the available `Preset`s aren't enough to satisfy your use case, you can override the settings to your own preferences via the `settings!(; kw...)` function.
 
-- `load_plotlyjs = () -> Cobweb.h.script(src=cdn_url[], charset="utf-8")`
+- `load_plotlyjs`
     - A function that returns a `MIME("text/html")`-representable object that will load the Plotly.js library.
+    -  Default value:
+    ```julia
+    () -> Cobweb.h.script(src=PlotlyLight.cdn_url[], charset="utf-8")
+    ```
 - `make_container = (id::String) -> Cobweb.h.div(; id=id)`
     - A function of an identifier that returns a `MIME("text/html")`-representable object that will write the `<div>` to be populated with the plot.
 - `layout = Config()` and `config = Config()`
