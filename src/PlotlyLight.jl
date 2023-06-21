@@ -102,9 +102,9 @@ function Base.show(io::IO, o::Settings)
     printstyled(io, "      ", o.verbose, '\n', color=:light_black)
     printstyled(io, "  • fix_matrix:\n", color=:light_cyan);
     printstyled(io, "      ", o.fix_matrix, '\n', color=:light_black)
-    printstyled(io, "  • load_plotlyjs: function()::Cobweb.Node\n", color=:light_cyan)
+    printstyled(io, "  • load_plotlyjs: () -> \n", color=:light_cyan)
     printstyled(io, Cobweb.pretty(o.load_plotlyjs(); depth=2), '\n', color=:light_black)
-    printstyled(io, "  • make_container: function(id)::Cobweb.Node\n", color=:light_cyan)
+    printstyled(io, "  • make_container: (id) -> \n", color=:light_cyan)
     printstyled(io, Cobweb.pretty(o.make_container("[id]"); depth=2), '\n', color=:light_black)
     printstyled(io, "  • layout: \n", color=:light_cyan)
     printstyled(io, "      Config with keys: $(join(repr.(keys(o.layout)), ", "))", '\n', color=:light_black)
@@ -114,16 +114,17 @@ function Base.show(io::IO, o::Settings)
     printstyled(io, "      ", repr(o.iframe), '\n', color=:light_black)
 end
 
-DEFAULT_SETTINGS = Settings()
+const DEFAULT_SETTINGS = Settings()
 
-reset!(s::Settings = settings()) = foreach(x -> setfield!(s, x, getfield(Settings(), x)), fieldnames(Settings))
+reset!(s::Settings = DEFAULT_SETTINGS) = foreach(x -> setfield!(s, x, getfield(Settings(), x)), fieldnames(Settings))
 
-settings() = DEFAULT_SETTINGS
+function settings!(r::Bool = true, s::Settings = DEFAULT_SETTINGS; kw...)
+    r && reset!(s)
+    foreach(kv -> setfield!(s, kv...), kw)
+    return s
+end
 
-settings!(s = settings(); kw...) = (foreach(kv -> setfield!(s, kv...), kw); s)
-settings!(r::Bool; kw...) = (r && reset!(); settings!(; kw...))
-
-function with_setting(f, setting=settings(); kw...)
+function with_setting(f, setting=DEFAULT_SETTINGS; kw...)
     old = deepcopy(setting)
     try
         settings!(; kw...)
@@ -137,15 +138,16 @@ end
 module Preset
     module Template
         using JSON3, EasyConfig
-        import ...settings, ...templates_dir, ...TEMPLATES
-        none!() = (delete!(settings().layout, :template); settings())
+        import ...DEFAULT_SETTINGS, ...templates_dir, ...TEMPLATES
+        none!() = (delete!(DEFAULT_SETTINGS.layout, :template); DEFAULT_SETTINGS)
         for t in TEMPLATES
             f = Symbol("$(t)!")
             @eval begin
                 export $f
                 function $f()
                     file = joinpath(templates_dir[], $(string(t)) * ".json")
-                    settings().layout.template = open(io -> JSON3.read(io, Config), file)
+                    DEFAULT_SETTINGS.layout.template = open(io -> JSON3.read(io, Config), file)
+                    return DEFAULT_SETTINGS
                 end
             end
         end
@@ -163,10 +165,10 @@ module Preset
     module PlotContainer
         using EasyConfig
         using Cobweb: Cobweb, h
-        import ...settings, ...settings!, ...reset!
+        import ...settings!, ...reset!
 
         fillwindow!(r = true) = settings!(r;
-                make_container = id -> h.div(style="height:100vh;width:100vw;", h.div(; id, style="height:100%;width:100%")),
+                make_container = id -> h.div(; style="height:100vh;width:100vw;", id),
                 config = Config(responsive=true)
             )
 
@@ -175,9 +177,9 @@ module Preset
                 config=Config(responsive=true)
             )
 
-        function iframe!(r = true; height="450px", width="700px", style="resize:both; display:block", kw...)
+        function iframe!(r = true; height="450px", width="700px", style="resize:both; display:block;", kw...)
             fillwindow!(r)
-            settings!(false; iframe=Cobweb.IFrame(html""; height, width, style, kw...))
+            settings!(false; iframe=Cobweb.IFrame(; height, width, style, kw...))
         end
 
         pluto!(r = true) = settings!(r, config=Config(height="100%", width="100%"))
@@ -224,7 +226,6 @@ Base.:(==)(a::Plot, b::Plot) = a.data == b.data && a.layout == b.layout && a.con
 
 #-----------------------------------------------------------------------------# Display
 function page(o::Plot; remove_margins=false)
-    h = Cobweb.h
     return Cobweb.Page(h.html(
         h.head(
             h.meta(charset="utf-8"),

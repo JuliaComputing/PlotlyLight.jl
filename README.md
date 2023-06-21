@@ -109,6 +109,7 @@ p = Plot(; x=1:10, y=randn(10))
 ```julia
 ggplot2!
 gridon!
+none!
 plotly!
 plotly_dark!
 plotly_white!
@@ -127,8 +128,8 @@ ygridoff!
 ```julia
 cdn!        # Use https://cdn.plot.ly/plotly-<version>.min.js to load Plotly.js.
 local!      # Use a local copy of Plotly.
-standalone! # Create a standalone html file that hard-codes Plotly.js into it.
 none!       # Do not load Plotly.js
+standalone! # Create a standalone html file that hard-codes Plotly.js into it.
 ```
 
 ## `Preset.PlotContainer`
@@ -136,11 +137,11 @@ none!       # Do not load Plotly.js
 - The HTML `<div>` that the plot will be inserted into.
 
 ```julia
+auto!           # Automatically choose one of the above based on `stdout`.
 fillwindow!     # Fill the height/width of the page (REPL default).
-responsive!     # Fill whatever container the plot lives in.
 iframe!         # Wrap the Plot inside an <iframe> (Jupyter[lab] default).
 pluto!          # Use the full width of a Pluto cell (Pluto default).
-auto!           # Automatically choose one of the above based on `stdout`.
+responsive!     # Fill whatever container the plot lives in.
 ```
 
 ## Manual Settings
