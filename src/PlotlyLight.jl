@@ -20,7 +20,8 @@ const scratch_dir = Ref("")  # PlotlyLight's scratchspace
 const plotlyjs = Ref("")  # Local copy of Plotly.js
 const plotlys_dir = Ref("")  # Directory containing local copies of Plotly.js
 const templates_dir = Ref("")  # Directory containing local copies of templates
-const TEMPLATES = [:ggplot2, :gridon, :plotly, :plotly_dark, :plotly_white, :presentation, :seaborn, :simple_white, :xgridoff, :ygridoff]
+const schema = Ref{Config}() # Plotly schema
+const TEMPLATES = [:ggplot2,:gridon,:plotly,:plotly_dark,:plotly_white,:presentation,:seaborn,:simple_white,:xgridoff,:ygridoff]
 
 
 function __init__()
@@ -49,8 +50,8 @@ end
 get_semver(x) = VersionNumber(match(r"v(\d+)\.(\d+)\.(\d+)", x).match[2:end])
 
 function latest_plotlyjs_version()
-    content = read(download("https://github.com/plotly/plotly.js/tags"), String)
-    return get_semver(content)
+    n = JSON3.read(download("https://api.github.com/repos/plotly/plotly.js/releases/latest")).name
+    VersionNumber(n)
 end
 
 function download_plotly!(v::VersionNumber = latest_plotlyjs_version())
@@ -75,14 +76,24 @@ function download_schema!()
     download("https://api.plot.ly/v2/plot-schema?format=json&sha1=%27%27", joinpath(scratch_dir[], "plotly-schema.json"))
     nothing
 end
+function load_schema(force=false)
+    if force || !isassigned(schema)
+        schema[] = JSON3.read(open(joinpath(scratch_dir[], "plotly-schema.json"), "r"), Config)
+    end
+    return schema[]
+end
 
 function update!(v::VersionNumber = latest_plotlyjs_version())
-    download_plotly!(v)
-    download_templates!()
-    download_schema!()
-    version[] = get_semver(readuntil(plotlyjs[], "*/"))
-    cdn_url[] = "https://cdn.plot.ly/$version.min.js"
-    nothing
+    try
+        download_plotly!(v)
+        download_templates!()
+        download_schema!()
+        version[] = get_semver(readuntil(plotlyjs[], "*/"))
+        cdn_url[] = "https://cdn.plot.ly/$version.min.js"
+        nothing
+    catch
+        @warn "PlotlyLight.update! failed."
+    end
 end
 
 
@@ -174,7 +185,7 @@ module Preset
 
         responsive!(r = true) = settings!(r;
                 make_container = id -> h.div(style="height:100%;", h.div(; id, style="height:100%;")),
-                config=Config(responsive=true)
+                config=Config(responsive=true, height="100%", width="100%")
             )
 
         function iframe!(r = true; height="450px", width="700px", style="resize:both; display:block;", kw...)
@@ -263,7 +274,7 @@ function Base.show(io::IO, M::MIME"text/html", o::Plot; setting::Settings = DEFA
     end
 end
 
-#-----------------------------------------------------------------------------# collectrows
+#-----------------------------------------------------------------------------# utils
 function collectrows(x::AbstractMatrix)
     Base.depwarn("collectrows is deprecated.  PlotlyLight now automatically applies this to matrices", :collectrows; force=true)
     collect.(eachrow(x))
@@ -273,5 +284,26 @@ fix_matrix(x::Config) = Config(k => fix_matrix(v) for (k,v) in pairs(x))
 fix_matrix(x) = x
 fix_matrix(x::AbstractMatrix) = collect.(eachrow(x))
 
+function check_schema(p::Plot)
+    s = load_schema()
+    out = true
+    all(isempty, p.data) && return out
+    for (i, trace) in enumerate(p.data)
+        type = trace.type
+        if haskey(s.schema.traces, type)
+            strace = s.chema.traces[type]
+            for key in keys(trace)
+                if !haskey(strace, key)
+                    @warn "Trace $i (type=:$type) has key :$key, which is not in the Plotly.js schema."
+                    out = false
+                end
+            end
+        else
+            @warn "Trace $i has type :$type, which is not in the Plotly.js schema."
+            out = false
+        end
+    end
+    return out
+end
 
 end # module
