@@ -50,8 +50,8 @@ end
 get_semver(x) = VersionNumber(match(r"v(\d+)\.(\d+)\.(\d+)", x).match[2:end])
 
 function latest_plotlyjs_version()
-    n = JSON3.read(download("https://api.github.com/repos/plotly/plotly.js/releases/latest")).name
-    VersionNumber(n)
+    file = download("https://github.com/plotly/plotly.js/releases/latest")
+    get_semver(read(file, String))
 end
 
 function download_plotly!(v::VersionNumber = latest_plotlyjs_version())
