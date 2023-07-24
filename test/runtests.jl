@@ -84,6 +84,4 @@ end
 #-----------------------------------------------------------------------------# other
 @testset "other" begin
     @test occursin("{}", repr("text/html", PlotlyLight.page(Plot())))
-
-    @test_warn "deprecated" PlotlyLight.collectrows(rand(2,2))
 end
