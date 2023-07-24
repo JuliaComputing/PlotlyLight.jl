@@ -255,7 +255,9 @@ Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME"text/html"(
 
 function Base.show(io::IO, M::MIME"text/html", o::Plot; setting::Settings = DEFAULT_SETTINGS, id=randstring(10))
     if isnothing(setting.iframe)
-        (; data, layout, config) = o
+        data = o.data
+        layout = o.layout
+        config = o.config
         layout = merge(setting.layout, layout)
         config = merge(setting.config, config)
         setting.fix_matrix && (data = fix_matrix.(data))
