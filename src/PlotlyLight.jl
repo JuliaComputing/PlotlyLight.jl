@@ -36,8 +36,6 @@ function __init__()
     cdn_url[] = "https://cdn.plot.ly/plotly-$(version[]).min.js"
 
     Preset.PlotContainer.auto!()
-
-    @info "Attention: PlotlyLight v0.7.0 has breaking changes.  See the README for details."
 end
 
 
@@ -125,17 +123,19 @@ function Base.show(io::IO, o::Settings)
     printstyled(io, "      ", repr(o.iframe), '\n', color=:light_black)
 end
 
-const DEFAULT_SETTINGS = Settings()
+const SETTINGS = Settings()
+const DEFAULT_SETTINGS = SETTINGS
+Base.@deprecate_binding DEFAULT_SETTINGS SETTINGS
 
-reset!(s::Settings = DEFAULT_SETTINGS) = foreach(x -> setfield!(s, x, getfield(Settings(), x)), fieldnames(Settings))
+reset!(s::Settings = SETTINGS) = foreach(x -> setfield!(s, x, getfield(Settings(), x)), fieldnames(Settings))
 
-function settings!(r::Bool = true, s::Settings = DEFAULT_SETTINGS; kw...)
+function settings!(r::Bool = true, s::Settings = SETTINGS; kw...)
     r && reset!(s)
     foreach(kv -> setfield!(s, kv...), kw)
     return s
 end
 
-function with_setting(f, setting=DEFAULT_SETTINGS; kw...)
+function with_setting(f, setting=SETTINGS; kw...)
     old = deepcopy(setting)
     try
         settings!(; kw...)
@@ -149,16 +149,16 @@ end
 module Preset
     module Template
         using JSON3, EasyConfig
-        import ...DEFAULT_SETTINGS, ...templates_dir, ...TEMPLATES
-        none!() = (delete!(DEFAULT_SETTINGS.layout, :template); DEFAULT_SETTINGS)
+        import ...SETTINGS, ...templates_dir, ...TEMPLATES
+        none!() = (delete!(SETTINGS.layout, :template); SETTINGS)
         for t in TEMPLATES
             f = Symbol("$(t)!")
             @eval begin
                 export $f
                 function $f()
                     file = joinpath(templates_dir[], $(string(t)) * ".json")
-                    DEFAULT_SETTINGS.layout.template = open(io -> JSON3.read(io, Config), file)
-                    return DEFAULT_SETTINGS
+                    SETTINGS.layout.template = open(io -> JSON3.read(io, Config), file)
+                    return SETTINGS
                 end
             end
         end
@@ -253,7 +253,7 @@ Base.display(::Cobweb.CobwebDisplay, o::Plot) = display(Cobweb.CobwebDisplay(), 
 
 Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME"text/html"(), o)
 
-function Base.show(io::IO, M::MIME"text/html", o::Plot; setting::Settings = DEFAULT_SETTINGS, id=randstring(10))
+function Base.show(io::IO, M::MIME"text/html", o::Plot; setting::Settings = SETTINGS, id=randstring(10))
     if isnothing(setting.iframe)
         data = o.data
         layout = o.layout
