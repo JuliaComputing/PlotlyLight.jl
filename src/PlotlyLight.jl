@@ -104,6 +104,7 @@ Base.@kwdef mutable struct Settings
     layout::Config      = Config()
     config::Config      = Config()
     iframe::Union{Nothing, Cobweb.IFrame} = nothing
+    display_object::Union{Type{Cobweb.Page}, Type{Cobweb.Tab}} = Cobweb.Page
 end
 function Base.show(io::IO, o::Settings)
     println(io, "PlotlyLight.Settings:")
@@ -121,6 +122,8 @@ function Base.show(io::IO, o::Settings)
     printstyled(io, "      Config with keys: $(join(repr.(keys(o.config)), ", "))", '\n', color=:light_black)
     printstyled(io, "  • iframe: \n", color=:light_cyan)
     printstyled(io, "      ", repr(o.iframe), '\n', color=:light_black)
+    printstyled(io, "  • display_object: \n", color=:light_cyan)
+    printstyled(io, "      ", repr(o.display_object), '\n', color=:light_black)
 end
 
 const SETTINGS = Settings()
@@ -237,7 +240,7 @@ Base.:(==)(a::Plot, b::Plot) = a.data == b.data && a.layout == b.layout && a.con
 
 #-----------------------------------------------------------------------------# Display
 function page(o::Plot; remove_margins=false)
-    return Cobweb.Page(h.html(
+    return SETTINGS.display_object(h.html(
         h.head(
             h.meta(charset="utf-8"),
             h.meta(name="viewport", content="width=device-width, initial-scale=1"),
