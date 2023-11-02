@@ -239,7 +239,7 @@ StructTypes.StructType(::Plot) = StructTypes.Struct()
 Base.:(==)(a::Plot, b::Plot) = a.data == b.data && a.layout == b.layout && a.config == b.config
 
 #-----------------------------------------------------------------------------# Display
-function page(o::Plot; remove_margins=false)
+function page(o::Plot)
     return SETTINGS.display_object(h.html(
         h.head(
             h.meta(charset="utf-8"),
