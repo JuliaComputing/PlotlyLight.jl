@@ -191,7 +191,7 @@ module Preset
                 config=Config(responsive=true, height="100%", width="100%")
             )
 
-        function iframe!(r = true; height="450px", width="700px", style="resize:both; display:block;", kw...)
+        function iframe!(r = true; height="450px", width="700px", style="resize:both; display:block; border:none;", kw...)
             fillwindow!(r)
             settings!(false; iframe=Cobweb.IFrame(; height, width, style, kw...))
         end
@@ -200,7 +200,7 @@ module Preset
 
         function auto!(r = true, io::IO = stdout)
             :pluto in keys(io) ? pluto!(r) :
-            :jupyter in keys(io) ? iframe!(r) :
+            (isdefined(Main, :IJulia) && io isa Main.IJulia.IJuliaStdio) || :jupyter in keys(io) ? iframe!(r) :
             isinteractive() ? fillwindow!(r) :
             nothing
         end
