@@ -198,10 +198,13 @@ module Preset
 
         pluto!(r = true) = settings!(r, config=Config(height="100%", width="100%"))
 
+        vscodejupyter!(r = true;) = iframe!(r; width="750px", scrolling="no");
+
         function auto!(r = true, io::IO = stdout)
             :pluto in keys(io) ? pluto!(r) :
             (isdefined(Main, :IJulia) && io isa Main.IJulia.IJuliaStdio) || :jupyter in keys(io) ? iframe!(r) :
             isinteractive() ? fillwindow!(r) :
+            isdefined(Main, :VSCodeServer) ? vscodejupyter!(r) : # VSCode Jupyter ] isinteractive() = false ])
             nothing
         end
     end
@@ -252,7 +255,13 @@ function page(o::Plot)
     ))
 end
 
-Base.display(::Cobweb.CobwebDisplay, o::Plot) = display(Cobweb.CobwebDisplay(), page(o))
+function Base.display(::Cobweb.CobwebDisplay, o::Plot) 
+    if (~isinteractive() && isdefined(Main, :VSCodeServer)) # VSCode Jupyter
+        display(HTML(repr("text/html", o)));
+    else
+        display(Cobweb.CobwebDisplay(), page(o))
+    end
+end
 
 Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME"text/html"(), o)
 
