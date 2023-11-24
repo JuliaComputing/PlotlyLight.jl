@@ -76,7 +76,7 @@ function download_schema!()
 end
 function load_schema(force=false)
     if force || !isassigned(schema)
-        schema[] = JSON3.read(open(joinpath(scratch_dir[], "plotly-schema.json"), "r"), Config; allow_inf=true)
+        schema[] = JSON3.read(open(joinpath(scratch_dir[], "plotly-schema.json"), "r"), Config;)
     end
     return schema[]
 end
@@ -160,7 +160,7 @@ module Preset
                 export $f
                 function $f()
                     file = joinpath(templates_dir[], $(string(t)) * ".json")
-                    SETTINGS.layout.template = open(io -> JSON3.read(io, Config; allow_inf=true), file)
+                    SETTINGS.layout.template = open(io -> JSON3.read(io, Config;), file)
                     return SETTINGS
                 end
             end
