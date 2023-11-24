@@ -76,7 +76,7 @@ function download_schema!()
 end
 function load_schema(force=false)
     if force || !isassigned(schema)
-        schema[] = JSON3.read(open(joinpath(scratch_dir[], "plotly-schema.json"), "r"), Config;)
+        schema[] = JSON3.read(open(joinpath(scratch_dir[], "plotly-schema.json"), "r"), Config)
     end
     return schema[]
 end
