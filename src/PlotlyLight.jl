@@ -160,7 +160,7 @@ module Preset
                 export $f
                 function $f()
                     file = joinpath(templates_dir[], $(string(t)) * ".json")
-                    SETTINGS.layout.template = open(io -> JSON3.read(io, Config;), file)
+                    SETTINGS.layout.template = open(io -> JSON3.read(io, Config), file)
                     return SETTINGS
                 end
             end
