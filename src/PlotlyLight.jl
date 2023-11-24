@@ -267,7 +267,7 @@ function Base.show(io::IO, M::MIME"text/html", o::Plot; setting::Settings = SETT
         show(io, M, setting.load_plotlyjs())
         show(io, M, setting.make_container(id))
         print(io, "<script>Plotly.newPlot(", repr(id), ", ")
-        foreach(x -> (JSON3.write(io, x); print(io, ", ")), (data, layout, config))
+        foreach(x -> (JSON3.write(io, x; allow_inf=true); print(io, ", ")), (data, layout, config))
         print(io, ")</script>")
     else
         iframe = setting.iframe
