@@ -199,7 +199,7 @@ module Preset
         pluto!(r = true) = settings!(r, config=Config(height="100%", width="100%"))
 
         function vscodejupyter!(r = true;)
-            iframe!(r; width="750px", scrolling="no");
+            iframe!(r; width="750px", scrolling="no")
             settings!(false; display_object=Cobweb.IFrame)
         end
 
