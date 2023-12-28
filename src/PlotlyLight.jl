@@ -258,13 +258,7 @@ function page(o::Plot)
     ))
 end
 
-function Base.display(::Cobweb.CobwebDisplay, o::Plot) 
-    if (~isinteractive() && isdefined(Main, :VSCodeServer)) # VSCode Jupyter
-        display(HTML(repr("text/html", o)));
-    else
-        display(Cobweb.CobwebDisplay(), page(o))
-    end
-end
+Base.display(::Cobweb.CobwebDisplay, o::Plot) = display(Cobweb.CobwebDisplay(), page(o))
 
 Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME"text/html"(), o)
 
