@@ -104,7 +104,7 @@ Base.@kwdef mutable struct Settings
     layout::Config      = Config()
     config::Config      = Config()
     iframe::Union{Nothing, Cobweb.IFrame} = nothing
-    display_object::Union{Type{Cobweb.Page}, Type{Cobweb.Tab}} = Cobweb.Page
+    display_object::Union{Type{Cobweb.IFrame}, Type{Cobweb.Page}, Type{Cobweb.Tab}} = Cobweb.Page
 end
 function Base.show(io::IO, o::Settings)
     println(io, "PlotlyLight.Settings:")
@@ -198,7 +198,10 @@ module Preset
 
         pluto!(r = true) = settings!(r, config=Config(height="100%", width="100%"))
 
-        vscodejupyter!(r = true;) = iframe!(r; width="750px", scrolling="no");
+        function vscodejupyter!(r = true;)
+            iframe!(r; width="750px", scrolling="no");
+            settings!(false; display_object=Cobweb.IFrame)
+        end
 
         function auto!(r = true, io::IO = stdout)
             :pluto in keys(io) ? pluto!(r) :
