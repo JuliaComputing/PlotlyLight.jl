@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.26
+# v0.19.36
 
 using Markdown
 using InteractiveUtils
@@ -8,12 +8,15 @@ using InteractiveUtils
 using Pkg; Pkg.activate("..")
 
 # ╔═╡ c27879d8-9702-11eb-3050-f1c4477273fe
-using Revise, PlotlyLight, Cobweb
+begin
+	using Revise
+	using PlotlyLight
+end
 
 # ╔═╡ e2dedee2-9702-11eb-1364-118bcaff2607
 begin
-	Preset.PlotContainer.pluto!()
-	Plot(Config(x=1:50,y=randn(50), type="bar"))
+	PlotlyLight.template_ggplot2!()
+	Plot(Config(x=1:50, y=randn(50), type="bar"))
 end
 
 # ╔═╡ Cell order:

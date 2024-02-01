@@ -24,7 +24,7 @@
 ```julia
 using PlotlyLight
 
-Preset.Template.plotly_dark!()  # Change template
+preset.template.plotly_dark!()  # Change template
 
 p = Plot(x = 1:20, y = cumsum(randn(20)), type="scatter", mode="lines+markers")  # Make plot
 
