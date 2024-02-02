@@ -30,6 +30,11 @@ html(x) = repr("text/html", x)
     @test p4.data[2] == p4.data[3]
 end
 
+@testset "trace" begin
+    @test_warn "`scatter` does not have attribute `X`" trace.scatter(X=1:10);
+    @test_nowarn trace.scatter(x=1:10);
+end
+
 #-----------------------------------------------------------------------------# Aqua
 Aqua.test_all(PlotlyLight,
     deps_compat=(; ignore =[:REPL, :Random], check_extras = (;ignore=[:Test])),

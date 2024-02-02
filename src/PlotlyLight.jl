@@ -39,7 +39,7 @@ fix_matrix(x) = x
 fix_matrix(x::AbstractMatrix) = eachrow(x)
 
 attributes(t::Symbol) = schema.traces[t].attributes
-check_attribute(trace::Symbol, attr::Symbol) = haskey(attributes(trace), attr) || @warn("`\$trace` does not have attribute `\$attr`")
+check_attribute(trace::Symbol, attr::Symbol) = haskey(attributes(trace), attr) || @warn("`$trace` does not have attribute `$attr`")
 check_attributes(trace::Symbol; kw...) = foreach(k -> check_attribute(trace, k), keys(kw))
 
 #-----------------------------------------------------------------------------# Schema
