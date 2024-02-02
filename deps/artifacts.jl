@@ -2,15 +2,14 @@ using Pkg
 Pkg.activate(@__DIR__)
 
 using ArtifactUtils, JSON3
-using Downloads: download
 
 version = JSON3.read(download("https://api.github.com/repos/plotly/plotly.js/releases/latest")).name
 
 
 #-----------------------------------------------------------------------------# get urls
-plotly_url = "https://cdn.plot.ly/plotly-$version.min.js"
+plotly_url = "https://github.com/plotly/plotly.js/raw/$version/dist/plotly.min.js"
 
-schema_url = "https://github.com/plotly/plotly.js/raw/v$version/dist/plot-schema.json"
+schema_url = "https://github.com/plotly/plotly.js/raw/$version/dist/plot-schema.json"
 
 template_urls = Dict(
     t => "https://raw.githubusercontent.com/plotly/plotly.py/master/packages/python/plotly/plotly/package_data/templates/$t.json" for t in
@@ -32,4 +31,4 @@ end
 #-----------------------------------------------------------------------------# make artifact
 artifact_id = artifact_from_directory(dir)
 gist = upload_to_gist(artifact_id)
-add_artifact!("Artifacts.toml", "plotly_artifacts", gist)
+add_artifact!("Artifacts.toml", "plotly_artifacts", gist; force=true)
