@@ -73,6 +73,8 @@ function Base.getproperty(p::Plot, x::Symbol)
 end
 Base.propertynames(p::Plot) = vcat(fieldnames(Plot), keys(schema.traces))
 
+save(p::Plot, file::AbstractString) = open(io -> print(io, html_page(p)), file, "w")
+
 #-----------------------------------------------------------------------------# plot
 plot(; kw...) = plot(get(kw, :type, :scatter); kw...)
 plot(trace; kw...) = (check_attributes(trace; kw...); Plot(; type=trace, kw...))

@@ -10,7 +10,7 @@
 ## Features
 
 - 🚀 Fastest time-to-first-plot in Julia!
-- 🌐 Use the [Plotly.js Javascript documentation](https://plotly.com/javascript/) directly.  No magic syntax: Just [`JSON3.write`](https://github.com/quinnj/JSON3.jl) at the core of it.
+- 🌐 Use the [Plotly.js Javascript documentation](https://plotly.com/javascript/) directly.  No magic syntax: Just [`JSON3.write`](https://github.com/quinnj/JSON3.jl) at the core.
 - 📂 Set deeply-nested keys easily, e.g. `myplot.layout.xaxis.title.font.family = "Arial"`.
 - 📊 The Same [built-in themes](https://plotly.com/python/templates/) as Plotly's python package.
 
@@ -77,8 +77,11 @@ plot.bar(; y).scatter(; y)
 ```julia
 p = plot(y=rand(10))
 
-open(io -> show(io, MIME("text/html"), p), touch("myplot.html"), "w")
+PlotlyLight.save(p, "myplot.html")
 ```
+
+- Note: call `preset.source.standalone!()` first if you want the html file to contain the entire plotly.js script.  This enables you to view the plot even without internet access.
+
 
 ### Save Plots as Image via [PlotlyKaleido.jl](https://github.com/JuliaPlots/PlotlyKaleido.jl)
 
