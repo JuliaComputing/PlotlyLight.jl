@@ -1,5 +1,7 @@
 using PlotlyLight
 using PlotlyLight: settings
+using Cobweb
+using Cobweb: h
 using Test
 using Aqua
 
@@ -30,9 +32,14 @@ html(x) = repr("text/html", x)
     @test p4.data[2] == p4.data[3]
 end
 
-@testset "trace" begin
-    @test_warn "`scatter` does not have attribute `X`" trace.scatter(X=1:10);
-    @test_nowarn trace.scatter(x=1:10);
+@testset "plot" begin
+    @test_warn "`scatter` does not have attribute `X`" plot.scatter(X=1:10);
+    @test_nowarn plot.scatter(x=1:10);
+end
+
+@testset "settings" begin
+    @test PlotlyLight.settings.layout == Config()
+    @test PlotlyLight.settings.config == Config(; responsive=true)
 end
 
 #-----------------------------------------------------------------------------# Aqua

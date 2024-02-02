@@ -9,7 +9,7 @@ using JSON3, EasyConfig, Cobweb, StructTypes
 using Cobweb: h, Node
 
 #-----------------------------------------------------------------------------# exports
-export Plot, Config, Preset, preset, trace
+export Plot, Config, Preset, preset, plot
 
 #-----------------------------------------------------------------------------# artifacts
 _version = VersionNumber(read(joinpath(artifact"plotly_artifacts", "version.txt"), String))
@@ -39,7 +39,8 @@ fix_matrix(x) = x
 fix_matrix(x::AbstractMatrix) = eachrow(x)
 
 attributes(t::Symbol) = schema.traces[t].attributes
-check_attribute(trace::Symbol, attr::Symbol) = haskey(attributes(trace), attr) || @warn("`$trace` does not have attribute `$attr`")
+check_attribute(trace::Symbol, attr::Symbol) = haskey(attributes(trace), attr) ||
+    @warn("`$trace` does not have attribute `$attr` and will be ignored.")
 check_attributes(trace::Symbol; kw...) = foreach(k -> check_attribute(trace, k), keys(kw))
 
 #-----------------------------------------------------------------------------# Schema
@@ -66,6 +67,12 @@ Plot(; layout=Config(), config=Config(), kw...) = Plot(Config(kw), Config(layout
 
 StructTypes.StructType(::Plot) = StructTypes.Struct()
 Base.:(==)(a::Plot, b::Plot) = all(getfield(a,f) == getfield(b,f) for f in setdiff(fieldnames(Plot), [:id]))
+
+#-----------------------------------------------------------------------------# plot
+plot(; kw...) = plot(get(kw, :type, :scatter); kw...)
+plot(trace; kw...) = (check_attributes(trace; kw...); Plot(; type=trace, kw...))
+Base.propertynames(::typeof(plot)) = sort!(collect(keys(schema.traces)))
+Base.getproperty(::typeof(plot), x::Symbol) = (; kw...) -> plot(x; kw...)
 
 #-----------------------------------------------------------------------------# display/show
 function html_div(o::Plot)
@@ -147,8 +154,5 @@ function Base.getproperty(::PresetDeprecated, x::Symbol)
     x == :Source && return preset.source
 end
 const Preset = PresetDeprecated()
-
-#-----------------------------------------------------------------------------# Traces
-include("trace.jl")
 
 end  # PlotlyLight module
