@@ -7,7 +7,7 @@
 
 <br><br>
 
-## Features
+## ✨ Features
 
 - 🚀 Fastest time-to-first-plot in Julia!
 - 🌐 Use the [Plotly.js Javascript documentation](https://plotly.com/javascript/) directly.  No magic syntax: Just [`JSON3.write`](https://github.com/quinnj/JSON3.jl) at the core.
@@ -35,7 +35,7 @@ p  # `display(p)` to see the updated plot
     <img width=650 src="https://user-images.githubusercontent.com/8075494/213164013-3ba1a108-122a-4339-a0a2-fa2175fa06e3.png">
 </p>
 
-## Traces
+## 📈 Traces
 
 - A core concept in Plotly is that of a *trace*, which is the data along with specifications on how to plot it.
 - There are many different trace *types* (e.g. "scatter" for scatterplots, "box" for boxplots).
@@ -93,16 +93,6 @@ PlotlyKaleido.start()
 (;data, layout, config) = p
 
 PlotlyKaleido.savefig((; data, layout, config), "myplot.png")
-```
-
-<br><br>
-
-### Examples
-
-```julia
-p = Plot(Config(x=1:10, y=randn(10)))
-
-p = Plot(; x=1:10, y=randn(10))
 ```
 
 <br><br>
