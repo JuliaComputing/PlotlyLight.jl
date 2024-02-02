@@ -6,25 +6,26 @@ version = "0.7.5"
 [deps]
 Artifacts = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 Cobweb = "ec354790-cf28-43e8-bb59-b484409b7bad"
-DefaultApplication = "3f0dd361-4fe0-5fc6-8523-80b14ec94d85"
 Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 EasyConfig = "acab07b0-f158-46d4-8913-50acef6d41fe"
 JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-Scratch = "6c6a2e73-6563-6170-7368-637461726353"
 StructTypes = "856f2bd8-1eba-4b0a-8007-ebc267875bd4"
 
 [compat]
-Cobweb = "0.5.1"
-DefaultApplication = "1"
-EasyConfig = "0.1.11"
-JSON3 = "1.8"
-Scratch = "1.2"
-StructTypes = "1"
-julia = "^1.6"
+Artifacts = "1.3"
+Aqua = "0.8"
+Cobweb = "0.6"
+Downloads = "1.6"
+EasyConfig = "0.1"
+JSON3 = "1.14"
+StructTypes = "1.10"
+julia = "1"
 
 [extras]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["Test", "Aqua"]
