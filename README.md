@@ -10,9 +10,8 @@
 ## Features
 
 - 🚀 Fastest time-to-first-plot in Julia!
-- 🌐 Use the [Plotly.js Javascript documentation](https://plotly.com/javascript/) directly.  No magic syntax: Just [`JSON3.write`](https://github.com/quinnj/JSON3.jl).
-    - Set deeply-nested keys easily with [`EasyConfig.jl`](https://github.com/joshday/EasyConfig.jl).
-        - e.g. `myplot.layout.xaxis.title.font.family = "Arial"`
+- 🌐 Use the [Plotly.js Javascript documentation](https://plotly.com/javascript/) directly.  No magic syntax: Just [`JSON3.write`](https://github.com/quinnj/JSON3.jl) at the core of it.
+- 📂 Set deeply-nested keys easily, e.g. `myplot.layout.xaxis.title.font.family = "Arial"`.
 - 📊 The Same [built-in themes](https://plotly.com/python/templates/) as Plotly's python package.
 
 <br><br>
