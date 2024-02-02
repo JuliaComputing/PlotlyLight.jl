@@ -54,9 +54,8 @@ mutable struct Plot
     data::Vector{Config}
     layout::Config
     config::Config
-    id::String  # for html script: Plotly.newPlot("id", data, layout, config)
-    Plot(data::Vector{Config}, layout::Config = Config(), config::Config = Config(), id::String = randstring(10)) =
-    new(data, Config(layout), Config(config), id)
+    Plot(data::Vector{Config}, layout::Config = Config(), config::Config = Config()) =
+    new(data, Config(layout), Config(config))
 end
 
 Plot(data::Config, layout::Config = Config(), config::Config = Config()) = Plot([data], layout, config)
@@ -68,6 +67,12 @@ Plot(; layout=Config(), config=Config(), kw...) = Plot(Config(kw), Config(layout
 StructTypes.StructType(::Plot) = StructTypes.Struct()
 Base.:(==)(a::Plot, b::Plot) = all(getfield(a,f) == getfield(b,f) for f in setdiff(fieldnames(Plot), [:id]))
 
+function Base.getproperty(p::Plot, x::Symbol)
+    x in fieldnames(Plot) && return getfield(p, x)
+    (; kw...) -> p(plot(; type=x, kw...))
+end
+Base.propertynames(p::Plot) = vcat(fieldnames(Plot), keys(schema.traces))
+
 #-----------------------------------------------------------------------------# plot
 plot(; kw...) = plot(get(kw, :type, :scatter); kw...)
 plot(trace; kw...) = (check_attributes(trace; kw...); Plot(; type=trace, kw...))
@@ -75,14 +80,13 @@ Base.propertynames(::typeof(plot)) = sort!(collect(keys(schema.traces)))
 Base.getproperty(::typeof(plot), x::Symbol) = (; kw...) -> plot(x; kw...)
 
 #-----------------------------------------------------------------------------# display/show
-function html_div(o::Plot)
-    id = o.id
+function html_div(o::Plot; id = randstring(10))
     data = JSON3.write(fix_matrix.(o.data); allow_inf=true)
     layout = JSON3.write(merge(settings.layout, o.layout); allow_inf=true)
     config = JSON3.write(merge(settings.config, o.config); allow_inf=true)
-    h.div(class="plotlylight-jl-parent-div",
+    h.div(class="plotlylight-parent-div",
         settings.src,
-        settings.div(; id, class="PlotlyLightjl-plot-div"),
+        settings.div(; id, class="plotlylight-plot-div"),
         h.script("Plotly.newPlot(\"$id\", $data, $layout, $config)")
     )
 end
@@ -105,7 +109,7 @@ Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME"text/html"(
 
 function Base.show(io::IO, M::MIME"text/html", o::Plot; kw...)
     !isempty(kw) && Base.depwarn("Keyword arguments for `show`-ing `Plot` are deprecated and will be ignored.", :show; force=true)
-    # Jupyter does weird stuff.  We'll use an iframe to sandbox our html.
+    # Jupyter does weird stuff.  We'll use an iframe to sandbox our html/javascript.
     use_iframe = (isdefined(Main, :VSCodeServer) && stdout isa Main.VSCodeServer.IJuliaCore.IJuliaStdio) ||
         (isdefined(Main, :IJulia) && stdout isa Main.IJulia.IJuliaStdio)
     out = use_iframe ? html_iframe(o) : html_div(o)

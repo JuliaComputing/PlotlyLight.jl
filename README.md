@@ -7,7 +7,7 @@
 
 <br><br>
 
-# Features
+## Features
 
 - 🚀 Fastest time-to-first-plot in Julia!
 - 🌐 Use the [Plotly.js Javascript documentation](https://plotly.com/javascript/) directly.  No magic syntax: Just [`JSON3.write`](https://github.com/quinnj/JSON3.jl).
@@ -17,14 +17,14 @@
 
 <br><br>
 
-# 🚀 Quickstart
+## 🚀 Quickstart
 
 ```julia
 using PlotlyLight
 
 preset.template.plotly_dark!()  # Change template
 
-p = Plot(x = 1:20, y = cumsum(randn(20)), type="scatter", mode="lines+markers")  # Make plot
+p = plot(x = 1:20, y = cumsum(randn(20)), type="scatter", mode="lines+markers")  # Make plot
 
 p.layout.title.text = "My Title!"  # Make changes
 
@@ -36,53 +36,64 @@ p  # `display(p)` to see the updated plot
     <img width=650 src="https://user-images.githubusercontent.com/8075494/213164013-3ba1a108-122a-4339-a0a2-fa2175fa06e3.png">
 </p>
 
-#### Adding Traces
+## Traces
 
-- Calling a `Plot` object will add a trace:
+- A core concept in Plotly is that of a *trace*, which is the data along with specifications on how to plot it.
+- There are many different trace *types* (e.g. "scatter" for scatterplots, "box" for boxplots).
+
+
+PlotlyLight does some simple "tricks" with the `plot` function so that:
 
 ```julia
-Plot()(
-    x = 1:10, y = randn(10), name = "trace 1"
-)(
-    x = 3:12, y = randn(10), name = "trace 2"
-)
+plot.trace(; kw...) == Plot(; type=trace, kw...)
+```
+
+**This lets you tab-autocomplete the trace type:**
+
+```julia
+julia> plot.<TAB>
+# bar                 barpolar            box                 candlestick         carpet              choropleth          choroplethmapbox
+# cone                contour             contourcarpet       densitymapbox       funnel              funnelarea          heatmap
+# heatmapgl           histogram           histogram2d         histogram2dcontour  icicle              image               indicator
+# isosurface          mesh3d              ohlc                parcats             parcoords           pie                 pointcloud
+# sankey              scatter             scatter3d           scattercarpet       scattergeo          scattergl           scattermapbox
+# scatterpolar        scatterpolargl      scattersmith        scatterternary      splom               streamtube          sunburst
+# surface             table               treemap             violin              volume              waterfall
+```
+
+**You can chain the dot syntax to add traces to a plot, e.g.**
+
+```julia
+y = randn(20)
+
+plot.bar(; y).scatter(; y)
 ```
 
 <br><br>
 
-# 📄 Saving Plots
+## 📄 Saving Plots
 
-## Save HTML files with [Cobweb.jl](https://github.com/joshday/Cobweb.jl)
+### Saving Plots As HTML
 
 ```julia
-using Cobweb
+p = plot(y=rand(10))
 
-page = Cobweb.Page(p)
-
-Cobweb.save(page, "myplot.html")
+open(io -> show(io, MIME("text/html"), p), touch("myplot.html"), "w")
 ```
 
-## Save images with [PlotlyKaleido.jl](https://github.com/JuliaPlots/PlotlyKaleido.jl)
+### Save Plots as Image via [PlotlyKaleido.jl](https://github.com/JuliaPlots/PlotlyKaleido.jl)
 
 ```julia
 using PlotlyKaleido
 
-PlotlyKaleido.savefig(p, "myplot.png")
+PlotlyKaleido.start()
+
+(;data, layout, config) = p
+
+PlotlyKaleido.savefig((; data, layout, config), "myplot.png")
 ```
 
 <br><br>
-
-# `?Plot`
-
-```julia
-Plot(data, layout=Config(), config=Config())
-Plot(;layout=Config(), config=Config(), kw...)
-```
-
-Create a Plotly plot with the given `data` (`Config` or `Vector{Config}`), `layout`, and `config`.
-Alternatively, you can create a plot with a single trace by providing the `data` as keyword arguments.
-
-For more info, read the Plotly.js docs: [https://plotly.com/javascript/](https://plotly.com/javascript/).
 
 ### Examples
 
@@ -94,75 +105,37 @@ p = Plot(; x=1:10, y=randn(10))
 
 <br><br>
 
-# ⚙️ Presets and Settings
+## 🎛️ Presets
 
-- There are several presets that can make your life easier, located in the `Preset` module.
-- Each preset is a function that you set via `Preset.[Template|Source|PlotContainer].<preset!>`
+### Theme Presets
 
-
-## `Preset.Template`
-
-- The template/theme of the plot.
+Set a theme/template via `preset.template.<option>!()`.  Note that options are tab-autocomplete-able.  These are borrowed from the [built-in themes](https://plotly.com/python/templates/) in the plotly python package.
 
 ```julia
-ggplot2!
-gridon!
-none!
-plotly!
-plotly_dark!
-plotly_white!
-presentation!
-seaborn!
-simple_white!
-xgridoff!
-ygridoff!
+preset.template.ggplot2!()
 ```
 
+### Source Presets
 
-## `Preset.Source`
-
-- How the Plotly.js library gets loaded when the plot is displayed in a browser.
+Change how the plotly.js script gets loaded in the produced html via `preset.source.<option>!()`.
 
 ```julia
-cdn!        # Use https://cdn.plot.ly/plotly-<version>.min.js to load Plotly.js.
-local!      # Use a local copy of Plotly.
-none!       # Do not load Plotly.js
-standalone! # Create a standalone html file that hard-codes Plotly.js into it.
+preset.source.none!()       # Don't include the script.
+preset.source.cdn!()        # Use the official plotly.js CDN.
+preset.source.local!()      # Use a local version of the plotly.js script.
+preset.source.standalone!() # Copy-paste the plotly.js script into the html output.
 ```
 
-## `Preset.PlotContainer`
+## ⚙️ Settings
 
-- The HTML `<div>` that the plot will be inserted into.
+Occasionally `preset`s aren't enough.  Lower level user-configurable settings are available in `PlotlyLight.settings`:
 
 ```julia
-auto!           # Automatically choose one of the above based on `stdout`.
-fillwindow!     # Fill the height/width of the page (REPL default).
-iframe!         # Wrap the Plot inside an <iframe> (Jupyter[lab] default).
-pluto!          # Use the full width of a Pluto cell (Pluto default).
-responsive!     # Fill whatever container the plot lives in.
+PlotlyLight.settings.src::Cobweb.Node           # plotly.js script loader
+PlotlyLight.settings.div::Cobweb.Node           # The plot-div
+PlotlyLight.settings.layout::EasyConfig.Config  # default `layout` for all plots
+PlotlyLight.settings.config::EasyConfig.Config  # default `config` for all plots
+PlotlyLight.settings.reuse_preview::Bool        # In the REPL, open plots in same page (true, the default) or different pages.
 ```
 
-## Manual Settings
-
-If the available `Preset`s aren't enough to satisfy your use case, you can override the settings to your own preferences via the `settings!(; kw...)` function.
-
-- `load_plotlyjs`
-    - A function that returns a `MIME("text/html")`-representable object that will load the Plotly.js library.
-    -  Default value:
-    ```julia
-    () -> Cobweb.h.script(src=PlotlyLight.cdn_url[], charset="utf-8")
-    ```
-- `make_container = (id::String) -> Cobweb.h.div(; id=id)`
-    - A function of an identifier that returns a `MIME("text/html")`-representable object that will write the `<div>` to be populated with the plot.
-- `layout = Config()` and `config = Config()`
-    - The default `layout` and `config`.  They will be merged with the `Plot`'s `layout`/`config` (conflicting values will taken from the `Plot`).
-- `iframe::Union{Nothing, Cobweb.IFrame} = nothing`
-    - A `Cobweb.IFrame` to use as a template to wrap the plot in, e.g. `Cobweb.IFrame(""; height="500px", width="600px")`.
-
-# Update/Change the Version of Plotly.js
-
-```julia
-PlotlyLight.update!() # update to latest released version
-
-PlotlyLight.update!(v"2.24.2")  # update to specific release.
-```
+Check out e.g. `PlotlyLight.Settings().src` to examine default values.
