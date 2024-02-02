@@ -9,7 +9,7 @@ using JSON3, EasyConfig, Cobweb, StructTypes
 using Cobweb: h, Node
 
 #-----------------------------------------------------------------------------# exports
-export Plot, Config, Preset, preset, Traces
+export Plot, Config, Preset, preset, trace
 
 #-----------------------------------------------------------------------------# artifacts
 _version = VersionNumber(read(joinpath(artifact"plotly_artifacts", "version.txt"), String))
@@ -38,6 +38,10 @@ fix_matrix(x::Config) = Config(k => fix_matrix(v) for (k,v) in pairs(x))
 fix_matrix(x) = x
 fix_matrix(x::AbstractMatrix) = eachrow(x)
 
+attributes(t::Symbol) = schema.traces[t].attributes
+check_attribute(trace::Symbol, attr::Symbol) = haskey(attributes(trace), attr) || @warn("`\$trace` does not have attribute `\$attr`")
+check_attributes(trace::Symbol; kw...) = foreach(k -> check_attribute(trace, k), keys(kw))
+
 #-----------------------------------------------------------------------------# Schema
 struct Schema end
 Base.propertynames(::Schema) = collect(keys(plotly.schema))
@@ -58,6 +62,7 @@ Plot(data::Config, layout::Config = Config(), config::Config = Config()) = Plot(
 Plot(; layout=Config(), config=Config(), kw...) = Plot(Config(kw), Config(layout), Config(config))
 (p::Plot)(; kw...) = p(Config(kw))
 (p::Plot)(data::Config) = (push!(p.data, data); return p)
+(p::Plot)(p2::Plot) = (append!(p.data, p2.data); merge!(p.layout, p2.layout); merge!(p.config, p2.config); p)
 
 StructTypes.StructType(::Plot) = StructTypes.Struct()
 Base.:(==)(a::Plot, b::Plot) = all(getfield(a,f) == getfield(b,f) for f in setdiff(fieldnames(Plot), [:id]))
@@ -125,7 +130,7 @@ preset = (
         ygridoff!       = () -> set_template!(:ygridoff),
     ),
     source = (
-        none!       = () -> (settings.src = h.div("No script due to `src_none!`", style="display:none;"); nothing),
+        none!       = () -> (settings.src = h.div("No script due to `PlotlyLight.src_none!`", style="display:none;"); nothing),
         cdn!        = () -> (settings.src = h.script(src=plotly.url, charset="utf-8"); nothing),
         local!      = () -> (settings.src = h.script(src=plotly.path, charset="utf-8"); nothing),
         standalone! = () -> (settings.src = h.script(read(plotly.path, String), charset="utf-8"); nothing),
@@ -144,6 +149,6 @@ end
 const Preset = PresetDeprecated()
 
 #-----------------------------------------------------------------------------# Traces
-include("Traces.jl")
+include("trace.jl")
 
 end  # PlotlyLight module
