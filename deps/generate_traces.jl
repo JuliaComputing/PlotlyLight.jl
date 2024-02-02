@@ -5,17 +5,6 @@ Pkg.activate(@__DIR__)
 
 using JSON3, Dates
 
-# #-----------------------------------------------------------------------------# Plotly.js
-# latest = JSON3.read(download("https://api.github.com/repos/plotly/plotly.js/releases/latest")).name
-# url = "https://cdn.plot.ly/plotly-$latest.min.js"
-
-
-# #-----------------------------------------------------------------------------# templates
-# plotly_template_urls = Dict(
-#     t => "https://raw.githubusercontent.com/plotly/plotly.py/master/packages/python/plotly/plotly/package_data/templates/$t.json" for t in
-#         (:ggplot2, :gridon, :plotly, :plotly_dark, :plotly_white, :presentation, :seaborn, :simple_white, :xgridoff, :ygridoff)
-# )
-
 #-----------------------------------------------------------------------------# Schema
 obj = JSON3.read(read(download("https://api.plot.ly/v2/plot-schema?format=json&sha1=%27%27")))
 
@@ -23,6 +12,9 @@ _keys(x) = Tuple(sort!(collect(keys(x))))
 
 traces = _keys(obj.schema.traces)
 trace_defs = []
+
+bullet(key::Symbol, val::String) =  "- `$(key)`: $(val)\n"
+bullet(key::Symbol, val::JSON3.Object) = bullet(key, get(val, :description, ""))
 
 open(joinpath(@__DIR__, "..", "src", "Traces.jl"), "w") do io
     println(io, """
@@ -35,19 +27,28 @@ open(joinpath(@__DIR__, "..", "src", "Traces.jl"), "w") do io
     """)
 
     for t in traces
+        attributes_obj = obj.schema.traces[t].attributes
         attributes = _keys(obj.schema.traces[t].attributes)
-        attributes_dict = Dict(obj.schema.traces[t].attributes)
+
+        bullets = [bullet(a, attributes_obj[a]) for a in attributes]
+
         println(io, """
         #-----------------------------------------------------------------------------# $t
         export $t
+        \"\"\"
+            $t(; kw...) --> Plot(type=:$t, kw...)
+
+        Create a Plotly trace of type `$t` with the given `kw` attributes.  Attributes will be
+        validated against the Plotly schema.  Available attributes for `$t` are:
+
+        $(bullets...)
+        \"\"\"
         function $t(; kw...)
             for k in keys(kw)
                 k in $attributes || @warn "Function `$t` does not have attribute `\$k`"
             end
             Plot(; type=:$t, kw...)
         end
-        Base.propertynames(::typeof($t)) = $attributes
-
         """)
     end
     println(io, "end  # module Traces")
