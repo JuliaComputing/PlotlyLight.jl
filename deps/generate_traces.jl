@@ -23,7 +23,15 @@ open(joinpath(@__DIR__, "..", "src", "Traces.jl"), "w") do io
 
     module Traces
 
-    using ..PlotlyLight: Plot
+    using ..PlotlyLight: Plot, schema
+
+    export $(join(traces, ", "))
+
+    attributes(t::Symbol) = schema.traces[t].attributes
+    check_attribute(trace::Symbol, attr::Symbol) = haskey(attributes(trace), attr) || @warn("`\$trace` does not have attribute `\$attr`")
+    check_attributes(trace::Symbol; kw...) = foreach(k -> check_attribute(trace, k), keys(kw))
+
+    const traces = $traces
     """)
 
     for t in traces
@@ -32,23 +40,8 @@ open(joinpath(@__DIR__, "..", "src", "Traces.jl"), "w") do io
 
         bullets = [bullet(a, attributes_obj[a]) for a in attributes]
 
-        println(io, """
-        #-----------------------------------------------------------------------------# $t
-        export $t
-        \"\"\"
-            $t(; kw...) --> Plot(type=:$t, kw...)
-
-        Create a Plotly trace of type `$t` with the given `kw` attributes.  Attributes will be
-        validated against the Plotly schema.  Available attributes for `$t` are:
-
-        $(bullets...)
-        \"\"\"
-        function $t(; kw...)
-            for k in keys(kw)
-                k in $attributes || @warn "Function `$t` does not have attribute `\$k`"
-            end
-            Plot(; type=:$t, kw...)
-        end
+        print(io, """
+        $t(; kw...) = (check_attributes(:$t; kw...); Plot(; type=:$t, kw...))
         """)
     end
     println(io, "end  # module Traces")

@@ -18,7 +18,7 @@ const plotly = (;
     version = _version,
     url = "https://cdn.plot.ly/plotly-$_version.min.js",
     path = joinpath(artifact"plotly_artifacts", "plotly.min.js"),
-    schema_path = joinpath(artifact"plotly_artifacts", "plot-schema.json"),
+    schema = JSON3.read(read(joinpath(artifact"plotly_artifacts", "plot-schema.json"))),
     templates_path = joinpath(artifact"plotly_artifacts", "templates"),
 )
 
@@ -37,6 +37,12 @@ settings::Settings = Settings()
 fix_matrix(x::Config) = Config(k => fix_matrix(v) for (k,v) in pairs(x))
 fix_matrix(x) = x
 fix_matrix(x::AbstractMatrix) = eachrow(x)
+
+#-----------------------------------------------------------------------------# Schema
+struct Schema end
+Base.propertynames(::Schema) = collect(keys(plotly.schema))
+Base.getproperty(::Schema, x::Symbol) = plotly.schema[x]
+schema = Schema()
 
 #-----------------------------------------------------------------------------# Plot
 mutable struct Plot
