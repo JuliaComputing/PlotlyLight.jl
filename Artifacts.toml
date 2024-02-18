@@ -1,13 +1,6 @@
-[PlotlyLight]
-git-tree-sha1 = "454cd11f76e34fb3c8163fdef1e071633f1ece18"
-
-    [[PlotlyLight.download]]
-    sha256 = "af56c1871c5ccdb6b51022b378b023dce3df56c18d6b2d21f78c25d1d0b9b486"
-    url = "https://gist.github.com/joshday/6454da06baf6d0ca532c08ba04b76855/raw/454cd11f76e34fb3c8163fdef1e071633f1ece18.tar.gz"
-
 [plotly_artifacts]
-git-tree-sha1 = "732abe4f42a5631b96e7b7a003161af12b0a4178"
+git-tree-sha1 = "0482d05aeb45f0389a9f2ec9919f430d6dfd454d"
 
     [[plotly_artifacts.download]]
-    sha256 = "2682c0da29cf273ef89ba58e04b38c9fc69e664e6e968d6e8e7b4e9bff8f9727"
-    url = "https://gist.github.com/joshday/8312806ce405dbc529e9381d4d92f14c/raw/732abe4f42a5631b96e7b7a003161af12b0a4178.tar.gz"
+    sha256 = "a3b7b176230c3c49c8fb4866a845e133d0afe4f58b23b941f9b3059e907d913e"
+    url = "https://gist.github.com/joshday/c62001c14794e2f28c8f6ab6937b3e94/raw/0482d05aeb45f0389a9f2ec9919f430d6dfd454d.tar.gz"
