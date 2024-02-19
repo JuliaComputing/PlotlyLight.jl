@@ -53,13 +53,18 @@ plot.trace(; kw...) == plot(; type=trace, kw...)
 
 ```julia
 julia> plot.<TAB>
-# bar                 barpolar            box                 candlestick         carpet              choropleth          choroplethmapbox
-# cone                contour             contourcarpet       densitymapbox       funnel              funnelarea          heatmap
-# heatmapgl           histogram           histogram2d         histogram2dcontour  icicle              image               indicator
-# isosurface          mesh3d              ohlc                parcats             parcoords           pie                 pointcloud
-# sankey              scatter             scatter3d           scattercarpet       scattergeo          scattergl           scattermapbox
-# scatterpolar        scatterpolargl      scattersmith        scatterternary      splom               streamtube          sunburst
-# surface             table               treemap             violin              volume              waterfall
+# bar                 barpolar            box                 candlestick
+# carpet              choropleth          choroplethmapbox    cone
+# contour             contourcarpet       densitymapbox       funnel
+# funnelarea          heatmap             heatmapgl           histogram
+# histogram2d         histogram2dcontour  icicle              image
+# indicator           isosurface          mesh3d              ohlc
+# parcats             parcoords           pie                 pointcloud
+# sankey              scatter             scatter3d           scattercarpet
+# scattergeo          scattergl           scattermapbox       scatterpolar
+# scatterpolargl      scattersmith        scatterternary      splom
+# streamtube          sunburst            surface             table
+# treemap             violin              volume              waterfall
 ```
 
 **You can chain the dot syntax to add traces to a plot, e.g.**
