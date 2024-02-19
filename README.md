@@ -35,6 +35,8 @@ p  # `display(p)` to see the updated plot
     <img width=650 src="https://user-images.githubusercontent.com/8075494/213164013-3ba1a108-122a-4339-a0a2-fa2175fa06e3.png">
 </p>
 
+<br><br>
+
 ## 📈 Traces
 
 - A core concept in Plotly is that of a *trace*, which is the data along with specifications on how to plot it.
@@ -117,6 +119,8 @@ preset.source.cdn!()        # Use the official plotly.js CDN.
 preset.source.local!()      # Use a local version of the plotly.js script.
 preset.source.standalone!() # Copy-paste the plotly.js script into the html output.
 ```
+
+<br><br>
 
 ## ⚙️ Settings
 
