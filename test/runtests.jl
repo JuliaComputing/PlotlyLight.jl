@@ -42,6 +42,10 @@ end
     @test PlotlyLight.settings.config == Config(; responsive=true)
 end
 
+@testset "other" begin
+    @test propertynames(Plot()) isa Vector{Symbol}
+end
+
 #-----------------------------------------------------------------------------# Aqua
 Aqua.test_all(PlotlyLight,
     deps_compat=(; ignore =[:REPL, :Random], check_extras = (;ignore=[:Test])),

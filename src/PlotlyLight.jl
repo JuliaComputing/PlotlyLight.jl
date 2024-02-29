@@ -71,7 +71,7 @@ function Base.getproperty(p::Plot, x::Symbol)
     x in fieldnames(Plot) && return getfield(p, x)
     (; kw...) -> p(plot(; type=x, kw...))
 end
-Base.propertynames(p::Plot) = vcat(fieldnames(Plot), keys(schema.traces))
+Base.propertynames(p::Plot) = vcat(fieldnames(Plot)..., keys(schema.traces)...)
 
 save(p::Plot, file::AbstractString) = open(io -> print(io, html_page(p)), file, "w")
 
