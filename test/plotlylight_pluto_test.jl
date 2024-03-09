@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.36
+# v0.19.40
 
 using Markdown
 using InteractiveUtils
@@ -15,8 +15,8 @@ end
 
 # ╔═╡ e2dedee2-9702-11eb-1364-118bcaff2607
 begin
-	PlotlyLight.template_ggplot2!()
-	Plot(Config(x=1:50, y=randn(50), type="bar"))
+	PlotlyLight.preset.template.ggplot2!()
+	Plot(Config(x=1:50, y=cumsum(randn(50)), type="bar"))
 end
 
 # ╔═╡ Cell order:

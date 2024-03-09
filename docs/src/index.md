@@ -2,6 +2,12 @@
 
 Documentation for PlotlyLight.jl
 
-@example ```
+```@example
+names(Main)
+```
+
+```@example
+using PlotlyLight
+
 Plot(y=rand(10))
 ```
