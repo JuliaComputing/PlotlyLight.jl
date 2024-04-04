@@ -23,7 +23,7 @@ using PlotlyLight
 
 preset.template.plotly_dark!()  # Change template
 
-p = plot(x = 1:20, y = cumsum(randn(20)), type="scatter", mode="lines+markers")  # Make plot
+p = plot(x = 1:20, y = cumsum(randn(20)), type=:scatter, mode="lines+markers")  # Make plot
 
 p.layout.title.text = "My Title!"  # Make changes
 
