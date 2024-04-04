@@ -39,9 +39,9 @@ fix_matrix(x) = x
 fix_matrix(x::AbstractMatrix) = eachrow(x)
 
 attributes(t::Symbol) = schema.traces[t].attributes
-check_attribute(trace::Symbol, attr::Symbol) = haskey(attributes(trace), attr) ||
+check_attribute(trace, attr::Symbol) = haskey(attributes(Symbol(trace)), attr) ||
     @warn("`$trace` does not have attribute `$attr` and will be ignored.")
-check_attributes(trace::Symbol; kw...) = foreach(k -> check_attribute(trace, k), keys(kw))
+check_attributes(trace; kw...) = foreach(k -> check_attribute(Symbol(trace), k), keys(kw))
 
 #-----------------------------------------------------------------------------# Schema
 struct Schema end
