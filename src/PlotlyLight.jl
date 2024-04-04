@@ -46,8 +46,8 @@ fix_matrix(x) = x
 fix_matrix(x::AbstractMatrix) = eachrow(x)
 
 attributes(t::Symbol) = plotly.schema.traces[t].attributes
-check_attribute(trace::Symbol, attr::Symbol) = haskey(attributes(trace), attr) || @warn("`$trace` does not have attribute `$attr`.")
-check_attributes(trace::Symbol; kw...) = foreach(k -> check_attribute(trace, k), keys(kw))
+check_attribute(trace, attr::Symbol) = haskey(attributes(Symbol(trace)), attr) || @warn("`$trace` does not have attribute `$attr`.")
+check_attributes(trace; kw...) = foreach(k -> check_attribute(Symbol(trace), k), keys(kw))
 
 #-----------------------------------------------------------------------------# Plot
 mutable struct Plot
@@ -113,21 +113,21 @@ Base.display(::REPL.REPLDisplay, o::Plot) = Cobweb.preview(o, reuse=settings.reu
 # `preset_src_<X>` overwrites `settings.src`
 # `preset_display_<X>` overwrites `settings.config.responsive`, `settings.div`, `settings.layout.[width, height]`
 
-set_template!(t) = (settings.layout.template = JSON3.read(read(plotly.templates["$t.json"])); nothing)
+template!(t) = (settings.layout.template = JSON3.read(read(plotly.templates["$t.json"])); nothing)
 
 preset = (
     template = (
         none!           = () -> (haskey(settings.layout, :template) && delete!(settings.layout, :template); nothing),
-        ggplot2!        = () -> set_template!(:ggplot2),
-        gridon!         = () -> set_template!(:gridon),
-        plotly!         = () -> set_template!(:plotly),
-        plotly_dark!    = () -> set_template!(:plotly_dark),
-        plotly_white!   = () -> set_template!(:plotly_white),
-        presentation!   = () -> set_template!(:presentation),
-        seaborn!        = () -> set_template!(:seaborn),
-        simple_white!   = () -> set_template!(:simple_white),
-        xgridoff!       = () -> set_template!(:xgridoff),
-        ygridoff!       = () -> set_template!(:ygridoff)
+        ggplot2!        = () -> template!(:ggplot2),
+        gridon!         = () -> template!(:gridon),
+        plotly!         = () -> template!(:plotly),
+        plotly_dark!    = () -> template!(:plotly_dark),
+        plotly_white!   = () -> template!(:plotly_white),
+        presentation!   = () -> template!(:presentation),
+        seaborn!        = () -> template!(:seaborn),
+        simple_white!   = () -> template!(:simple_white),
+        xgridoff!       = () -> template!(:xgridoff),
+        ygridoff!       = () -> template!(:ygridoff)
     ),
     source = (
         none!       = () -> (settings.src = h.div("No script due to `PlotlyLight.src_none!`", style="display:none;"); nothing),
