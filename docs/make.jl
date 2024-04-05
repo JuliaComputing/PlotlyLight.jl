@@ -1,18 +1,19 @@
 using Documenter
 using PlotlyLight
 
-PlotlyLight.settings.use_iframe = true
-PlotlyLight.settings.div.style = "max-width: 52rem;"
-
 makedocs(
     sitename = "PlotlyLight",
     modules = [PlotlyLight],
     format = Documenter.HTML(
         assets = [asset(PlotlyLight.plotly.url)]
-    )
+    ),
+    pages = [
+        "index.md",
+        "templates.md"
+    ]
 )
 
 
 deploydocs(
-    repo = "https://github.com/juliacomputing/plotlylight.jl"
+    repo = "https://github.com/JuliaComputing/PlotlyLight.jl"
 )
