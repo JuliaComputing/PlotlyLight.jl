@@ -106,7 +106,8 @@ function html_iframe(o::Plot; height=settings.height, width=settings.width, styl
 end
 Base.show(io::IO, ::MIME"text/html", o::Plot) = show(io, MIME"text/html"(), html_iframe(o))
 Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME"text/html"(), o)
-Base.display(::REPL.REPLDisplay, o::Plot) = Cobweb.preview(o, reuse=settings.reuse_preview)
+
+Base.display(::REPL.REPLDisplay, o::Plot) = Cobweb.preview(h.html(h.body(o, style="margin: 0px;")), reuse=settings.reuse_preview)
 
 #-----------------------------------------------------------------------------# preset
 # `preset_template_<X>` overwrites `settings.layout.template`
