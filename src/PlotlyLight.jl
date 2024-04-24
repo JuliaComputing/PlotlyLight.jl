@@ -38,7 +38,6 @@ Base.@kwdef mutable struct Settings
     style::Dict{String,String} = Dict("display" => "block", "border" => "none", "min-height" => "350px", "min-width" => "350px")
 end
 settings::Settings = Settings()
-set!(; kw...) = foreach(x -> setfield!(settings, x...), kw)
 
 #-----------------------------------------------------------------------------# utils
 fix_matrix(x::Config) = Config(k => fix_matrix(v) for (k,v) in pairs(x))
