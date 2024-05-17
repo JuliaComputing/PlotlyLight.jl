@@ -11,6 +11,9 @@ makedocs(
         "index.md",
         "plotly_basics.md",
         "templates.md",
+        "saving.md",
+        "source.md",
+        "settings.md",
     ]
 )
 
