@@ -33,9 +33,7 @@ Base.@kwdef mutable struct Settings
     layout::Config          = Config()
     config::Config          = Config(responsive=true)
     reuse_preview::Bool     = true
-    height::String          = "100%"
-    width::String           = "100%"
-    style::Dict{String,String} = Dict("display" => "block", "border" => "none", "min-height" => "350px", "min-width" => "350px")
+    style::Dict{String,String} = Dict("display" => "block", "border" => "none", "min-height" => "350px", "min-width" => "350px", "width" => "100%", "height" => "100%")
 end
 settings::Settings = Settings()
 
@@ -95,13 +93,13 @@ function html_page(o::Plot)
             h.meta(name="viewport", content="width=device-width, initial-scale=1"),
             h.meta(name="description", content="PlotlyLight.jl"),
             h.title("PlotlyLight.jl"),
-            h.style("body { margin: 0px; } /* remove scrollbar in iframe */"),
+            h.style("body { padding: 0px; margin: 0px; } /* remove scrollbar in iframe */"),
         ),
         h.body(html_div(o))
     )
 end
-function html_iframe(o::Plot; height=settings.height, width=settings.width, style=settings.style)
-    IFrame(html_page(o); height=height, width=width, style=join(["$k:$v" for (k,v) in style], ';'))
+function html_iframe(o::Plot; style=settings.style)
+    IFrame(html_page(o); style=join(["$k:$v" for (k,v) in style], ';'))
 end
 Base.show(io::IO, ::MIME"text/html", o::Plot) = show(io, MIME"text/html"(), html_iframe(o))
 Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME"text/html"(), o)

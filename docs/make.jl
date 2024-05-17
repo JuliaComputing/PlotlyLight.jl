@@ -9,8 +9,8 @@ makedocs(
     ),
     pages = [
         "index.md",
+        "plotly_basics.md",
         "templates.md",
-        "traces.md"
     ]
 )
 
