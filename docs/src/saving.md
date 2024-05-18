@@ -1,4 +1,4 @@
-# Saving Plots
+# Saving
 
 ### Saving Plots As HTML
 
@@ -8,7 +8,9 @@ p = plot(y=rand(10))
 PlotlyLight.save(p, "myplot.html")
 ```
 
-- Note: call `PlotlyLight.preset.source.standalone!()` first if you want the html file to contain the entire plotly.js script.  This enables you to view the plot even without internet access.
+!!! note "Standalone Source"
+    Use `PlotlyLight.preset.source.standalone!()` before you save the plot if you want to be able view the plot without internet access.  This will copy-paste the plotly.js script into the html file.
+
 
 
 ### Save Plots as Image via [PlotlyKaleido.jl](https://github.com/JuliaPlots/PlotlyKaleido.jl)

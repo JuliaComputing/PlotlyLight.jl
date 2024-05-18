@@ -1,4 +1,4 @@
-# Plotly.js Source Presets
+# Plotly.js Source
 
 Change how the plotly.js script gets loaded in the produced html via `preset.source.<option>!()`.
 

@@ -1,4 +1,4 @@
-# PlotlyLight.jl
+# Introduction
 
 PlotlyLight.jl is a speedy lightweight interface for creating [Plotly.js](https://plotly.com/javascript/) plots from Julia.
 

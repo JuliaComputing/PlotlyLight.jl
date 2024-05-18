@@ -1,4 +1,4 @@
-# Plotly.js Basics
+# Plotly Basics
 
 Plotly.js is a JavaScript library that allows you to create interactive plots in the browser.
 
