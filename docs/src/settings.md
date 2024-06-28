@@ -12,3 +12,4 @@ PlotlyLight.settings.style::Dict{String,String} # CSS styles for the plot <div>
 ```
 
 Check out e.g. `PlotlyLight.Settings().src` to examine default values.
+

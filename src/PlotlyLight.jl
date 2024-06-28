@@ -93,7 +93,7 @@ function html_page(o::Plot)
             h.meta(name="viewport", content="width=device-width, initial-scale=1"),
             h.meta(name="description", content="PlotlyLight.jl"),
             h.title("PlotlyLight.jl"),
-            h.style("body { padding: 0px; margin: 0px; } /* remove scrollbar in iframe */"),
+            h.style("html, body { padding: 0px; margin: 0px; } /* remove scrollbar in iframe */"),
         ),
         h.body(html_div(o))
     )
@@ -105,6 +105,9 @@ Base.show(io::IO, ::MIME"text/html", o::Plot) = show(io, MIME"text/html"(), html
 Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME"text/html"(), o)
 
 Base.display(::REPL.REPLDisplay, o::Plot) = Cobweb.preview(h.html(h.body(o, style="margin: 0px;")), reuse=settings.reuse_preview)
+
+mathjax = h.script(type="text/javascript", async=true, src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js")
+
 
 #-----------------------------------------------------------------------------# preset
 # `preset_template_<X>` overwrites `settings.layout.template`
