@@ -34,10 +34,11 @@ Base.@kwdef mutable struct Settings
     config::Config          = Config(responsive=true)
     reuse_preview::Bool     = true
     style::Dict{String,String} = Dict("display" => "block", "border" => "none", "min-height" => "350px", "min-width" => "350px", "width" => "100%", "height" => "100%")
+    inject_head::Union{Nothing, Node} = nothing
 end
 settings::Settings = Settings()
 
-#-----------------------------------------------------------------------------# utils
+#-----------------------------------------------------------------------------# utils/other
 fix_matrix(x::Config) = Config(k => fix_matrix(v) for (k,v) in pairs(x))
 fix_matrix(x) = x
 fix_matrix(x::AbstractMatrix) = eachrow(x)
@@ -45,6 +46,9 @@ fix_matrix(x::AbstractMatrix) = eachrow(x)
 attributes(t::Symbol) = plotly.schema.traces[t].attributes
 check_attribute(trace, attr::Symbol) = haskey(attributes(Symbol(trace)), attr) || @warn("`$trace` does not have attribute `$attr`.")
 check_attributes(trace; kw...) = foreach(k -> check_attribute(Symbol(trace), k), keys(kw))
+
+mathjax_script = h.script(type="text/javascript", id="MathJax-script", async=true,
+                          src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.0/es5/latest?tex-mml-chtml.js")
 
 #-----------------------------------------------------------------------------# Plot
 mutable struct Plot
@@ -94,6 +98,7 @@ function html_page(o::Plot)
             h.meta(name="description", content="PlotlyLight.jl"),
             h.title("PlotlyLight.jl"),
             h.style("html, body { padding: 0px; margin: 0px; } /* remove scrollbar in iframe */"),
+            isnothing(settings.inject_head) ? "" : settings.inject_head
         ),
         h.body(html_div(o))
     )
@@ -106,7 +111,7 @@ Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME"text/html"(
 
 Base.display(::REPL.REPLDisplay, o::Plot) = Cobweb.preview(h.html(h.body(o, style="margin: 0px;")), reuse=settings.reuse_preview)
 
-mathjax = h.script(type="text/javascript", async=true, src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js")
+mathjax_script = h.script(type="text/javascript", async=true, src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js")
 
 
 #-----------------------------------------------------------------------------# preset
