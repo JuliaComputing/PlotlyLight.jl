@@ -47,9 +47,6 @@ attributes(t::Symbol) = plotly.schema.traces[t].attributes
 check_attribute(trace, attr::Symbol) = haskey(attributes(Symbol(trace)), attr) || @warn("`$trace` does not have attribute `$attr`.")
 check_attributes(trace; kw...) = foreach(k -> check_attribute(Symbol(trace), k), keys(kw))
 
-mathjax_script = h.script(type="text/javascript", id="MathJax-script", async=true,
-                          src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.0/es5/latest?tex-mml-chtml.js")
-
 #-----------------------------------------------------------------------------# Plot
 mutable struct Plot
     data::Vector{Config}
@@ -112,7 +109,6 @@ Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME"text/html"(
 Base.display(::REPL.REPLDisplay, o::Plot) = Cobweb.preview(h.html(h.body(o, style="margin: 0px;")), reuse=settings.reuse_preview)
 
 mathjax_script = h.script(type="text/javascript", async=true, src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js")
-
 
 #-----------------------------------------------------------------------------# preset
 # `preset_template_<X>` overwrites `settings.layout.template`
