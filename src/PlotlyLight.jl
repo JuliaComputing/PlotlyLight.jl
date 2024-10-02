@@ -39,9 +39,10 @@ end
 settings::Settings = Settings()
 
 #-----------------------------------------------------------------------------# utils/other
-fix_matrix(x::Config) = Config(k => fix_matrix(v) for (k,v) in pairs(x))
-fix_matrix(x) = x
-fix_matrix(x::AbstractMatrix) = eachrow(x)
+# Hack to change behavior of `JSON3.write` for `AbstractMatrix`
+_fix(x::Config) = Config(k => _fix(v) for (k,v) in pairs(x))
+_fix(x) = x
+_fix(x::AbstractMatrix) = eachrow(x)
 
 attributes(t::Symbol) = plotly.schema.traces[t].attributes
 check_attribute(trace, attr::Symbol) = haskey(attributes(Symbol(trace)), attr) || @warn("`$trace` does not have attribute `$attr`.")
@@ -78,7 +79,7 @@ Base.getproperty(::typeof(plot), x::Symbol) = (; kw...) -> plot(x; kw...)
 
 #-----------------------------------------------------------------------------# display/show
 function html_div(o::Plot; id=randstring(10))
-    data = JSON3.write(fix_matrix.(o.data); allow_inf=true)
+    data = JSON3.write(_fix.(o.data); allow_inf=true)
     layout = JSON3.write(merge(settings.layout, o.layout); allow_inf=true)
     config = JSON3.write(merge(settings.config, o.config); allow_inf=true)
     h.div(class="plotlylight-parent-div",

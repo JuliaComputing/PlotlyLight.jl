@@ -61,7 +61,7 @@ end
 @testset "other" begin
     @test propertynames(Plot()) isa Vector{Symbol}
     @test all(x in propertynames(Plot()) for x in propertynames(plot))
-    @test PlotlyLight.fix_matrix([1 2; 3 4]) == [[1, 2], [3, 4]]
+    @test PlotlyLight._fix([1 2; 3 4]) == [[1, 2], [3, 4]]
     @test propertynames(JSON3.read(JSON3.write(Plot()))) == [:data, :layout, :config]
 end
 
