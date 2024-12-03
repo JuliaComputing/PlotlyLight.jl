@@ -3,6 +3,7 @@ module PlotlyLight
 using Artifacts: @artifact_str
 using Downloads: download
 using Random: randstring
+using Dates
 
 using JSON3: JSON3
 using EasyConfig: Config

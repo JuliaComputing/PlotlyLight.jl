@@ -22,6 +22,8 @@ json(io::IO, args...) = foreach(x -> json(io, x), args)
 
 # Strings
 json(io::IO, x::Union{AbstractChar, AbstractString, Symbol}) = print(io, '"', x, '"')
+json(io::IO, x::DateTime) = json(io, Dates.format(x, "YYYY-mm-dd HH:MM:SS"))
+json(io::IO, x::Date) = json(io, Dates.format(x, "YYYY-mm-dd"))
 
 # Numbers
 json(io::IO, x::Real) = isfinite(x) ? print(io, x) : print(io, "null")

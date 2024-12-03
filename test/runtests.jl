@@ -25,6 +25,7 @@ html(x) = repr("text/html", x)
     @test json(NaN) == "null"
     @test json(Inf) == "null"
     @test json(-Inf) == "null"
+    @test json(DateTime(2021,1,1)) == "\"2021-01-01 00:00:00\""
 end
 
 #-----------------------------------------------------------------------------# Plot methods
