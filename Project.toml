@@ -1,7 +1,7 @@
 name = "PlotlyLight"
 uuid = "ca7969ec-10b3-423e-8d99-40f33abb42bf"
 authors = ["joshday <emailjoshday@gmail.com>"]
-version = "0.10.0"
+version = "0.11.0"
 
 [deps]
 Artifacts = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
@@ -9,9 +9,7 @@ Cobweb = "ec354790-cf28-43e8-bb59-b484409b7bad"
 Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 EasyConfig = "acab07b0-f158-46d4-8913-50acef6d41fe"
 JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
-REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-StructTypes = "856f2bd8-1eba-4b0a-8007-ebc267875bd4"
 
 [compat]
 Aqua = "0.8"
@@ -20,7 +18,6 @@ Cobweb = "0.6, 0.7"
 Downloads = "1.6"
 EasyConfig = "0.1"
 JSON3 = "1.14"
-StructTypes = "1.10"
 julia = "1.7"
 
 [extras]

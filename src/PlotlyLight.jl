@@ -3,19 +3,29 @@ module PlotlyLight
 using Artifacts: @artifact_str
 using Downloads: download
 using Random: randstring
-using REPL: REPL
 
 using JSON3: JSON3
 using EasyConfig: Config
-using StructTypes: StructTypes
 using Cobweb: Cobweb, h, IFrame, Node
 
 #-----------------------------------------------------------------------------# exports
-export Plot, Config, preset, plot
+export Config, preset, Plot, plot
 
-#-----------------------------------------------------------------------------# PlotlyArtifacts
+#-----------------------------------------------------------------------------# __init__
+function __init__()
+    # Hack since extensions with REPL are wonky
+    for M in Base.loaded_modules_order
+        if Symbol(M) == :REPL
+            @eval Base.display(::$M.REPLDisplay, o::Plot) = Cobweb.preview(html_page(o))
+        end
+    end
+end
+
+include("json.jl")
+
 artifact(x...) = joinpath(artifact"plotly_artifacts", x...)
 
+#-----------------------------------------------------------------------------# plotly::PlotlyArtifacts
 Base.@kwdef struct PlotlyArtifacts
     version::VersionNumber  = VersionNumber(read(artifact("version.txt"), String))
     url::String             = "https://cdn.plot.ly/plotly-$version.min.js"
@@ -28,22 +38,36 @@ plotly::PlotlyArtifacts = PlotlyArtifacts()
 
 #-----------------------------------------------------------------------------# Settings
 Base.@kwdef mutable struct Settings
-    src::Node               = h.script(src="https://cdn.plot.ly/plotly-$(plotly.version).min.js", charset="utf-8")
-    div::Node               = h.div(; style="height:100vh;width:100vw;")
+    src::Node               = h.script(src=plotly.url, charset="utf-8")
+    div::Node               = h.div(; class="plotlylight-plot-div")
     layout::Config          = Config()
-    config::Config          = Config(responsive=true)
+    config::Config          = Config(responsive=true, displaylogo=false)
     reuse_preview::Bool     = true
-    style::Dict{String,String} = Dict("display" => "block", "border" => "none", "min-height" => "350px", "min-width" => "350px", "width" => "100%", "height" => "100%")
-    inject_head::Union{Nothing, Node} = nothing
+    page_css::Cobweb.Node   = h.style("html, body { padding: 0px; margin: 0px; }")
+    iframe_style            = "display:block; border:none; min-height:350px; min-width:350px; width:100%; height:100%"
+    src_inject::Vector      = []
 end
 settings::Settings = Settings()
 
-#-----------------------------------------------------------------------------# utils/other
-# Hack to change behavior of `JSON3.write` for `AbstractMatrix`
-_fix(x::Config) = Config(k => _fix(v) for (k,v) in pairs(x))
-_fix(x) = x
-_fix(x::AbstractMatrix) = eachrow(x)
+function Settings(s::Settings; kw...)
+    s2 = deepcopy(s)
+    for (k, v) in kw
+        setfield!(s2, k, v)
+    end
+    return s2
+end
 
+function with_settings(f; kw...)
+    old = settings
+    try
+        global settings = Settings(settings; kw...)
+        f(settings)
+    finally
+        global settings = old
+    end
+end
+
+#-----------------------------------------------------------------------------# utils/other
 attributes(t::Symbol) = plotly.schema.traces[t].attributes
 check_attribute(trace, attr::Symbol) = haskey(attributes(Symbol(trace)), attr) || @warn("`$trace` does not have attribute `$attr`.")
 check_attributes(trace; kw...) = foreach(k -> check_attribute(Symbol(trace), k), keys(kw))
@@ -53,63 +77,91 @@ mutable struct Plot
     data::Vector{Config}
     layout::Config
     config::Config
-    Plot(data::Vector{Config}, layout::Config = Config(), config::Config = Config()) = new(data, Config(layout), Config(config))
+    Plot(data::AbstractVector, layout = Config(), config = Config()) = new(Config.(data), Config(layout), Config(config))
+    Plot(data, layout = Config(), config = Config()) = new([Config(data)], Config(layout), Config(config))
 end
 
-Plot(data::Config, layout::Config = Config(), config::Config = Config()) = Plot([data], layout, config)
-Plot(; layout=Config(), config=Config(), kw...) = Plot(Config(kw), Config(layout), Config(config))
-(p::Plot)(; kw...) = p(Config(kw))
-(p::Plot)(data::Config) = (push!(p.data, data); return p)
-(p::Plot)(p2::Plot) = (append!(p.data, p2.data); merge!(p.layout, p2.layout); merge!(p.config, p2.config); p)
-
-StructTypes.StructType(::Plot) = StructTypes.Struct()
 Base.:(==)(a::Plot, b::Plot) = all(getfield(a,f) == getfield(b,f) for f in fieldnames(Plot))
-
-Base.getproperty(p::Plot, x::Symbol) = x in fieldnames(Plot) ? getfield(p, x) : (; kw...) -> p(plot(; type=x, kw...))
-Base.propertynames(p::Plot) = vcat(fieldnames(Plot)..., keys(plotly.schema.traces)...)
 
 save(p::Plot, file::AbstractString) = open(io -> print(io, html_page(p)), file, "w")
 save(file::AbstractString, p::Plot) = save(p, file)
 
-#-----------------------------------------------------------------------------# plot
-plot(; kw...) = plot(get(kw, :type, :scatter); kw...)
-plot(trace; kw...) = (check_attributes(trace; kw...); Plot(; type=trace, kw...))
-Base.propertynames(::typeof(plot)) = sort!(collect(keys(plotly.schema.traces)))
-Base.getproperty(::typeof(plot), x::Symbol) = (; kw...) -> plot(x; kw...)
+(p::Plot)(; kw...) = p(Config(kw))
+(p::Plot)(data::Config) = (push!(p.data, data); return p)
+(p::Plot)(p2::Plot) = merge!(p, p2)
 
-#-----------------------------------------------------------------------------# display/show
-function html_div(o::Plot; id=randstring(10))
-    data = JSON3.write(_fix.(o.data); allow_inf=true)
-    layout = JSON3.write(merge(settings.layout, o.layout); allow_inf=true)
-    config = JSON3.write(merge(settings.config, o.config); allow_inf=true)
-    h.div(class="plotlylight-parent-div",
-        settings.src,
-        settings.div(; id, class="plotlylight-plot-div"),
-        h.script("Plotly.newPlot(\"$id\", $data, $layout, $config)")
-    )
+function Plot(; kw...)
+    Base.depwarn("`Plot(; kw...)` is deprecated. Use `plot(; kw...)` instead.", :Plot, force=true)
+    plot(; kw...)
 end
-function html_page(o::Plot)
+
+Base.getproperty(p::Plot, x::Symbol) = x in fieldnames(Plot) ? getfield(p, x) : (; kw...) -> p(plot(; type=x, kw...))
+Base.propertynames(p::Plot) = vcat(fieldnames(Plot)..., keys(plotly.schema.traces)...)
+
+Base.merge!(a::Plot, b::Plot) = (append!(a.data, b.data); merge!(a.layout, b.layout); merge!(a.config, b.config); a)
+
+#-----------------------------------------------------------------------------# plot
+function plot(; layout = Config(), config=Config(), type=:scatter, kw...)
+    check_attributes(type; kw...)
+    data = isempty(kw) ? Config[] : [Config(; type, kw...)]
+    Plot(data, layout, config)
+end
+Base.propertynames(::typeof(plot)) = keys(plotly.schema.traces)
+Base.getproperty(::typeof(plot), type::Symbol) = (; kw...) -> plot(; type=type, kw...)
+
+
+#-----------------------------------------------------------------------------# NewPlotScript
+# PlotlyX representation of: <script>Plotly.newPlot("$id", $data, $layout, $config)</script>
+struct NewPlotScript
+    plot::Plot
+    settings::Settings
+    id::String
+end
+function Base.show(io::IO, ::MIME"text/html", o::NewPlotScript)
+    layout = merge(o.settings.layout, o.plot.layout)
+    config = merge(o.settings.config, o.plot.config)
+    print(io, "<script>Plotly.newPlot(\"", o.id, "\",")
+    json(io, o.plot.data); print(io, ',')
+    json(io, layout); print(io, ',')
+    json(io, config)
+    print(io, ")</script>")
+end
+
+#-----------------------------------------------------------------------------# display
+rand_id() = "plotlyx-" * join(rand('a':'z', 10))
+
+function html_div(o::Plot, id=rand_id())
+    h.div(class="plotlylight-parent", settings.src, settings.src_inject..., settings.div(; id), NewPlotScript(o, settings, id))
+end
+
+function html_page(o::Plot, id=rand_id())
     h.html(
         h.head(
             h.meta(charset="utf-8"),
             h.meta(name="viewport", content="width=device-width, initial-scale=1"),
-            h.meta(name="description", content="PlotlyLight.jl"),
+            h.meta(name="description", content="PlotlyLight.jl Plot"),
             h.title("PlotlyLight.jl"),
-            h.style("html, body { padding: 0px; margin: 0px; } /* remove scrollbar in iframe */"),
-            isnothing(settings.inject_head) ? "" : settings.inject_head
+            settings.page_css,
+            settings.src_inject...,
+            settings.src
         ),
-        h.body(html_div(o))
+        h.body(h.div(class="plotlylight-parent", settings.div(; id), NewPlotScript(o, settings, id)))
     )
 end
-function html_iframe(o::Plot; style=settings.style)
-    IFrame(html_page(o); style=join(["$k:$v" for (k,v) in style], ';'))
+
+function html_iframe(o::Plot, id=rand_id(), kw...)
+    with_settings() do s
+        s.div.style = "height:100vh; width:100vw"
+        Cobweb.IFrame(html_page(o, id); style=s.iframe_style, kw...)
+    end
 end
-Base.show(io::IO, ::MIME"text/html", o::Plot) = show(io, MIME"text/html"(), html_iframe(o))
-Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME"text/html"(), o)
 
-Base.display(::REPL.REPLDisplay, o::Plot) = Cobweb.preview(h.html(h.body(o, style="margin: 0px;")), reuse=settings.reuse_preview)
-
-mathjax_script = h.script(type="text/javascript", async=true, src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js")
+function Base.show(io::IO, ::MIME"text/html", o::Plot)
+    get(io, :jupyter, false) ?
+        show(io, MIME("text/html"), html_iframe(o)) :
+        show(io, MIME("text/html"), html_div(o))
+end
+Base.show(io::IO, ::MIME"juliavscode/html", o) = show(io, MIME("text/html"), o)
 
 #-----------------------------------------------------------------------------# preset
 # `preset_template_<X>` overwrites `settings.layout.template`
@@ -137,6 +189,10 @@ preset = (
         cdn!        = () -> (settings.src = h.script(src=plotly.url, charset="utf-8"); nothing),
         local!      = () -> (settings.src = h.script(src=plotly.path, charset="utf-8"); nothing),
         standalone! = () -> (settings.src = h.script(read(plotly.path, String), charset="utf-8"); nothing)
+    ),
+    display = (
+        fullscreen!     = () -> (settings.div.style = "height:100vh; width:100vw"),
+        mathjax!        = () -> (push!(settings.src_inject, h.script(src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"))),
     )
 )
 
