@@ -44,6 +44,7 @@ Base.@kwdef mutable struct Settings
     config::Config          = Config(responsive=true, displaylogo=false)
     reuse_preview::Bool     = true
     page_css::Cobweb.Node   = h.style("html, body { padding: 0px; margin: 0px; }")
+    use_iframe::Bool        = false
     iframe_style            = "display:block; border:none; min-height:350px; min-width:350px; width:100%; height:100%"
     src_inject::Vector      = []
 end
@@ -157,7 +158,7 @@ function html_iframe(o::Plot, id=rand_id(), kw...)
 end
 
 function Base.show(io::IO, ::MIME"text/html", o::Plot)
-    get(io, :jupyter, false) ?
+    (get(io, :jupyter, false) || settings.use_iframe) ?
         show(io, MIME("text/html"), html_iframe(o)) :
         show(io, MIME("text/html"), html_div(o))
 end
