@@ -4,6 +4,7 @@ using Artifacts: @artifact_str
 using Downloads: download
 using Random: randstring
 using Dates
+using REPL: REPLDisplay
 
 using JSON3: JSON3
 using EasyConfig: Config
@@ -13,15 +14,6 @@ using Cobweb: Cobweb, h, IFrame, Node
 export Config, preset, Plot, plot
 
 #-----------------------------------------------------------------------------# __init__
-function __init__()
-    # Hack since extensions with REPL are wonky
-    for M in Base.loaded_modules_order
-        if Symbol(M) == :REPL
-            @eval Base.display(::$M.REPLDisplay, o::Plot) = Cobweb.preview(html_page(o))
-        end
-    end
-end
-
 include("json.jl")
 
 artifact(x...) = joinpath(artifact"plotly_artifacts", x...)
@@ -133,7 +125,7 @@ end
 rand_id() = "plotlyx-" * join(rand('a':'z', 10))
 
 function html_div(o::Plot, id=rand_id())
-    h.div(class="plotlylight-parent", settings.src, settings.src_inject..., settings.div(; id), NewPlotScript(o, settings, id))
+    h.div(class="plotlylight-parent", settings.src_inject..., settings.src, settings.div(; id), NewPlotScript(o, settings, id))
 end
 
 function html_page(o::Plot, id=rand_id())
@@ -164,6 +156,9 @@ function Base.show(io::IO, ::MIME"text/html", o::Plot)
         show(io, MIME("text/html"), html_div(o))
 end
 Base.show(io::IO, ::MIME"juliavscode/html", o) = show(io, MIME("text/html"), o)
+
+Base.display(::REPLDisplay, o::Plot) = Cobweb.preview(html_page(o), reuse=settings.reuse_preview)
+
 
 #-----------------------------------------------------------------------------# preset
 # `preset_template_<X>` overwrites `settings.layout.template`

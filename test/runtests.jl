@@ -1,10 +1,5 @@
-using PlotlyLight
+using PlotlyLight, Cobweb, Test, Aqua, Dates, JSON3
 using PlotlyLight: settings, Plot, json
-using Cobweb
-using Cobweb: h
-using JSON3: JSON3
-using Test
-using Aqua
 
 html(x) = repr("text/html", x)
 
