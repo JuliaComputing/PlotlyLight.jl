@@ -155,7 +155,7 @@ function Base.show(io::IO, ::MIME"text/html", o::Plot)
         show(io, MIME("text/html"), html_iframe(o)) :
         show(io, MIME("text/html"), html_div(o))
 end
-Base.show(io::IO, ::MIME"juliavscode/html", o) = show(io, MIME("text/html"), o)
+Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME("text/html"), o)
 
 Base.display(::REPLDisplay, o::Plot) = Cobweb.preview(html_page(o), reuse=settings.reuse_preview)
 
