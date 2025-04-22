@@ -2,9 +2,7 @@ module PlotlyLight
 
 using Artifacts: @artifact_str
 using Downloads: download
-using Random: randstring
 using Dates
-using REPL: REPLDisplay
 
 using JSON3: JSON3
 using EasyConfig: Config
@@ -71,7 +69,7 @@ mutable struct Plot
     data::Vector{Config}
     layout::Config
     config::Config
-    Plot(data::AbstractVector, layout = Config(), config = Config()) = new(Config.(data), Config(layout), Config(config))
+    Plot(data::AbstractVector=Config[], layout = Config(), config = Config()) = new(Config.(data), Config(layout), Config(config))
     Plot(data, layout = Config(), config = Config()) = new([Config(data)], Config(layout), Config(config))
 end
 
@@ -83,11 +81,6 @@ save(file::AbstractString, p::Plot) = save(p, file)
 (p::Plot)(; kw...) = p(Config(kw))
 (p::Plot)(data::Config) = (push!(p.data, data); return p)
 (p::Plot)(p2::Plot) = merge!(p, p2)
-
-function Plot(; kw...)
-    Base.depwarn("`Plot(; kw...)` is deprecated. Use `plot(; kw...)` instead.", :Plot, force=true)
-    plot(; kw...)
-end
 
 Base.getproperty(p::Plot, x::Symbol) = x in fieldnames(Plot) ? getfield(p, x) : (; kw...) -> p(plot(; type=x, kw...))
 Base.propertynames(p::Plot) = vcat(fieldnames(Plot)..., keys(plotly.schema.traces)...)
@@ -156,8 +149,11 @@ function Base.show(io::IO, ::MIME"text/html", o::Plot)
         show(io, MIME("text/html"), html_div(o))
 end
 Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME("text/html"), o)
+Base.show(io::IO, ::MIME"text/plain", o::Plot) = Cobweb.preview(html_page(o), reuse=settings.reuse_preview)
 
-Base.display(::REPLDisplay, o::Plot) = Cobweb.preview(html_page(o), reuse=settings.reuse_preview)
+# Base.display(::REPLDisplay, o::Plot) = Cobweb.preview(html_page(o), reuse=settings.reuse_preview)
+# Base.display(::REPLDisplay, ::MIME"text/plain", o::Plot) = Cobweb.preview(html_page(o), reuse=settings.reuse_preview)
+
 
 
 #-----------------------------------------------------------------------------# preset

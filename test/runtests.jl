@@ -25,9 +25,9 @@ end
 
 #-----------------------------------------------------------------------------# Plot methods
 @testset "Plot methods" begin
-    p = Plot(Config(x = 1:10, type=:scatter))
+    p = plot.scatter(x=1:10)
     @test p isa Plot
-    @test Plot(; x=1:10, type=:scatter) == p
+    @test plot(; x=1:10, type=:scatter) == p
     @test !occursin("Title", html(p))
     @test occursin("\"displaylogo\":false", html(p))
 
