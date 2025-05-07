@@ -6,9 +6,7 @@ PlotlyLight.settings.use_iframe = true
 makedocs(
     sitename = "PlotlyLight",
     modules = [PlotlyLight],
-    format = Documenter.HTML(
-        assets = [asset(PlotlyLight.plotly.url)]
-    ),
+    format = Documenter.HTML(),
     pages = [
         "index.md",
         "plotly_basics.md",

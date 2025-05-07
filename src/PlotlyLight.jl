@@ -3,6 +3,7 @@ module PlotlyLight
 using Artifacts: @artifact_str
 using Downloads: download
 using Dates
+using REPL
 
 using JSON3: JSON3
 using EasyConfig: Config
@@ -15,6 +16,9 @@ export Config, preset, Plot, plot
 include("json.jl")
 
 artifact(x...) = joinpath(artifact"plotly_artifacts", x...)
+
+function __init__()
+end
 
 #-----------------------------------------------------------------------------# plotly::PlotlyArtifacts
 Base.@kwdef struct PlotlyArtifacts
@@ -149,11 +153,9 @@ function Base.show(io::IO, ::MIME"text/html", o::Plot)
         show(io, MIME("text/html"), html_div(o))
 end
 Base.show(io::IO, ::MIME"juliavscode/html", o::Plot) = show(io, MIME("text/html"), o)
-Base.show(io::IO, ::MIME"text/plain", o::Plot) = Cobweb.preview(html_page(o), reuse=settings.reuse_preview)
+Base.show(io::IO, ::MIME"text/plain", o::Plot) = print(io, "PlotlyLight.jl Plot")
 
-# Base.display(::REPLDisplay, o::Plot) = Cobweb.preview(html_page(o), reuse=settings.reuse_preview)
-# Base.display(::REPLDisplay, ::MIME"text/plain", o::Plot) = Cobweb.preview(html_page(o), reuse=settings.reuse_preview)
-
+Base.display(::REPL.REPLDisplay, o::Plot) = Cobweb.preview(html_page(o); reuse=settings.reuse_preview)
 
 
 #-----------------------------------------------------------------------------# preset

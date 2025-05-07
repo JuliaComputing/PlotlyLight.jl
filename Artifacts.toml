@@ -1,6 +1,6 @@
 [plotly_artifacts]
-git-tree-sha1 = "aa67a2d0c294419c5568a236d0fdf8de18af2bd6"
+git-tree-sha1 = "c89283c56ed8771a64f0c0e2d68f701c2ee65005"
 
     [[plotly_artifacts.download]]
-    sha256 = "9e8f6feca5d99705364e99f931e7b050965b23aed7599c3011a1408c2be75bda"
-    url = "https://gist.github.com/joshday/9c5faed42fa19016ce0e5c5677c9ac4e/raw/aa67a2d0c294419c5568a236d0fdf8de18af2bd6.tar.gz"
+    sha256 = "a1f86c107b645c4ace8713f071318f193777414601309d51d1b73a3c2be7395a"
+    url = "https://gist.github.com/joshday/4aa57a979cf93d1b7a941282bb4dc5f2/raw/c89283c56ed8771a64f0c0e2d68f701c2ee65005.tar.gz"

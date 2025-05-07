@@ -13,7 +13,7 @@ plotly_url = "https://github.com/plotly/plotly.js/raw/$version/dist/plotly.min.j
 schema_url = "https://github.com/plotly/plotly.js/raw/$version/dist/plot-schema.json"
 
 template_urls = Dict(
-    t => "https://raw.githubusercontent.com/plotly/plotly.py/master/packages/python/plotly/plotly/package_data/templates/$t.json" for t in
+    t => "https://raw.githubusercontent.com/plotly/plotly.py/refs/heads/main/plotly/package_data/templates/$t.json" for t in
         (:ggplot2, :gridon, :plotly, :plotly_dark, :plotly_white, :presentation, :seaborn, :simple_white, :xgridoff, :ygridoff)
 )
 
