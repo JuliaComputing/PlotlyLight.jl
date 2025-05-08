@@ -1,7 +1,7 @@
 using Documenter
 using PlotlyLight
 
-PlotlyLight.settings.use_iframe = true
+# PlotlyLight.settings.use_iframe = true
 
 makedocs(
     sitename = "PlotlyLight",
