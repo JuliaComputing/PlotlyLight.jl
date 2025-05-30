@@ -5,6 +5,10 @@
 
 <p align="center"><b>PlotlyLight</b> is an ultra-lightweight interface for working with <a href="https://plotly.com/javascript">Plotly.js</a>.</p>
 
+!!! note "This package is Light"
+    The documentation in this package will not teach you how to use the Plotly.js library.  If you are new to Plotly.js, you may want to start with the [official documentation](https://plotly.com/javascript/).
+
+
 <br><br>
 
 ## ✨ Features
