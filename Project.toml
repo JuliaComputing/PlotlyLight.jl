@@ -1,7 +1,7 @@
 name = "PlotlyLight"
 uuid = "ca7969ec-10b3-423e-8d99-40f33abb42bf"
 authors = ["joshday <emailjoshday@gmail.com>"]
-version = "0.13.0"
+version = "0.13.1"
 
 [deps]
 Artifacts = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
@@ -20,8 +20,8 @@ Dates = "1"
 Downloads = "1.6"
 EasyConfig = "0.1"
 JSON3 = "1.14"
-REPL = "1.11.0"
-julia = "1.7"
+REPL = "1.10.0"
+julia = "1.10"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
