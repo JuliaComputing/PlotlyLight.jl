@@ -1,0 +1,60 @@
+name: Plotly Artifacts
+
+on:
+  schedule:
+    # Run once daily at 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  publish-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download latest Plotly.js
+        id: download
+        run: |
+          # Get latest release tag
+          RESPONSE=$(curl -s https://api.github.com/repos/plotly/plotly.js/releases/latest)
+          VERSION=$(echo $RESPONSE | jq -r '.tag_name')
+          DOWNLOAD_URL="https://github.com/plotly/plotly.js/raw/$VERSION/dist/plotly.min.js"
+
+          # Download the file
+          curl -L -o plotly.min.js "$DOWNLOAD_URL"
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Downloaded Plotly version: $VERSION"
+      - name: Download latest Plotly schema
+        run: |
+          VERSION="${{ steps.download.outputs.version }}"
+          SCHEMA_URL="https://github.com/plotly/plotly.js/raw/$VERSION/dist/plot-schema.json"
+
+          curl -L -o plot-schema.json "$SCHEMA_URL"
+          echo "Downloaded Plotly schema for version: $VERSION"
+      - name: Download Plotly Python templates
+        run: |
+          mkdir -p templates
+
+          TEMPLATES=("ggplot2" "gridon" "plotly" "plotly_dark" "plotly_white" "presentation" "seaborn" "simple_white" "xgridoff" "ygridoff")
+
+          for template in "${TEMPLATES[@]}"; do
+            TEMPLATE_URL="https://raw.githubusercontent.com/plotly/plotly.py/refs/heads/main/plotly/package_data/templates/${template}.json"
+            curl -L -o "templates/${template}.json" "$TEMPLATE_URL"
+            echo "Downloaded template: $template"
+          done
+
+          echo "Downloaded all Plotly Python templates"
+      - name: Create tar.gz artifact
+        run: |
+          mkdir -p plotlylightartifacts
+          cp plotly.min.js plotlylightartifacts/
+          cp plot-schema.json plotlylightartifacts/
+          cp -r templates plotlylightartifacts/
+
+          tar -czf plotlylightartifacts.tar.gz plotlylightartifacts/
+          echo "Created plotlylightartifacts.tar.gz"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plotlylightartifacts
+          path: plotlylightartifacts.tar.gz
+          retention-days: 90

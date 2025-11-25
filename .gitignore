@@ -18,3 +18,4 @@ quarto/index_files/*
 quarto/.quarto/
 quarto/_book/
 *ipynb_checkpoints
+*.claude
