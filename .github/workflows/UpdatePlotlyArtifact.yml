@@ -1,0 +1,31 @@
+name: Update Plotly Artifact
+
+on:
+  schedule:
+    # Run once daily at 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: julia-actions/setup-julia@v1
+      - run: julia deps/artifacts.jl
+      - name: Check if Artifacts.toml changed
+        id: check-changes
+        run: |
+          if git diff --quiet Artifacts.toml; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+      - name: Create Pull Request
+        if: steps.check-changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: 'chore: update Plotly artifact'
+          title: 'chore: update Plotly artifact'
+          body: 'Automated update of Plotly.js artifact'
+          branch: update-plotly-artifact
