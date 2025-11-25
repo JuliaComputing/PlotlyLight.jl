@@ -1,4 +1,6 @@
-[![Build status](https://github.com/JuliaComputing/PlotlyLight.jl/workflows/CI/badge.svg)](https://github.com/JuliaComputing/PlotlyLight.jl/actions?query=workflow%3ACI+branch%3Amaster)
+[![Build](https://github.com/JuliaComputing/PlotlyLight.jl/workflows/CI/badge.svg)](https://github.com/JuliaComputing/PlotlyLight.jl/actions?query=workflow%3ACI+branch%3Amaster)
+[![Docs Build](https://github.com/JuliaComputing/PlotlyLight.jl/actions/workflows/Docs.yml/badge.svg)](https://github.com/JuliaComputing/PlotlyLight.jl/actions/workflows/Docs.yml)
+[![Plotly Artifact Updater](https://github.com/JuliaComputing/PlotlyLight.jl/actions/workflows/UpdatePlotlyArtifact.yml/badge.svg)](https://github.com/JuliaComputing/PlotlyLight.jl/actions/workflows/UpdatePlotlyArtifact.yml)
 [![Codecov](https://codecov.io/gh/JuliaComputing/PlotlyLight.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaComputing/PlotlyLight.jl)
 
 <h1 align="center">PlotlyLight</h1>
