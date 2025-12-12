@@ -8,6 +8,8 @@ on:
 
 jobs:
   update-artifact:
+    # Disable action for now until I have time to fix it
+    if: ${{ false }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
